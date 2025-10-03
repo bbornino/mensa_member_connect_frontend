@@ -1,0 +1,35 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Specific code files
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.json text
+*.css text
+*.scss text
+*.html text
+*.md text
+*.yml text
+*.yaml text
+*.graphql text
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files (do not change line endings)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Ignore CRLF warnings for package-lock
+package-lock.json text
