@@ -24,3 +24,4 @@ src/
   │   │   ├─ ProtectedRoute.tsx  
   │   └─ reports/        # Reporting / analytics components
   └─ utils/              # API hooks, constants, helpers
+  │   ├─ constants.ts  
