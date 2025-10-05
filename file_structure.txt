@@ -1,0 +1,26 @@
+MENSA Project - File Structure (key files/folders)
+
+package.json
+tsconfig.json
+.vscode/
+public/
+src/
+  ├─ main.tsx           # App entry point
+  ├─ App.tsx             # Main application layout + routes
+  ├─ App.css
+  ├─ index.css
+  ├─ components/
+  │   ├─ public/         # Publicly accessible pages
+  │   │   ├─ Welcome.tsx  
+  │   │   ├─ PublicMenu.tsx  
+  │   ├─ user/           # Auth + profile components
+  │   │   ├─ Login.tsx 
+  │   │   ├─ Register.tsx 
+  │   │   ├─ EditProfile.tsx 
+  │   ├─ members/        # Member-only features (protected)
+  │   │   ├─ MemberMenu.tsx  
+  │   │   ├─ Secret.tsx  
+  │   ├─ shared/         # Reusable components (ProtectedRoute, Navbar)
+  │   │   ├─ ProtectedRoute.tsx  
+  │   └─ reports/        # Reporting / analytics components
+  └─ utils/              # API hooks, constants, helpers
