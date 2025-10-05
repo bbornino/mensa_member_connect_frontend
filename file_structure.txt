@@ -24,4 +24,14 @@ src/
   │   │   ├─ ProtectedRoute.tsx  
   │   └─ reports/        # Reporting / analytics components
   └─ utils/              # API hooks, constants, helpers
-  │   ├─ constants.ts  
+      ├─ constants.ts      # Centralized configuration values, e.g., API_BASE_URL, endpoints, tokens. 
+                           # Future-proofed for switching to environment variables.
+      ├─ customFetch.ts    # Low-level wrapper around fetch() that handles token headers, refresh logic, 
+                           # and automatic redirect on auth failure.
+                           # ⚠️ Never call this directly from a React component! 
+                           #     Always use useApiRequest() to wrap your calls.
+      ├─ useApiRequest.ts  # React hook for making API requests safely. 
+                           # Wraps customFetch and manages error state for components. 
+                           # Handles access/refresh tokens and navigation on auth failure.
+                           # Components should call this hook instead of customFetch directly.
+
