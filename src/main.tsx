@@ -1,9 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import AuthProvider from './context/AuthProviderStub'; // temporary stub
+import { AuthProvider } from './context/AuthContext';
+
 import { RefreshProvider } from './context/RefreshContext';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import App from './App.tsx';
 
 const rootElement = document.getElementById('root');
