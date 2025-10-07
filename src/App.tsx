@@ -12,6 +12,7 @@ import EditProfile from "./components/user/EditProfile";
 // Shared
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import Secret from "./components/members/Secret";
+import Dashboard from "./components/members/Dashboard";
 
 // Public Menu
 import PublicMenu from "./components/public/PublicMenu";
@@ -30,6 +31,10 @@ function App() {
         <Route
           path="/secret"
           element={<ProtectedRoute element={<Secret />} />}
+        />
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute element={<Dashboard />} />}
         />
         <Route
           path="/edit-profile"
