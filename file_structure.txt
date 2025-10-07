@@ -19,10 +19,13 @@ src/
   │   │   ├─ EditProfile.tsx 
   │   ├─ members/        # Member-only features (protected)
   │   │   ├─ MemberMenu.tsx  
-  │   │   ├─ Secret.tsx  
+  │   │   ├─ Dashboard.tsx  
   │   ├─ shared/         # Reusable components (ProtectedRoute, Navbar)
-  │   │   ├─ ProtectedRoute.tsx  
+  │   │   ├─ ProtectedRoute.tsx  # Route wrapper that restricts access to authenticated users only.
   │   └─ reports/        # Reporting / analytics components
+  ├─ context/
+      ├─ AuthContext.ts   # Manages authentication state, user info, and login/logout actions.
+      ├─ RefreshContext.ts     # Handles automatic access token refresh and auth revalidation logic.
   └─ utils/              # API hooks, constants, helpers
       ├─ constants.ts      # Centralized configuration values, e.g., API_BASE_URL, endpoints, tokens. 
                            # Future-proofed for switching to environment variables.
