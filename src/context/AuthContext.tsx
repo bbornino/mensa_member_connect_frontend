@@ -22,10 +22,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login/`, {
-        username,
-        password,
-      });
+      const response = await axios.post(`${API_BASE_URL}users/authenticate/`, 
+        { username, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
 
       const { access, refresh, user } = response.data;
 
