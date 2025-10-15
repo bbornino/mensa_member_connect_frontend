@@ -60,12 +60,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setAccessToken(null);
-    setUser(null);
+  const logout = async () => {
+    const refresh = localStorage.getItem("refresh_token");
+
+    try {
+      if (refresh) {
+        await axios.post(
+          `${API_BASE_URL}users/logout/`,
+          { refresh },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`, // <-- correctly nested
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.warn("Backend logout failed (continuing local logout):", error);
+    } finally {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      setAccessToken(null);
+      setUser(null);
+    }
   };
+
 
   return (
     <AuthContext.Provider

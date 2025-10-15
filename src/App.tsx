@@ -6,6 +6,7 @@ import Welcome from "./components/public/Welcome";
 
 // User Pages
 import Login from "./components/user/Login";
+import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
 import EditProfile from "./components/user/EditProfile";
 
@@ -15,12 +16,15 @@ import Secret from "./components/members/Secret";
 import Dashboard from "./components/members/Dashboard";
 
 // Public Menu
+import { useAuth } from "./context/AuthContext";
 import PublicMenu from "./components/public/PublicMenu";
+import MemberMenu from "./components/members/MemberMenu";
 
 function App() {
+  const { user } = useAuth();
   return (
     <>
-      <PublicMenu />
+      {user ? <MemberMenu /> : <PublicMenu />}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Welcome />} />
@@ -40,6 +44,8 @@ function App() {
           path="/edit-profile"
           element={<ProtectedRoute element={<EditProfile />} />}
         />
+
+        <Route path="/logout" element={<ProtectedRoute element={<Logout />} />} />
       </Routes>
     </>
   );
