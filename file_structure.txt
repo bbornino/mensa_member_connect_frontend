@@ -16,7 +16,10 @@ src/
   │   ├─ user/           # Auth + profile components
   │   │   ├─ Login.tsx 
   │   │   ├─ Register.tsx 
-  │   │   ├─ EditProfile.tsx 
+  │   │   ├─ EditProfile.tsx   # Parent component; orchestrates EditMember, EditExpert, and EditExpertise views
+  │   │   ├─ EditMember.tsx 
+  │   │   ├─ EditExpert.tsx 
+  │   │   ├─ EditExpertise.tsx 
   │   ├─ members/        # Member-only features (protected)
   │   │   ├─ MemberMenu.tsx  
   │   │   ├─ Dashboard.tsx  
