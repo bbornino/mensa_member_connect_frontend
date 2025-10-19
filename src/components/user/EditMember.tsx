@@ -4,14 +4,13 @@ import {
   Row,
   Col,
   Form,
-  Card,
-  CardTitle,
-  CardBody,
-  CardFooter,
   FormGroup,
   Label,
   Input,
   Button,
+  FormFeedback,
+  Alert,
+  Spinner,
 } from "reactstrap";
 import { useApiRequest } from "../../utils/useApiRequest";
 
@@ -31,16 +30,26 @@ interface EditMemberProps {
 interface MemberFormData {
   username: string;
   email: string;
-  password?: string;          // optional, may be empty
-  confirm_password?: string;  // optional, may be empty
+  password?: string;
+  confirm_password?: string;
   first_name: string;
   last_name: string;
   city: string;
   state: string;
   phone: string;
   member_id: string;
-  role?: string;              // optional
-  status?: string;            // optional
+  role?: string;
+  status?: string;
+}
+
+interface FormErrors {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  state?: string;
+  general?: string;
 }
 
 const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
@@ -62,31 +71,43 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (data) {
       setFormData({
         username: data.username || "",
         email: data.email || "",
-        password: "",            // always empty
-        confirm_password: "",    // always empty
+        password: "",
+        confirm_password: "",
         first_name: data.first_name || "",
         last_name: data.last_name || "",
         city: data.city || "",
         state: data.state || "",
         phone: data.phone || "",
         member_id: data.member_id || "",
-        role: data.role,         // optional
-        status: data.status,     // optional
+        role: data.role,
+        status: data.status,
       });
     }
-  }, [data]);  // run whenever data changes
+  }, [data]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const { id, name, value } = e.target;
+    const fieldName = id || name;
+    
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+    
+    // Clear error when user starts typing
+    if (formErrors[fieldName as keyof FormErrors]) {
+      setFormErrors({
+        ...formErrors,
+        [fieldName]: undefined,
+      });
+    }
   };
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
@@ -94,16 +115,49 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => /^(\(\d{3}\)\s?|\d{3}[-\s]?)\d{3}[-\s]?\d{4}$/.test(phone);
 
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.first_name?.trim()) {
+      newErrors.first_name = "First name is required";
+    }
+
+    if (!formData.last_name?.trim()) {
+      newErrors.last_name = "Last name is required";
+    }
+
+    if (!formData.email?.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (formData.phone && !validatePhone(formData.phone)) {
+      newErrors.phone = "Please enter a valid US phone number";
+    }
+
+    if (formData.password && formData.password !== formData.confirm_password) {
+      newErrors.password = "Passwords do not match";
+    }
+
+    if (!formData.state) {
+      newErrors.state = "Please select your state";
+    }
+
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!validateEmail(formData.email)) return setError("Please enter a valid email address.");
-    if (!validatePhone(formData.phone)) return setError("Please enter a valid US phone number.");
-    if (formData.password && formData.password !== formData.confirm_password)
-      return setError("Passwords do not match.");
-    if (!formData.state) return setError("Please select your state.");
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSaving(true);
 
     try {
       const payload = { ...formData };
@@ -120,112 +174,208 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
       onSave();
     } catch (err: any) {
       setError(err.message || "Error updating profile");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Card className="text-dark bg-light m-3 card-wide">
+    <div className="mt-3">
+      {error && <Alert color="danger">{error}</Alert>}
+      {success && <Alert color="success">{success}</Alert>}
+
       <Form onSubmit={handleSubmit}>
-        <CardTitle tag="h5" className="p-3 mb-0"><strong>Edit Member</strong></CardTitle>
-        <CardBody>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="first_name">First Name</Label>
-                <Input id="first_name" type="text" value={formData.first_name} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input id="last_name" type="text" value={formData.last_name} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="username">User Name</Label>
-                <Input id="username" type="text" value={formData.username} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" type="tel" value={formData.phone} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="member_id">Member ID</Label>
-                <Input id="member_id" type="text" value={formData.member_id} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="city">City</Label>
-                <Input id="city" type="text" value={formData.city} onChange={handleChange} />
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="state">State</Label>
-                <Input id="state" type="select" value={formData.state} onChange={handleChange}>
-                  <option value="">Select State...</option>
-                  {US_STATES.map((abbr) => <option key={abbr} value={abbr}>{abbr}</option>)}
-                </Input>
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="password">Password</Label>
-                <div className="input-group">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-                  <span className="input-group-text" onClick={handlePasswordToggle} style={{ cursor: "pointer" }}>
-                    {showPassword ? "Hide" : "Show"}
-                  </span>
-                </div>
-              </FormGroup>
-            </Col>
-            <Col md={6}>
-              <FormGroup>
-                <Label htmlFor="confirm_password">Confirm Password</Label>
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="first_name">
+                First Name <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="first_name"
+                name="first_name"
+                type="text"
+                value={formData.first_name}
+                onChange={handleChange}
+                invalid={!!formErrors.first_name}
+              />
+              <FormFeedback>{formErrors.first_name}</FormFeedback>
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="last_name">
+                Last Name <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="last_name"
+                name="last_name"
+                type="text"
+                value={formData.last_name}
+                onChange={handleChange}
+                invalid={!!formErrors.last_name}
+              />
+              <FormFeedback>{formErrors.last_name}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="username">User Name</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleChange}
+                disabled
+              />
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="email">
+                Email <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                invalid={!!formErrors.email}
+              />
+              <FormFeedback>{formErrors.email}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="(555) 123-4567"
+                invalid={!!formErrors.phone}
+              />
+              <FormFeedback>{formErrors.phone}</FormFeedback>
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="member_id">Member ID</Label>
+              <Input
+                id="member_id"
+                name="member_id"
+                type="text"
+                value={formData.member_id}
+                onChange={handleChange}
+                disabled
+              />
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                name="city"
+                type="text"
+                value={formData.city}
+                onChange={handleChange}
+              />
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="state">
+                State <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="state"
+                name="state"
+                type="select"
+                value={formData.state}
+                onChange={handleChange}
+                invalid={!!formErrors.state}
+              >
+                <option value="">Select State...</option>
+                {US_STATES.map((abbr) => (
+                  <option key={abbr} value={abbr}>
+                    {abbr}
+                  </option>
+                ))}
+              </Input>
+              <FormFeedback>{formErrors.state}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="password">Password</Label>
+              <div className="input-group">
                 <Input
-                  id="confirm_password"
+                  id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
-                  value={formData.confirm_password}
+                  value={formData.password}
                   onChange={handleChange}
+                  placeholder="Leave blank to keep current password"
+                  invalid={!!formErrors.password}
                 />
-              </FormGroup>
-            </Col>
-          </Row>
+                <span
+                  className="input-group-text"
+                  onClick={handlePasswordToggle}
+                  style={{ cursor: "pointer" }}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </span>
+              </div>
+              {formErrors.password && (
+                <div className="text-danger small mt-1">{formErrors.password}</div>
+              )}
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="confirm_password">Confirm Password</Label>
+              <Input
+                id="confirm_password"
+                name="confirm_password"
+                type={showPassword ? "text" : "password"}
+                value={formData.confirm_password}
+                onChange={handleChange}
+              />
+            </FormGroup>
+          </Col>
+        </Row>
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {success && <p style={{ color: "green" }}>{success}</p>}
-        </CardBody>
-
-        <CardFooter>
-          <Button color="primary" type="submit" className="w-100">Save Member</Button>
-        </CardFooter>
+        <div className="text-center mt-4">
+          <Button color="primary" type="submit" size="lg" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Spinner size="sm" className="me-2" />
+                Saving...
+              </>
+            ) : (
+              "Save Basic Information"
+            )}
+          </Button>
+        </div>
       </Form>
-    </Card>
+    </div>
   );
 };
 

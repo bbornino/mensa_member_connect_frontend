@@ -1,35 +1,55 @@
 // import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { Container } from "reactstrap";
 
 // Public / Static Pages
 import Welcome from "./components/public/Welcome";
+import Feedback from "./components/public/Feedback";
 
 // User Pages
 import Login from "./components/user/Login";
 import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
-import EditProfile from "./components/user/EditProfile";
+import Profile from "./components/user/EditProfile";
+import UserDetail from "./components/user/UserDetail";
+
+// Expert Pages
+import Experts from "./components/experts/Experts";
+
+// Admin Pages
+import Admin from "./components/admin/Admin";
 
 // Shared
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import Secret from "./components/members/Secret";
 import Dashboard from "./components/members/Dashboard";
 
-// Public Menu
+// Main Menu
 import { useAuth } from "./context/AuthContext";
-import PublicMenu from "./components/public/PublicMenu";
-import MemberMenu from "./components/members/MemberMenu";
+import MainMenu from "./components/shared/MainMenu";
 
 function App() {
-  const { user } = useAuth();
+  const { isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+  
   return (
     <>
-      {user ? <MemberMenu /> : <PublicMenu />}
-      <Routes>
+      <MainMenu />
+      <div style={{ paddingTop: "76px" }}>
+        <Container maxWidth="lg" className="centered-container">
+          <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/feedback" element={<Feedback />} />
 
         {/* Protected Routes */}
         <Route
@@ -41,12 +61,27 @@ function App() {
           element={<ProtectedRoute element={<Dashboard />} />}
         />
         <Route
-          path="/edit-profile"
-          element={<ProtectedRoute element={<EditProfile />} />}
+          path="/profile"
+          element={<ProtectedRoute element={<Profile />} />}
+        />
+        <Route
+          path="/experts"
+          element={<ProtectedRoute element={<Experts />} />}
+        />
+        <Route
+          path="/expert/:id"
+          element={<ProtectedRoute element={<UserDetail />} />}
+        />
+
+        <Route
+          path="/admin"
+          element={<ProtectedRoute element={<Admin />} />}
         />
 
         <Route path="/logout" element={<ProtectedRoute element={<Logout />} />} />
-      </Routes>
+          </Routes>
+        </Container>
+      </div>
     </>
   );
 }

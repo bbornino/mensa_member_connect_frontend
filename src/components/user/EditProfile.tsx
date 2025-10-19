@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Container, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
-import classnames from "classnames";
+import {
+  Container,
+  Card,
+  CardTitle,
+  CardBody,
+  CardHeader,
+  Nav,
+  NavItem,
+  NavLink,
+  TabContent,
+  TabPane,
+  Button,
+  Spinner,
+  Alert,
+} from "reactstrap";
+import { Link } from "react-router-dom";
 import { useApiRequest } from "../../utils/useApiRequest";
 import EditMember from "./EditMember";
 import EditExpert from "./EditExpert";
@@ -12,89 +26,191 @@ interface EditProfileProps {
 
 const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   const { apiRequest } = useApiRequest();
-  const [activeTab, setActiveTab] = useState("member");
+  const [activeTab, setActiveTab] = useState("basic");
   const [userData, setUserData] = useState<any>(null);
   const [expertData, setExpertData] = useState<any>(null);
   const [expertiseData, setExpertiseData] = useState<any[]>([]);
   const [isExpert, setIsExpert] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAll = async () => {
+    fetchAllData();
+  }, [memberId]);
+
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Fetch user data
       const userEndpoint = memberId ? `users/${memberId}/` : "users/me/";
       const user = await apiRequest(userEndpoint);
+      
       if (user) {
         setUserData(user);
 
-        if (user.role === "expert") {
-          setIsExpert(true);
-          const expertEndpoint = memberId ? `experts/by_user/${memberId}/` : "experts/me/";
+        // Check if user is an expert (has expert profile)
+        try {
+          const expertEndpoint = memberId
+            ? `experts/by_user/${memberId}/`
+            : "experts/me/";
           const expert = await apiRequest(expertEndpoint);
-          let expertises: any[] = [];
-          if (expert) {
-            expertises = await apiRequest(`expertises/by_expert/${expert.id}/`) || [];
-          }
-          setExpertiseData(expertises);
 
-          setExpertData(expert);
-          setExpertiseData(expertises || []);
+          if (expert) {
+            setIsExpert(true);
+            setExpertData(expert);
+
+            // Fetch expertise records for this expert
+            const expertises =
+              (await apiRequest(`expertises/by_expert/${expert.id}/`)) || [];
+            setExpertiseData(expertises);
+          }
+        } catch (expertError) {
+          // No expert profile found - this is okay
+          setIsExpert(false);
         }
       }
-    };
-    fetchAll();
-  }, [memberId, apiRequest]);
+    } catch (err: any) {
+      setError(err.message || "Failed to load profile data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = () => {
+    // Refresh data after save
+    fetchAllData();
+  };
 
   const toggleTab = (tab: string) => setActiveTab(tab);
 
+  const addExpertise = () => {
+    setExpertiseData([
+      ...expertiseData,
+      {
+        what_offering: "",
+        who_would_benefit: "",
+        why_choose_you: "",
+        skills_not_offered: "",
+      },
+    ]);
+  };
+
+  const removeExpertise = (index: number) => {
+    if (expertiseData.length > 1) {
+      setExpertiseData(expertiseData.filter((_, i) => i !== index));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Container className="centered-container">
+        <div className="text-center">
+          <Spinner color="primary" />
+          <p className="mt-2">Loading profile...</p>
+        </div>
+      </Container>
+    );
+  }
+
+  if (error && !userData) {
+    return (
+      <Container className="centered-container">
+        <Alert color="danger">{error}</Alert>
+        <div className="text-center">
+          <Button color="primary" tag={Link} to="/dashboard">
+            Back to Dashboard
+          </Button>
+        </div>
+      </Container>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <Container className="centered-container">
+        <Alert color="warning">No profile data available.</Alert>
+        <div className="text-center">
+          <Button color="primary" tag={Link} to="/dashboard">
+            Back to Dashboard
+          </Button>
+        </div>
+      </Container>
+    );
+  }
+
   return (
-    <Container className="mt-4">
-      <Nav tabs>
-        <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === "member" })}
-            onClick={() => toggleTab("member")}
-          >
-            Member Info
-          </NavLink>
-        </NavItem>
-
-        {isExpert && (
-          <>
+    <Container className="centered-container">
+      <Card className="text-dark bg-light m-3">
+        <CardHeader>
+          <CardTitle tag="h4" className="text-center mb-0">
+            <strong>{memberId ? "Edit Member Profile" : "My Profile"}</strong>
+          </CardTitle>
+        </CardHeader>
+        <CardBody>
+          <Nav tabs>
             <NavItem>
               <NavLink
-                className={classnames({ active: activeTab === "expert" })}
-                onClick={() => toggleTab("expert")}
+                className={activeTab === "basic" ? "active" : ""}
+                onClick={() => toggleTab("basic")}
+                style={{ cursor: "pointer" }}
               >
-                Expert Profile
+                Basic Information
               </NavLink>
             </NavItem>
 
-            <NavItem>
-              <NavLink
-                className={classnames({ active: activeTab === "expertise" })}
-                onClick={() => toggleTab("expertise")}
-              >
-                Expertise
-              </NavLink>
-            </NavItem>
-          </>
-        )}
-      </Nav>
+            {isExpert && (
+              <NavItem>
+                <NavLink
+                  className={activeTab === "expert" ? "active" : ""}
+                  onClick={() => toggleTab("expert")}
+                  style={{ cursor: "pointer" }}
+                >
+                  Expert Profile
+                </NavLink>
+              </NavItem>
+            )}
+          </Nav>
 
-      <TabContent activeTab={activeTab} className="p-3 border border-top-0 bg-light">
-        <TabPane tabId="member">
-          {userData && <EditMember data={userData} onSave={() => {}} />}
-        </TabPane>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="basic">
+              {userData && <EditMember data={userData} onSave={handleSave} />}
+            </TabPane>
 
-        <TabPane tabId="expert">
-          {expertData && <EditExpert data={expertData} onSave={() => {}} />}
-        </TabPane>
+            <TabPane tabId="expert">
+              {expertData && <EditExpert data={expertData} onSave={handleSave} />}
+              
+              <div className="mt-4">
+                <hr />
+                <h6>
+                  <strong>Expertise Records</strong>
+                </h6>
 
-        <TabPane tabId="expertise">
-          {expertiseData.map((item, idx) => (
-            <EditExpertise key={item.id || idx} data={item} onSave={() => {}} />
-          ))}
-        </TabPane>
-      </TabContent>
+                {expertiseData.map((item, idx) => (
+                  <EditExpertise
+                    key={item.id || idx}
+                    data={item}
+                    onSave={handleSave}
+                    index={idx}
+                    onRemove={() => removeExpertise(idx)}
+                    showRemove={expertiseData.length > 1}
+                  />
+                ))}
+
+                <Button color="secondary" onClick={addExpertise} className="mb-3">
+                  Add Another Expertise
+                </Button>
+              </div>
+            </TabPane>
+          </TabContent>
+        </CardBody>
+        <div className="text-center p-3">
+          <Button color="secondary" tag={Link} to="/dashboard">
+            Back to Dashboard
+          </Button>
+        </div>
+      </Card>
     </Container>
   );
 };

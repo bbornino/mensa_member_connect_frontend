@@ -113,7 +113,7 @@ const Register: React.FC = () => {
     }
 
     setSuccess("Registration successful! Redirecting...");
-    setTimeout(() => navigate("/dashboard"), 1000);
+    setTimeout(() => navigate("/experts"), 1000);
   };
 
   return (

@@ -29,7 +29,7 @@ const Login: React.FC = () => {
       return;
     }
 
-    navigate("/dashboard");
+    navigate("/experts");
   };
 
   return (
