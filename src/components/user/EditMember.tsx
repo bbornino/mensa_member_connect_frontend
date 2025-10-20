@@ -166,7 +166,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
       if (!payload.confirm_password) delete payload.confirm_password;
 
       await apiRequest(`users/${data.id}/`, {
-        method: "PUT",
+        method: "PATCH",
         body: JSON.stringify(payload),
       });
 
