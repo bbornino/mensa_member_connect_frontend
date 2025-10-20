@@ -41,9 +41,18 @@ export async function customFetch(
     };
 
     const methodsWithBody = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    const body = methodsWithBody.includes(options.method || '') 
-      ? JSON.stringify(options.body) 
-      : undefined;
+
+    let body: string | undefined;
+    if (methodsWithBody.includes(options.method || '')) {
+      if (typeof options.body === 'string') {
+        body = options.body; // already JSON stringified by caller
+      } else {
+        body = JSON.stringify(options.body); // convert object to JSON
+      }
+    } else {
+      body = undefined;
+    }
+
 
     let response = await fetch(url, {
       ...options,
