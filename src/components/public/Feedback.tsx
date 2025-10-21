@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Container, Card, CardTitle, CardBody, Alert, Spinner } from "reactstrap";
 
 const Feedback: React.FC = () => {
-  const FEEDBACK_URL = "https://www.google.com";
+  const FEEDBACK_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf2qpnEARDGJa49XipqjWx5CZ4Ah0y0ziGUbizqCwEnlU7jIw/viewform?usp=publish-editor";
 
   useEffect(() => {
     // Redirect to external feedback URL after a short delay
