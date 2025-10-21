@@ -12,6 +12,7 @@ import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
 import Profile from "./components/user/EditProfile";
 import UserDetail from "./components/user/UserDetail";
+import AdminEditUser from "./components/user/AdminEditUser";
 
 // Expert Pages
 import Experts from "./components/experts/Experts";
@@ -43,7 +44,7 @@ function App() {
     <>
       <MainMenu />
       <div style={{ paddingTop: "76px" }}>
-        <Container maxWidth="lg" className="centered-container">
+        <Container className="centered-container">
           <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Welcome />} />
@@ -76,6 +77,10 @@ function App() {
         <Route
           path="/admin"
           element={<ProtectedRoute element={<Admin />} />}
+        />
+        <Route
+          path="/user/:id"
+          element={<ProtectedRoute element={<AdminEditUser />} />}
         />
 
         <Route path="/logout" element={<ProtectedRoute element={<Logout />} />} />
