@@ -18,6 +18,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from "reactstrap";
+import ConnectionRequestModal from "../shared/ConnectionRequestModal";
 
 interface Expert {
   id: number;
@@ -68,6 +69,10 @@ const Experts: React.FC = () => {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [industryDropdownOpen, setIndustryDropdownOpen] = useState(false);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  
+  // Modal states for connection request
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
 
   // Demo data for testing UI
   const demoExperts: Expert[] = [
@@ -451,6 +456,16 @@ const Experts: React.FC = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
 
+  const openModal = (expert: Expert) => {
+    setSelectedExpert(expert);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedExpert(null);
+  };
+
   if (isLoading) {
     return (
       <div className="text-center">
@@ -642,8 +657,7 @@ const Experts: React.FC = () => {
                         <Button
                           color="primary"
                           size="sm"
-                          tag={Link}
-                          to={`/expert/${expert.user.id}`}
+                          onClick={() => openModal(expert)}
                           className="flex-fill"
                         >
                           Send request
@@ -680,6 +694,16 @@ const Experts: React.FC = () => {
             </Row>
           )}
         </>
+      )}
+
+      {/* Connection Request Modal */}
+      {selectedExpert && (
+        <ConnectionRequestModal
+          isOpen={modalOpen}
+          toggle={closeModal}
+          expertName={`${selectedExpert.user.first_name} ${selectedExpert.user.last_name}`}
+          expertId={selectedExpert.user.id}
+        />
       )}
     </div>
   );
