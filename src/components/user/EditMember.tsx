@@ -22,9 +22,141 @@ const US_STATES = [
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
 
+const LOCAL_GROUPS = [
+  "Arkansas Mensa",
+  "Baton Rouge Mensa",
+  "Bluegrass Mensa",
+  "Boston Mensa",
+  "Boulder/Front Range Mensa",
+  "Broward Mensa",
+  "Central Alabama Mensa",
+  "Central Florida Mensa",
+  "Central Indiana Mensa",
+  "Central Iowa Mensa",
+  "Central New Jersey Mensa",
+  "Central New York Mensa",
+  "Central Oklahoma Mensa",
+  "Central Pennsylvania Mensa",
+  "Central South Carolina Mensa",
+  "Central Texas Mensa",
+  "Channel Islands Mensa",
+  "Charlotte - Blue Ridge Mensa",
+  "Chattanooga Mensa",
+  "Chicago Area Mensa",
+  "Cincinnati Area Mensa",
+  "Cleveland Area Mensa",
+  "Coastal Carolina Mensa",
+  "Columbia River Mensa",
+  "Columbus Area Mensa",
+  "Connecticut/Western Massachusetts Mensa",
+  "Dayton Area Mensa",
+  "Delaware Mensa",
+  "Delaware Valley Mensa",
+  "Denver Mensa",
+  "East Central Ohio Mensa",
+  "Eastern Oklahoma Mensa",
+  "Eastern Washington/Northern Idaho/Montana",
+  "French Broad Mensa",
+  "Greater Los Angeles Area Mensa",
+  "Greater New York Mensa",
+  "Greater Phoenix Mensa",
+  "Gulf Coast Mensa",
+  "Heart of Illinois Mensa",
+  "High Mountain Mensa",
+  "Iowa-Illinois Mensa",
+  "Kansas Sunflower Mensa",
+  "Kentuckiana Mensa",
+  "Lehigh Pocono Mensa",
+  "Lubbock Mensa",
+  "Maine Mensa",
+  "Manasota Mensa",
+  "Maryland Mensa",
+  "Maumee Valley Mensa",
+  "Memphis Mensa",
+  "Mensa 76",
+  "Mensa Alaska",
+  "Mensa Hawaii",
+  "Mensa In Georgia",
+  "Mensa of Eastern North Carolina",
+  "Mensa of Jacksonville",
+  "Mensa of Northeastern New York",
+  "Mensa of the Southern Tier of NY",
+  "Mensa of Western Washington",
+  "Mensa of Wisconsin",
+  "Metropolitan Washington Mensa",
+  "Miami Mensa",
+  "Mid-America Mensa",
+  "Middle Tennessee Mensa",
+  "Mid-Hudson Mensa",
+  "Mid-Michigan Mensa",
+  "Minnesota Mensa",
+  "Mississippi Mensa",
+  "Missouri Ozarks Mensa",
+  "Monterey County Mensa",
+  "Montgomery/Wiregrass Mensa",
+  "Nebraska-Western Iowa Mensa",
+  "New Hampshire Mensa",
+  "New Mexico Mensa",
+  "New Orleans Mensa",
+  "No group assigned",
+  "North Alabama Mensa",
+  "North Dakota Mensa",
+  "North Florida Mensa",
+  "North Texas Mensa",
+  "Northeast Indiana Mensa",
+  "Northern Louisiana Mensa",
+  "Northern Michigan Mensa",
+  "Northern Nevada Mensa",
+  "Northern New Jersey Mensa",
+  "Northwest Florida Mensa",
+  "Orange County Mensa",
+  "Oregon Mensa",
+  "Palm Beach Area Mensa",
+  "Paso del Norte Mensa",
+  "Permian Basin Mensa",
+  "Piedmont Area Mensa",
+  "Plains and Peaks Mensa",
+  "Redwood Empire Mensa",
+  "Rhode Island Mensa",
+  "Richmond Area Mensa",
+  "Rochester Area Mensa",
+  "Sacramento Regional Mensa",
+  "San Diego Mensa",
+  "San Francisco Regional Mensa",
+  "Sangamon Valley Mensa",
+  "Savannah Area Mensa of Georgia",
+  "Smoky Mountain Mensa",
+  "South Coast Mensa",
+  "South Dakota Mensa",
+  "South Mississippi Mensa",
+  "South Texas Mensa",
+  "Southeast Michigan Mensa",
+  "Southern Connecticut Mensa",
+  "Southern Idaho Mensa",
+  "Southern Nevada Mensa",
+  "Southwest by South Florida Mensa",
+  "Space Coast Area Mensa",
+  "St. Louis Area Mensa",
+  "Tallahassee Area  Mensa",
+  "Tampa Bay Mensa",
+  "Thomas Jefferson Mensa",
+  "Tidewater Mensa",
+  "Triad Mensa",
+  "Tucson Mensa",
+  "Upper East Tennessee Mensa",
+  "Utah Mensa",
+  "Vandalia Mensa",
+  "Vermont Mensa",
+  "Western Michigan Mensa",
+  "Western New York Mensa",
+  "Western Pennsylvania Mensa",
+  "Wyoming Mountain Mensa",
+];
+
 interface EditMemberProps {
   data: Record<string, any>;
   onSave: () => void;
+  isAdminMode?: boolean;
 }
 
 interface MemberFormData {
@@ -38,6 +170,7 @@ interface MemberFormData {
   state: string;
   phone: string;
   member_id: string;
+  local_group: string;
   role?: string;
   status?: string;
 }
@@ -47,12 +180,15 @@ interface FormErrors {
   last_name?: string;
   email?: string;
   phone?: string;
-  password?: string;
+  member_id?: string;
+  city?: string;
   state?: string;
+  local_group?: string;
+  password?: string;
   general?: string;
 }
 
-const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
+const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = false }) => {
   const { apiRequest } = useApiRequest();
 
   const [formData, setFormData] = useState<MemberFormData>({
@@ -66,11 +202,13 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
     state: "",
     phone: "",
     member_id: "",
+    local_group: "",
     role: "",
     status: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showMemberId, setShowMemberId] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -89,17 +227,38 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
         state: data.state || "",
         phone: data.phone || "",
         member_id: data.member_id || "",
+        local_group: data.local_group || "",
         role: data.role,
         status: data.status,
       });
     }
   }, [data]);
 
+  const formatPhoneNumber = (value: string): string => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    const limitedNumbers = numbers.slice(0, 10);
+    
+    // Format based on length
+    if (limitedNumbers.length <= 3) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 6) {
+      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3)}`;
+    } else {
+      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3, 6)}-${limitedNumbers.slice(6)}`;
+    }
+  };
+
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, name, value } = e.target;
     const fieldName = id || name;
     
-    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+    // Auto-format phone number
+    const newValue = fieldName === 'phone' ? formatPhoneNumber(value) : value;
+    
+    setFormData((prev) => ({ ...prev, [fieldName]: newValue }));
     
     // Clear error when user starts typing
     if (formErrors[fieldName as keyof FormErrors]) {
@@ -111,9 +270,12 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
   };
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
+  const handleMemberIdToggle = () => setShowMemberId((prev) => !prev);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePhone = (phone: string) => /^(\(\d{3}\)\s?|\d{3}[-\s]?)\d{3}[-\s]?\d{4}$/.test(phone);
+  // Strict format: (555) 123-4567
+  const validatePhone = (phone: string) => /^\(\d{3}\) \d{3}-\d{4}$/.test(phone);
+  const validateMemberId = (memberId: string) => /^\d+$/.test(memberId);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -132,16 +294,32 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (formData.phone && !validatePhone(formData.phone)) {
-      newErrors.phone = "Please enter a valid US phone number";
+    if (!formData.phone?.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = "Please enter a valid phone number in the format: (555) 123-4567";
     }
 
-    if (formData.password && formData.password !== formData.confirm_password) {
-      newErrors.password = "Passwords do not match";
+    if (!formData.member_id?.trim()) {
+      newErrors.member_id = "Member ID is required";
+    } else if (!validateMemberId(formData.member_id)) {
+      newErrors.member_id = "Member ID must be numeric";
+    }
+
+    if (!formData.city?.trim()) {
+      newErrors.city = "City is required";
     }
 
     if (!formData.state) {
       newErrors.state = "Please select your state";
+    }
+
+    if (!formData.local_group) {
+      newErrors.local_group = "Please select your local group";
+    }
+
+    if (formData.password && formData.password !== formData.confirm_password) {
+      newErrors.password = "Passwords do not match";
     }
 
     setFormErrors(newErrors);
@@ -255,7 +433,9 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
         <Row>
           <Col md="6">
             <FormGroup>
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">
+                Phone Number <span className="text-danger">*</span>
+              </Label>
               <Input
                 id="phone"
                 name="phone"
@@ -270,15 +450,41 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
           </Col>
           <Col md="6">
             <FormGroup>
-              <Label htmlFor="member_id">Member ID</Label>
-              <Input
-                id="member_id"
-                name="member_id"
-                type="text"
-                value={formData.member_id}
-                onChange={handleChange}
-                disabled
-              />
+              <Label htmlFor="member_id">
+                Member ID <span className="text-danger">*</span>
+              </Label>
+              {isAdminMode ? (
+                <div className="input-group">
+                  <Input
+                    id="member_id"
+                    name="member_id"
+                    type={showMemberId ? "text" : "password"}
+                    value={formData.member_id}
+                    onChange={handleChange}
+                    disabled
+                    invalid={!!formErrors.member_id}
+                  />
+                  <span
+                    className="input-group-text"
+                    onClick={handleMemberIdToggle}
+                    style={{ cursor: "pointer" }}
+                    title={showMemberId ? "Hide Member ID" : "Show Member ID"}
+                  >
+                    {showMemberId ? "👁️" : "👁️‍🗨️"}
+                  </span>
+                </div>
+              ) : (
+                <Input
+                  id="member_id"
+                  name="member_id"
+                  type="text"
+                  value={formData.member_id}
+                  onChange={handleChange}
+                  disabled
+                  invalid={!!formErrors.member_id}
+                />
+              )}
+              <FormFeedback>{formErrors.member_id}</FormFeedback>
             </FormGroup>
           </Col>
         </Row>
@@ -286,14 +492,18 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
         <Row>
           <Col md="6">
             <FormGroup>
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">
+                City <span className="text-danger">*</span>
+              </Label>
               <Input
                 id="city"
                 name="city"
                 type="text"
                 value={formData.city}
                 onChange={handleChange}
+                invalid={!!formErrors.city}
               />
+              <FormFeedback>{formErrors.city}</FormFeedback>
             </FormGroup>
           </Col>
           <Col md="6">
@@ -320,6 +530,56 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave }) => {
             </FormGroup>
           </Col>
         </Row>
+
+        <Row>
+          <Col md="12">
+            <FormGroup>
+              <Label htmlFor="local_group">
+                Local Group <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="local_group"
+                name="local_group"
+                type="select"
+                value={formData.local_group}
+                onChange={handleChange}
+                invalid={!!formErrors.local_group}
+              >
+                <option value="">Please select</option>
+                {LOCAL_GROUPS.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </Input>
+              <FormFeedback>{formErrors.local_group}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        {isAdminMode && (
+          <Row>
+            <Col md="6">
+              <FormGroup>
+                <Label htmlFor="status">
+                  Status <span className="text-danger">*</span>
+                </Label>
+                <Input
+                  id="status"
+                  name="status"
+                  type="select"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="pending">Pending</option>
+                  <option value="suspended">Suspended</option>
+                </Input>
+              </FormGroup>
+            </Col>
+          </Row>
+        )}
 
         <Row>
           <Col md="6">

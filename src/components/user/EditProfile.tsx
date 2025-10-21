@@ -175,7 +175,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
 
           <TabContent activeTab={activeTab}>
             <TabPane tabId="basic">
-              {userData && <EditMember data={userData} onSave={handleSave} />}
+              {userData && <EditMember data={userData} onSave={handleSave} isAdminMode={!!memberId} />}
             </TabPane>
 
             <TabPane tabId="expert">
@@ -206,8 +206,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
           </TabContent>
         </CardBody>
         <div className="text-center p-3">
-          <Button color="secondary" tag={Link} to="/dashboard">
-            Back to Dashboard
+          <Button color="secondary" tag={Link} to={memberId ? "/admin" : "/dashboard"}>
+            {memberId ? "Back to Admin Panel" : "Back to Dashboard"}
           </Button>
         </div>
       </Card>
