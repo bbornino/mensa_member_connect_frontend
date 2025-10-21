@@ -35,6 +35,9 @@ export default function MainMenu() {
                   </NavItem>
                 )}
                 <NavItem>
+                  <NavLink tag={Link} to="/feedback">Support</NavLink>
+                </NavItem>
+                <NavItem>
                   <NavLink 
                     href="#" 
                     onClick={(e) => {
@@ -53,6 +56,9 @@ export default function MainMenu() {
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} to="/register">Register</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink tag={Link} to="/feedback">Support</NavLink>
                 </NavItem>
               </>
             )}
@@ -79,6 +85,9 @@ export default function MainMenu() {
                   </NavItem>
                 )}
                 <NavItem>
+                  <NavLink tag={Link} to="/feedback">Support</NavLink>
+                </NavItem>
+                <NavItem>
                   <NavLink 
                     href="#" 
                     onClick={(e) => {
@@ -97,6 +106,9 @@ export default function MainMenu() {
                 </NavItem>
                 <NavItem>
                   <NavLink tag={Link} to="/register">Register</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink tag={Link} to="/feedback">Support</NavLink>
                 </NavItem>
               </>
             )}
