@@ -28,7 +28,6 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   const { apiRequest } = useApiRequest();
   const [activeTab, setActiveTab] = useState("basic");
   const [userData, setUserData] = useState<any>(null);
-  const [expertData, setExpertData] = useState<any>(null);
   const [expertiseData, setExpertiseData] = useState<any[]>([]);
   const [isExpert, setIsExpert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,31 +45,12 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
       // Fetch user data
       const userEndpoint = memberId ? `users/${memberId}/` : "users/me/";
       const user = await apiRequest(userEndpoint);
-      
-      if (user) {
-        setUserData(user);
+      setUserData(user);
 
-        // Check if user is an expert (has expert profile)
-        try {
-          const expertEndpoint = memberId
-            ? `experts/by_user/${memberId}/`
-            : "experts/me/";
-          const expert = await apiRequest(expertEndpoint);
+      // Fetch expertise records for this expert
+      const expertises = (await apiRequest(`expertises/by_user/${user.id}/`)) || [];
+      setExpertiseData(expertises);
 
-          if (expert) {
-            setIsExpert(true);
-            setExpertData(expert);
-
-            // Fetch expertise records for this expert
-            const expertises =
-              (await apiRequest(`expertises/by_expert/${expert.id}/`)) || [];
-            setExpertiseData(expertises);
-          }
-        } catch (expertError) {
-          // No expert profile found - this is okay
-          setIsExpert(false);
-        }
-      }
     } catch (err: any) {
       setError(err.message || "Failed to load profile data");
     } finally {
@@ -160,17 +140,16 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
               </NavLink>
             </NavItem>
 
-            {isExpert && (
-              <NavItem>
-                <NavLink
-                  className={activeTab === "expert" ? "active" : ""}
-                  onClick={() => toggleTab("expert")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Expert Profile
-                </NavLink>
-              </NavItem>
-            )}
+            <NavItem>
+              <NavLink
+                className={activeTab === "expert" ? "active" : ""}
+                onClick={() => toggleTab("expert")}
+                style={{ cursor: "pointer" }}
+              >
+                Expert Profile
+              </NavLink>
+            </NavItem>
+            
           </Nav>
 
           <TabContent activeTab={activeTab}>
@@ -179,7 +158,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
             </TabPane>
 
             <TabPane tabId="expert">
-              {expertData && <EditExpert data={expertData} onSave={handleSave} />}
+              {userData && <EditExpert data={userData} onSave={handleSave} />}
               
               <div className="mt-4">
                 <hr />

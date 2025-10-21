@@ -81,8 +81,8 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave }) => {
     setIsSaving(true);
 
     try {
-      await apiRequest(`experts/${data.id}/`, {
-        method: "PUT",
+      await apiRequest(`users/${data.id}/`, {
+        method: "PATCH",
         body: JSON.stringify(formData),
       });
 
