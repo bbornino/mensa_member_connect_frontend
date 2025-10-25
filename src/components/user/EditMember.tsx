@@ -22,136 +22,7 @@ const US_STATES = [
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
 
-const LOCAL_GROUPS = [
-  "Arkansas Mensa",
-  "Baton Rouge Mensa",
-  "Bluegrass Mensa",
-  "Boston Mensa",
-  "Boulder/Front Range Mensa",
-  "Broward Mensa",
-  "Central Alabama Mensa",
-  "Central Florida Mensa",
-  "Central Indiana Mensa",
-  "Central Iowa Mensa",
-  "Central New Jersey Mensa",
-  "Central New York Mensa",
-  "Central Oklahoma Mensa",
-  "Central Pennsylvania Mensa",
-  "Central South Carolina Mensa",
-  "Central Texas Mensa",
-  "Channel Islands Mensa",
-  "Charlotte - Blue Ridge Mensa",
-  "Chattanooga Mensa",
-  "Chicago Area Mensa",
-  "Cincinnati Area Mensa",
-  "Cleveland Area Mensa",
-  "Coastal Carolina Mensa",
-  "Columbia River Mensa",
-  "Columbus Area Mensa",
-  "Connecticut/Western Massachusetts Mensa",
-  "Dayton Area Mensa",
-  "Delaware Mensa",
-  "Delaware Valley Mensa",
-  "Denver Mensa",
-  "East Central Ohio Mensa",
-  "Eastern Oklahoma Mensa",
-  "Eastern Washington/Northern Idaho/Montana",
-  "French Broad Mensa",
-  "Greater Los Angeles Area Mensa",
-  "Greater New York Mensa",
-  "Greater Phoenix Mensa",
-  "Gulf Coast Mensa",
-  "Heart of Illinois Mensa",
-  "High Mountain Mensa",
-  "Iowa-Illinois Mensa",
-  "Kansas Sunflower Mensa",
-  "Kentuckiana Mensa",
-  "Lehigh Pocono Mensa",
-  "Lubbock Mensa",
-  "Maine Mensa",
-  "Manasota Mensa",
-  "Maryland Mensa",
-  "Maumee Valley Mensa",
-  "Memphis Mensa",
-  "Mensa 76",
-  "Mensa Alaska",
-  "Mensa Hawaii",
-  "Mensa In Georgia",
-  "Mensa of Eastern North Carolina",
-  "Mensa of Jacksonville",
-  "Mensa of Northeastern New York",
-  "Mensa of the Southern Tier of NY",
-  "Mensa of Western Washington",
-  "Mensa of Wisconsin",
-  "Metropolitan Washington Mensa",
-  "Miami Mensa",
-  "Mid-America Mensa",
-  "Middle Tennessee Mensa",
-  "Mid-Hudson Mensa",
-  "Mid-Michigan Mensa",
-  "Minnesota Mensa",
-  "Mississippi Mensa",
-  "Missouri Ozarks Mensa",
-  "Monterey County Mensa",
-  "Montgomery/Wiregrass Mensa",
-  "Nebraska-Western Iowa Mensa",
-  "New Hampshire Mensa",
-  "New Mexico Mensa",
-  "New Orleans Mensa",
-  "No group assigned",
-  "North Alabama Mensa",
-  "North Dakota Mensa",
-  "North Florida Mensa",
-  "North Texas Mensa",
-  "Northeast Indiana Mensa",
-  "Northern Louisiana Mensa",
-  "Northern Michigan Mensa",
-  "Northern Nevada Mensa",
-  "Northern New Jersey Mensa",
-  "Northwest Florida Mensa",
-  "Orange County Mensa",
-  "Oregon Mensa",
-  "Palm Beach Area Mensa",
-  "Paso del Norte Mensa",
-  "Permian Basin Mensa",
-  "Piedmont Area Mensa",
-  "Plains and Peaks Mensa",
-  "Redwood Empire Mensa",
-  "Rhode Island Mensa",
-  "Richmond Area Mensa",
-  "Rochester Area Mensa",
-  "Sacramento Regional Mensa",
-  "San Diego Mensa",
-  "San Francisco Regional Mensa",
-  "Sangamon Valley Mensa",
-  "Savannah Area Mensa of Georgia",
-  "Smoky Mountain Mensa",
-  "South Coast Mensa",
-  "South Dakota Mensa",
-  "South Mississippi Mensa",
-  "South Texas Mensa",
-  "Southeast Michigan Mensa",
-  "Southern Connecticut Mensa",
-  "Southern Idaho Mensa",
-  "Southern Nevada Mensa",
-  "Southwest by South Florida Mensa",
-  "Space Coast Area Mensa",
-  "St. Louis Area Mensa",
-  "Tallahassee Area  Mensa",
-  "Tampa Bay Mensa",
-  "Thomas Jefferson Mensa",
-  "Tidewater Mensa",
-  "Triad Mensa",
-  "Tucson Mensa",
-  "Upper East Tennessee Mensa",
-  "Utah Mensa",
-  "Vandalia Mensa",
-  "Vermont Mensa",
-  "Western Michigan Mensa",
-  "Western New York Mensa",
-  "Western Pennsylvania Mensa",
-  "Wyoming Mountain Mensa",
-];
+
 
 interface EditMemberProps {
   data: Record<string, any>;
@@ -214,6 +85,9 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   const [success, setSuccess] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  const [localGroups, setLocalGroups] = useState<{ id: number; group_name: string; group_number: string }[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
+
   useEffect(() => {
     if (data) {
       setFormData({
@@ -226,13 +100,37 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         city: data.city || "",
         state: data.state || "",
         phone: data.phone || "",
-        member_id: data.member_id || "",
+        member_id: data.member_id?.toString() || "",
         local_group: data.local_group || "",
         role: data.role,
         status: data.status,
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    const fetchLocalGroups = async () => {
+      try {
+        const response = await apiRequest("local_groups/");
+
+        const groupsArray = (response.results || response).map((g: any) => ({
+          id: g.id,
+          group_name: g.group_name,
+          group_number: g.group_number,
+        }));
+
+        setLocalGroups(groupsArray);
+      } catch (err: any) {
+        console.error("Failed to fetch local groups", err);
+        setLocalGroups([]);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
+    fetchLocalGroups();
+  }, [apiRequest]);
+
 
   const formatPhoneNumber = (value: string): string => {
     // Remove all non-numeric characters
@@ -544,11 +442,12 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 value={formData.local_group}
                 onChange={handleChange}
                 invalid={!!formErrors.local_group}
+                disabled={loadingGroups}
               >
                 <option value="">Please select</option>
-                {LOCAL_GROUPS.map((group) => (
-                  <option key={group} value={group}>
-                    {group}
+                {localGroups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.group_name} - {group.group_number}
                   </option>
                 ))}
               </Input>
