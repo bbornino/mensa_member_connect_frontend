@@ -99,7 +99,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         last_name: data.last_name || "",
         city: data.city || "",
         state: data.state || "",
-        phone: data.phone || "",
+        phone: data.phone ? formatPhoneNumber(data.phone) : "",
         member_id: data.member_id?.toString() || "",
         local_group: data.local_group || "",
         role: data.role,
@@ -134,7 +134,12 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
 
   const formatPhoneNumber = (value: string): string => {
     // Remove all non-numeric characters
-    const numbers = value.replace(/\D/g, '');
+    let numbers = value.replace(/\D/g, '');
+
+    // Remove leading '1' if number is 11 digits (US country code)
+    if (numbers.length === 11 && numbers.startsWith('1')) {
+      numbers = numbers.slice(1);
+    }
     
     // Limit to 10 digits
     const limitedNumbers = numbers.slice(0, 10);
