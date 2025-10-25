@@ -10,6 +10,14 @@ src/
   ├─ App.css
   ├─ index.css
   ├─ components/
+  │   ├─ admin/         # Publicly accessible pages
+  │   │   ├─ Admin.tsx  # Calls each of the below components via tabs...
+  │   │   ├─ AdminActions.tsx  
+  │   │   ├─ AdminIndustryTypes.tsx  
+  │   │   ├─ AdminLocalGroups.tsx  
+  │   │   ├─ AdminUsers.tsx  
+  │   ├─ experts/         # Publicly accessible pages
+  │   │   ├─ Experts.tsx  
   │   ├─ public/         # Publicly accessible pages
   │   │   ├─ Welcome.tsx  
   │   │   ├─ PublicMenu.tsx  
