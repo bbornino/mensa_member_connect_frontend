@@ -41,20 +41,23 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Fetch industries list
     const fetchIndustries = async () => {
       try {
-        const result = await apiRequest("industries/");
-        if (result) {
-          setIndustries(result);
-        }
+        const response = await apiRequest("industries/");
+        const industryArray = (response.results || response).map((ind: any) => ({
+          id: ind.id,
+          industry_name: ind.industry_name,
+        }));
+        setIndustries(industryArray);
       } catch (err) {
         console.error("Failed to fetch industries:", err);
+        setIndustries([]);
       }
     };
 
     fetchIndustries();
   }, [apiRequest]);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -126,11 +129,12 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave }) => {
                 onChange={handleChange}
               >
                 <option value="">Select Industry...</option>
-                {industries.map((ind) => (
-                  <option key={ind.id} value={ind.id}>
+                {industries.map((ind, idx) => (
+                  <option key={ind.id ?? idx} value={ind.id ?? ""}>
                     {ind.industry_name}
                   </option>
                 ))}
+
               </Input>
             </FormGroup>
           </Col>
