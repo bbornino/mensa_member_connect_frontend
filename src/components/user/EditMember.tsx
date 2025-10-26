@@ -482,6 +482,23 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 </Input>
               </FormGroup>
             </Col>
+            <Col md="6">
+              <FormGroup>
+                <Label htmlFor="role">
+                  Role <span className="text-danger">*</span>
+                </Label>
+                <Input
+                  id="role"
+                  name="role"
+                  type="select"
+                  value={formData.role}
+                  onChange={handleChange}
+                >
+                  <option value="admin">Admin</option>
+                  <option value="member">Member</option>
+                </Input>
+              </FormGroup>
+            </Col>
           </Row>
         )}
 
