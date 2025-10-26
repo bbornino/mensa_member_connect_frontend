@@ -19,6 +19,8 @@ import {
   PaginationLink,
 } from "reactstrap";
 import ConnectionRequestModal from "../shared/ConnectionRequestModal";
+import { useApiRequest } from "../../utils/useApiRequest";
+import demoExperts from '../../data/demoExperts.json';
 
 interface Expert {
   id: number;
@@ -50,6 +52,7 @@ interface Expert {
 type SortOption = 'name' | 'location' | 'occupation' | 'industry';
 
 const Experts: React.FC = () => {
+  const { apiRequest } = useApiRequest();
   const [experts, setExperts] = useState<Expert[]>([]);
   const [filteredExperts, setFilteredExperts] = useState<Expert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,291 +77,16 @@ const Experts: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
 
-  // Demo data for testing UI
-  const demoExperts: Expert[] = [
-    {
-      id: 1,
-      user: {
-        id: 1,
-        username: "john_doe",
-        first_name: "John",
-        last_name: "Doe",
-        city: "New York",
-        state: "NY"
-      },
-      occupation: "Software Engineer",
-      industry: { id: 1, industry_name: "Technology" },
-      background: "Senior software engineer with 10+ years of experience in full-stack development, specializing in React, Python, and cloud technologies.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/1.png",
-      expertise: [{
-        what_offering: "Software development mentorship and career guidance",
-        who_would_benefit: "Junior developers, career changers, and students",
-        why_choose_you: "I have successfully mentored 20+ developers and helped them land their dream jobs.",
-        skills_not_offered: "Hardware engineering, game development"
-      }]
-    },
-    {
-      id: 2,
-      user: {
-        id: 2,
-        username: "jane_smith",
-        first_name: "Jane",
-        last_name: "Smith",
-        city: "Los Angeles",
-        state: "CA"
-      },
-      occupation: "Data Scientist",
-      industry: { id: 2, industry_name: "Technology" },
-      background: "Data scientist with expertise in machine learning, statistical analysis, and big data technologies.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/2.png",
-      expertise: [{
-        what_offering: "Data science mentorship and ML project guidance",
-        who_would_benefit: "Aspiring data scientists and ML engineers",
-        why_choose_you: "I have 8+ years of experience in data science and have published research papers.",
-        skills_not_offered: "Web development, mobile app development"
-      }]
-    },
-    {
-      id: 3,
-      user: {
-        id: 3,
-        username: "mike_wilson",
-        first_name: "Mike",
-        last_name: "Wilson",
-        city: "Chicago",
-        state: "IL"
-      },
-      occupation: "Marketing Director",
-      industry: { id: 3, industry_name: "Marketing" },
-      background: "Marketing professional with 15+ years of experience in digital marketing, brand strategy, and campaign management.",
-      availability_status: "not_available",
-      show_contact_info: false,
-      photo: "/test-photos/3.png",
-      expertise: [{
-        what_offering: "Marketing strategy and digital marketing guidance",
-        who_would_benefit: "Small business owners and marketing professionals",
-        why_choose_you: "I have helped 50+ businesses grow their online presence and increase sales.",
-        skills_not_offered: "Technical development, graphic design"
-      }]
-    },
-    {
-      id: 4,
-      user: {
-        id: 4,
-        username: "sarah_johnson",
-        first_name: "Sarah",
-        last_name: "Johnson",
-        city: "Boston",
-        state: "MA"
-      },
-      occupation: "Financial Advisor",
-      industry: { id: 4, industry_name: "Finance" },
-      background: "Certified financial advisor with expertise in investment planning, retirement planning, and wealth management.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/4.png",
-      expertise: [{
-        what_offering: "Financial planning and investment advice",
-        who_would_benefit: "Individuals and families planning for retirement",
-        why_choose_you: "I have helped clients grow their wealth by 200% on average over 10 years.",
-        skills_not_offered: "Tax preparation, legal advice"
-      }]
-    },
-    {
-      id: 5,
-      user: {
-        id: 5,
-        username: "david_brown",
-        first_name: "David",
-        last_name: "Brown",
-        city: "Seattle",
-        state: "WA"
-      },
-      occupation: "UX Designer",
-      industry: { id: 5, industry_name: "Design" },
-      background: "UX/UI designer with 8+ years of experience creating user-centered digital experiences for startups and enterprises.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/5.png",
-      expertise: [{
-        what_offering: "UX/UI design mentorship and portfolio review",
-        who_would_benefit: "Aspiring designers and product managers",
-        why_choose_you: "I have designed products used by millions of users and won design awards.",
-        skills_not_offered: "Frontend development, graphic design"
-      }]
-    },
-    {
-      id: 6,
-      user: {
-        id: 6,
-        username: "lisa_garcia",
-        first_name: "Lisa",
-        last_name: "Garcia",
-        city: "New York",
-        state: "NY"
-      },
-      occupation: "Product Manager",
-      industry: { id: 1, industry_name: "Technology" },
-      background: "Product manager with 12+ years of experience leading cross-functional teams and launching successful products.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/6.png",
-      expertise: [{
-        what_offering: "Product management mentorship and career guidance",
-        who_would_benefit: "Aspiring product managers and business analysts",
-        why_choose_you: "I have launched 10+ successful products and mentored 30+ PMs in their careers.",
-        skills_not_offered: "Technical development, marketing strategy"
-      }]
-    },
-    {
-      id: 7,
-      user: {
-        id: 7,
-        username: "alex_chen",
-        first_name: "Alex",
-        last_name: "Chen",
-        city: "San Francisco",
-        state: "CA"
-      },
-      occupation: "DevOps Engineer",
-      industry: { id: 1, industry_name: "Technology" },
-      background: "DevOps engineer specializing in cloud infrastructure, CI/CD pipelines, and automation. Expert in AWS, Docker, and Kubernetes.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/1.png",
-      expertise: [{
-        what_offering: "DevOps and cloud infrastructure mentorship",
-        who_would_benefit: "Software engineers transitioning to DevOps and cloud computing",
-        why_choose_you: "I have helped 15+ engineers successfully transition to DevOps roles and scale infrastructure for startups.",
-        skills_not_offered: "Frontend development, mobile app development"
-      }]
-    },
-    {
-      id: 8,
-      user: {
-        id: 8,
-        username: "maria_rodriguez",
-        first_name: "Maria",
-        last_name: "Rodriguez",
-        city: "Miami",
-        state: "FL"
-      },
-      occupation: "Marketing Consultant",
-      industry: { id: 3, industry_name: "Marketing" },
-      background: "Marketing consultant with expertise in digital marketing, social media strategy, and brand development for small businesses.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/2.png",
-      expertise: [{
-        what_offering: "Digital marketing strategy and social media guidance",
-        who_would_benefit: "Small business owners and marketing professionals",
-        why_choose_you: "I have helped 40+ small businesses increase their online presence and grow their customer base.",
-        skills_not_offered: "Technical development, graphic design"
-      }]
-    },
-    {
-      id: 9,
-      user: {
-        id: 9,
-        username: "james_wilson",
-        first_name: "James",
-        last_name: "Wilson",
-        city: "Austin",
-        state: "TX"
-      },
-      occupation: "Cybersecurity Analyst",
-      industry: { id: 1, industry_name: "Technology" },
-      background: "Cybersecurity analyst with 8+ years of experience in threat detection, incident response, and security architecture.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/3.png",
-      expertise: [{
-        what_offering: "Cybersecurity career guidance and technical mentorship",
-        who_would_benefit: "IT professionals looking to transition into cybersecurity",
-        why_choose_you: "I have mentored 25+ professionals in cybersecurity and helped them land roles at top security companies.",
-        skills_not_offered: "Software development, marketing"
-      }]
-    },
-    {
-      id: 10,
-      user: {
-        id: 10,
-        username: "sophie_kim",
-        first_name: "Sophie",
-        last_name: "Kim",
-        city: "Seattle",
-        state: "WA"
-      },
-      occupation: "Data Analyst",
-      industry: { id: 2, industry_name: "Technology" },
-      background: "Data analyst with expertise in SQL, Python, and business intelligence tools. Specializes in turning data into actionable insights.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/4.png",
-      expertise: [{
-        what_offering: "Data analysis and SQL mentorship",
-        who_would_benefit: "Business professionals and students interested in data analysis",
-        why_choose_you: "I have helped 20+ professionals develop their data analysis skills and advance their careers.",
-        skills_not_offered: "Machine learning, web development"
-      }]
-    },
-    {
-      id: 11,
-      user: {
-        id: 11,
-        username: "robert_taylor",
-        first_name: "Robert",
-        last_name: "Taylor",
-        city: "Denver",
-        state: "CO"
-      },
-      occupation: "Project Manager",
-      industry: { id: 5, industry_name: "Business" },
-      background: "Project manager with 10+ years of experience in agile methodologies, team leadership, and stakeholder management.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/5.png",
-      expertise: [{
-        what_offering: "Project management and agile methodology guidance",
-        who_would_benefit: "Professionals looking to transition into project management",
-        why_choose_you: "I have successfully managed 50+ projects and helped 15+ professionals become certified PMs.",
-        skills_not_offered: "Technical development, design"
-      }]
-    },
-    {
-      id: 12,
-      user: {
-        id: 12,
-        username: "emily_davis",
-        first_name: "Emily",
-        last_name: "Davis",
-        city: "Portland",
-        state: "OR"
-      },
-      occupation: "Content Strategist",
-      industry: { id: 3, industry_name: "Marketing" },
-      background: "Content strategist with expertise in content marketing, SEO, and brand storytelling. Helps businesses create compelling content that drives engagement.",
-      availability_status: "available",
-      show_contact_info: true,
-      photo: "/test-photos/6.png",
-      expertise: [{
-        what_offering: "Content strategy and writing mentorship",
-        who_would_benefit: "Marketing professionals and aspiring content creators",
-        why_choose_you: "I have helped 30+ businesses develop their content strategy and increase their organic reach by 200%.",
-        skills_not_offered: "Technical development, graphic design"
-      }]
-    }
-  ];
-
   useEffect(() => {
     const fetchExperts = async () => {
       try {
         setIsLoading(true);
         // For now, use demo data. Later this will fetch from API
+
+        const experts: Expert[] = await apiRequest("users/experts/");
+        console.log(experts)
+        debugger
+
         setExperts(demoExperts);
         setFilteredExperts(demoExperts);
       } catch (error) {
