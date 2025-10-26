@@ -85,7 +85,6 @@ const Experts: React.FC = () => {
 
         const experts: Expert[] = await apiRequest("users/experts/");
         console.log(experts)
-        debugger
 
         setExperts(demoExperts);
         setFilteredExperts(demoExperts);
