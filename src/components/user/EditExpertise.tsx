@@ -19,6 +19,7 @@ interface EditExpertiseProps {
   index?: number;
   onRemove?: () => void;
   showRemove?: boolean;
+  userId: number;
 }
 
 const EditExpertise: React.FC<EditExpertiseProps> = ({
@@ -27,6 +28,7 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
   index = 0,
   onRemove,
   showRemove = false,
+  userId,
 }) => {
   const { apiRequest } = useApiRequest();
 
@@ -67,10 +69,20 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
         });
         setSuccess("Expertise updated successfully!");
       } else {
+        // Creating new expertise — ensure we have a userId to attach
+        if (!userId) {
+          throw new Error("No user ID available to attach the new expertise.");
+        }
+
+        const payload = {
+          ...formData,
+          user: userId, // inject the FK here as numeric ID (backend expects `user`)
+        };
+
         // Create new expertise
         const result = await apiRequest("expertises/", {
           method: "POST",
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         
         if (result) {

@@ -77,7 +77,20 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
     ]);
   };
 
-  const removeExpertise = (index: number) => {
+  const removeExpertise = async (index: number) => {
+    // const item = expertiseData[index];
+
+    // If record exists in DB (has an id) → delete via API
+    // if (item.id) {
+    //   try {
+    //     await apiRequest(`expertises/${item.id}/`, {method: "DELETE"});
+    //   } catch (err: any) {
+    //     console.error("Failed to delete expertise:", err);
+    //     alert("Error deleting expertise. Please try again.");
+    //     return;
+    //   }
+    // }
+
     if (expertiseData.length > 1) {
       setExpertiseData(expertiseData.filter((_, i) => i !== index));
     }
@@ -174,6 +187,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
                     index={idx}
                     onRemove={() => removeExpertise(idx)}
                     showRemove={expertiseData.length > 1}
+                    userId={userData.id}
                   />
                 ))}
 
