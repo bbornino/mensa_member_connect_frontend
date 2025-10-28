@@ -15,7 +15,7 @@ export default function MainMenu() {
         <div className="d-flex w-100 justify-content-between align-items-center">
           <NavbarBrand tag={Link} to="/" className="d-flex align-items-center">
             <div className="me-2" style={{ width: "24px", height: "24px", backgroundColor: "#007bff", borderRadius: "4px" }}></div>
-            <strong className="d-none d-md-inline">Network of Mensa Member Experts</strong>
+            <strong className="d-none d-md-inline">Network of American Mensa Member Experts</strong>
             <strong className="d-inline d-md-none">NAME</strong>
           </NavbarBrand>
           
