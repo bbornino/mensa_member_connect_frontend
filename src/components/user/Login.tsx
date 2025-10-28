@@ -36,7 +36,7 @@ const Login: React.FC = () => {
     <Container className="centered-container">
       <Form onSubmit={handleLogin}>
         <Card className="text-dark bg-light m-3 card-narrow">
-          <CardTitle tag="h5"><strong>Login</strong></CardTitle>
+          <CardTitle tag="h5" className="p-3 mb-0"><strong>Login</strong></CardTitle>
           <CardBody>
             <FormGroup>
               <Label htmlFor="username">User Name</Label>

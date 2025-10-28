@@ -29,7 +29,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   const [activeTab, setActiveTab] = useState("basic");
   const [userData, setUserData] = useState<any>(null);
   const [expertiseData, setExpertiseData] = useState<any[]>([]);
-  const [isExpert, setIsExpert] = useState(false);
+  const [industries, setIndustries] = useState<any[]>([]);
+  // const [isExpert, setIsExpert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -51,6 +52,10 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
       const expertises = (await apiRequest(`expertises/by_user/${user.id}/`)) || [];
       setExpertiseData(expertises);
 
+      // Fetch industries for expertise dropdowns
+      const industryData = await apiRequest("industries/");
+      setIndustries(industryData || []);
+
     } catch (err: any) {
       setError(err.message || "Failed to load profile data");
     } finally {
@@ -63,12 +68,24 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
     fetchAllData();
   };
 
+  const handleExpertiseChange = (index: number, data: Record<string, any>) => {
+    setExpertiseData(prev => {
+      const newData = [...prev];
+      newData[index] = data;
+      return newData;
+    });
+  };
+
   const toggleTab = (tab: string) => setActiveTab(tab);
 
   const addExpertise = () => {
+    if (expertiseData.length >= 3) {
+      return; // Limit to maximum 3 expertise records
+    }
     setExpertiseData([
       ...expertiseData,
       {
+        area_of_expertise: "",
         what_offering: "",
         who_would_benefit: "",
         why_choose_you: "",
@@ -78,18 +95,18 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   };
 
   const removeExpertise = async (index: number) => {
-    // const item = expertiseData[index];
+    const item = expertiseData[index];
 
     // If record exists in DB (has an id) → delete via API
-    // if (item.id) {
-    //   try {
-    //     await apiRequest(`expertises/${item.id}/`, {method: "DELETE"});
-    //   } catch (err: any) {
-    //     console.error("Failed to delete expertise:", err);
-    //     alert("Error deleting expertise. Please try again.");
-    //     return;
-    //   }
-    // }
+    if (item.id) {
+      try {
+        await apiRequest(`expertises/${item.id}/`, {method: "DELETE"});
+      } catch (err: any) {
+        console.error("Failed to delete expertise:", err);
+        alert("Error deleting expertise. Please try again.");
+        return;
+      }
+    }
 
     if (expertiseData.length > 1) {
       setExpertiseData(expertiseData.filter((_, i) => i !== index));
@@ -171,7 +188,14 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
             </TabPane>
 
             <TabPane tabId="expert">
-              {userData && <EditExpert data={userData} onSave={handleSave} />}
+              {userData && (
+                <EditExpert 
+                  data={userData} 
+                  onSave={handleSave}
+                  expertiseData={expertiseData}
+                  userId={userData.id}
+                />
+              )}
               
               <div className="mt-4">
                 <hr />
@@ -183,16 +207,21 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
                   <EditExpertise
                     key={item.id || idx}
                     data={item}
-                    onSave={handleSave}
                     index={idx}
                     onRemove={() => removeExpertise(idx)}
                     showRemove={expertiseData.length > 1}
-                    userId={userData.id}
+                    onChange={handleExpertiseChange}
+                    industries={industries}
                   />
                 ))}
 
-                <Button color="secondary" onClick={addExpertise} className="mb-3">
-                  Add Another Expertise
+                <Button 
+                  color="secondary" 
+                  onClick={addExpertise} 
+                  className="mb-3"
+                  disabled={expertiseData.length >= 3}
+                >
+                  Add Another Expertise {expertiseData.length >= 3 ? "(Maximum 3)" : ""}
                 </Button>
               </div>
             </TabPane>

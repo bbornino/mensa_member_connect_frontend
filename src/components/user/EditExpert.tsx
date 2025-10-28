@@ -23,9 +23,11 @@ interface ExpertFormData {
 interface EditExpertProps {
   data: any;
   onSave: () => void;
+  expertiseData: any[];
+  userId: number;
 }
 
-const EditExpert: React.FC<EditExpertProps> = ({ data, onSave }) => {
+const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, userId }) => {
   const { apiRequest } = useApiRequest();
   const [formData, setFormData] = useState<ExpertFormData>({
     occupation: data.occupation || "",
@@ -84,12 +86,34 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave }) => {
     setIsSaving(true);
 
     try {
+      // Save expert profile data
       await apiRequest(`users/${data.id}/`, {
         method: "PATCH",
         body: JSON.stringify(formData),
       });
 
-      setSuccess("Expert profile updated successfully!");
+      // Save expertise data
+      for (const expertise of expertiseData) {
+        if (expertise.id) {
+          // Update existing expertise
+          await apiRequest(`expertises/${expertise.id}/`, {
+            method: "PUT",
+            body: JSON.stringify(expertise),
+          });
+        } else {
+          // Create new expertise
+          const payload = {
+            ...expertise,
+            user: userId,
+          };
+          await apiRequest("expertises/", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+        }
+      }
+
+      setSuccess("Expert profile and expertise updated successfully!");
       onSave();
     } catch (err: any) {
       setError(err.message || "Error updating expert profile");

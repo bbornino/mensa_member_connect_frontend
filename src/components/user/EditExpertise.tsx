@@ -1,101 +1,53 @@
 import React, { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent } from "react";
 import {
   Card,
   CardBody,
-  Form,
   FormGroup,
   Label,
   Input,
   Button,
-  Alert,
-  Spinner,
 } from "reactstrap";
-import { useApiRequest } from "../../utils/useApiRequest";
 
 interface EditExpertiseProps {
   data: Record<string, any>;
-  onSave: () => void;
   index?: number;
   onRemove?: () => void;
   showRemove?: boolean;
-  userId: number;
+  onChange?: (index: number, data: Record<string, any>) => void;
+  industries: any[];
 }
 
 const EditExpertise: React.FC<EditExpertiseProps> = ({
   data,
-  onSave,
   index = 0,
   onRemove,
   showRemove = false,
-  userId,
+  onChange,
+  industries,
 }) => {
-  const { apiRequest } = useApiRequest();
-
   const [formData, setFormData] = useState({
     id: data.id || null,
+    area_of_expertise: data.area_of_expertise || "",
     what_offering: data.what_offering || "",
     who_would_benefit: data.who_would_benefit || "",
     why_choose_you: data.why_choose_you || "",
     skills_not_offered: data.skills_not_offered || "",
   });
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, name, value } = e.target;
     const fieldName = id || name;
     
     // Remove the index suffix if present (e.g., what_offering_0 -> what_offering)
     const cleanFieldName = fieldName.replace(/_\d+$/, '');
     
-    setFormData((prev) => ({ ...prev, [cleanFieldName]: value }));
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsSaving(true);
-
-    try {
-      if (formData.id) {
-        // Update existing expertise
-        await apiRequest(`expertises/${formData.id}/`, {
-          method: "PUT",
-          body: JSON.stringify(formData),
-        });
-        setSuccess("Expertise updated successfully!");
-      } else {
-        // Creating new expertise — ensure we have a userId to attach
-        if (!userId) {
-          throw new Error("No user ID available to attach the new expertise.");
-        }
-
-        const payload = {
-          ...formData,
-          user: userId, // inject the FK here as numeric ID (backend expects `user`)
-        };
-
-        // Create new expertise
-        const result = await apiRequest("expertises/", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-        
-        if (result) {
-          setFormData(prev => ({ ...prev, id: result.id }));
-          setSuccess("Expertise created successfully!");
-        }
-      }
-
-      onSave();
-    } catch (err: any) {
-      setError(err.message || "Error saving expertise.");
-    } finally {
-      setIsSaving(false);
+    const newFormData = { ...formData, [cleanFieldName]: value };
+    setFormData(newFormData);
+    
+    // Notify parent component of changes
+    if (onChange) {
+      onChange(index, newFormData);
     }
   };
 
@@ -111,10 +63,27 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
           )}
         </div>
 
-        {error && <Alert color="danger">{error}</Alert>}
-        {success && <Alert color="success">{success}</Alert>}
+        <div>
+          <FormGroup>
+            <Label htmlFor={`area_of_expertise_${index}`}>
+              Area of Expertise
+            </Label>
+            <Input
+              id={`area_of_expertise_${index}`}
+              name="area_of_expertise"
+              type="select"
+              value={formData.area_of_expertise}
+              onChange={handleChange}
+            >
+              <option value="">Select an industry...</option>
+              {industries.map((industry) => (
+                <option key={industry.id} value={industry.id}>
+                  {industry.industry_name}
+                </option>
+              ))}
+            </Input>
+          </FormGroup>
 
-        <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Label htmlFor={`what_offering_${index}`}>
               What skills, information, or mentorship are you offering to other Mensa members?{" "}
@@ -175,20 +144,7 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
               placeholder="What you don't offer or areas outside your expertise..."
             />
           </FormGroup>
-
-          <div className="text-center">
-            <Button color="primary" type="submit" disabled={isSaving}>
-              {isSaving ? (
-                <>
-                  <Spinner size="sm" className="me-2" />
-                  Saving...
-                </>
-              ) : (
-                "Save Expertise"
-              )}
-            </Button>
-          </div>
-        </Form>
+        </div>
       </CardBody>
     </Card>
   );

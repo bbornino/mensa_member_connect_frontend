@@ -46,6 +46,7 @@ interface Expert {
   show_contact_info: boolean;
   photo?: string;
   expertise?: {
+    area_of_expertise_name?: string;
     what_offering: string;
     who_would_benefit: string;
     why_choose_you: string;
@@ -264,6 +265,9 @@ const UserDetail: React.FC = () => {
                         <Card key={index} className="mb-3">
                           <CardBody>
                             <h6 className="text-primary">Expertise #{index + 1}</h6>
+                            {exp.area_of_expertise_name && (
+                              <p><strong>Area of Expertise:</strong> {exp.area_of_expertise_name}</p>
+                            )}
                             <p><strong>What they're offering:</strong> {exp.what_offering}</p>
                             {exp.who_would_benefit && (
                               <p><strong>Who would benefit:</strong> {exp.who_would_benefit}</p>
