@@ -224,6 +224,17 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
                   Add Another Expertise {expertiseData.length >= 3 ? "(Maximum 3)" : ""}
                 </Button>
               </div>
+              
+              <div className="text-center mt-4">
+                <Button 
+                  color="primary" 
+                  type="submit" 
+                  form="edit-expert-form" 
+                  size="lg"
+                >
+                  Save Expert Profile
+                </Button>
+              </div>
             </TabPane>
           </TabContent>
         </CardBody>

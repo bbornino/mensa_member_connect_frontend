@@ -165,7 +165,7 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
                 Cancel
               </Button>
               <Button color="primary" type="submit">
-                Send Connection Request
+                Send Message
               </Button>
             </>
           )}

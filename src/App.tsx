@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Container } from "reactstrap";
 
 // Public / Static Pages
+import About from "./components/public/About";
 import Welcome from "./components/public/Welcome";
 import Feedback from "./components/public/Feedback";
 
@@ -48,6 +49,7 @@ function App() {
           <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Welcome />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/feedback" element={<Feedback />} />

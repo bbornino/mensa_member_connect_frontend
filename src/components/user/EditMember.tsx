@@ -42,6 +42,7 @@ interface MemberFormData {
   phone: string;
   member_id: string;
   local_group: string;
+  local_group_id?: string;
   role?: string;
   status?: string;
 }
@@ -245,6 +246,12 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       // Don't send empty password to API
       if (!payload.password) delete payload.password;
       if (!payload.confirm_password) delete payload.confirm_password;
+      
+      // Convert local_group to local_group_id for the API
+      if (payload.local_group) {
+        (payload as any).local_group_id = payload.local_group;
+        delete (payload as any).local_group;
+      }
 
       await apiRequest(`users/${data.id}/`, {
         method: "PATCH",
@@ -364,7 +371,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                     type={showMemberId ? "text" : "password"}
                     value={formData.member_id}
                     onChange={handleChange}
-                    disabled
+                    
                     invalid={!!formErrors.member_id}
                   />
                   <span

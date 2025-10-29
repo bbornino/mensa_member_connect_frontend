@@ -12,6 +12,8 @@ import {
   Alert,
 } from "reactstrap";
 import ConnectionRequestModal from "../shared/ConnectionRequestModal";
+import { useApiRequest } from "../../utils/useApiRequest";
+import { getRandomPlaceholderImage } from "../../utils/constants";
 
 interface UserDetail {
   id: number;
@@ -19,18 +21,15 @@ interface UserDetail {
   email: string;
   first_name: string;
   last_name: string;
-  member_id: number;
-  city: string;
-  state: string;
-  phone: string;
+  member_id: number | null;
+  city: string | null;
+  state: string | null;
+  phone: string | null;
   role: string;
   status: string;
   date_joined: string;
   local_group: {
-    id: number;
     group_name: string;
-    city: string;
-    state: string;
   } | null;
 }
 
@@ -56,6 +55,7 @@ interface Expert {
 
 const UserDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { apiRequest } = useApiRequest();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [expert, setExpert] = useState<Expert | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,52 +63,6 @@ const UserDetail: React.FC = () => {
   
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
-
-  // Demo data for testing UI
-  const demoUser: UserDetail = {
-    id: 1,
-    username: "john_doe",
-    email: "john.doe@example.com",
-    first_name: "John",
-    last_name: "Doe",
-    member_id: 123456,
-    city: "New York",
-    state: "NY",
-    phone: "(555) 123-4567",
-    role: "member",
-    status: "active",
-    date_joined: "2023-01-15T10:30:00Z",
-    local_group: {
-      id: 1,
-      group_name: "New York City",
-      city: "New York",
-      state: "NY"
-    }
-  };
-
-  const demoExpert: Expert = {
-    id: 1,
-    occupation: "Software Engineer",
-    industry: { id: 1, industry_name: "Technology" },
-    background: "Senior software engineer with 10+ years of experience in full-stack development, specializing in React, Python, and cloud technologies. I have worked at both startups and Fortune 500 companies, leading teams and mentoring junior developers.",
-    availability_status: "available",
-    show_contact_info: true,
-    photo: "/test-photos/1.png",
-    expertise: [
-      {
-        what_offering: "Software development mentorship and career guidance",
-        who_would_benefit: "Junior developers, career changers, and students looking to break into tech",
-        why_choose_you: "I have successfully mentored 20+ developers and helped them land their dream jobs. I understand both the technical and career aspects of software development.",
-        skills_not_offered: "I do not offer help with hardware engineering, game development, or mobile app development."
-      },
-      {
-        what_offering: "Technical interview preparation and coding practice",
-        who_would_benefit: "Software engineers preparing for technical interviews at FAANG companies",
-        why_choose_you: "I have conducted 100+ technical interviews and know exactly what companies are looking for. I can help you practice and improve your problem-solving skills.",
-        skills_not_offered: "I do not offer help with system design interviews or behavioral interviews."
-      }
-    ]
-  };
 
   useEffect(() => {
     const fetchUserDetail = async () => {
@@ -120,30 +74,78 @@ const UserDetail: React.FC = () => {
 
       try {
         setIsLoading(true);
+        setError("");
         
-        // For demo purposes, use demo data. Later this will fetch from API
-        setUser(demoUser);
-        setExpert(demoExpert);
+        // Fetch user data
+        const userData: any = await apiRequest(`users/${id}/`);
+        if (!userData) {
+          throw new Error("User not found");
+        }
 
-        // Real API calls would look like this:
-        // const userData = await customFetch(`users/${id}/`, { method: "GET" }, null, null, () => {});
-        // setUser(userData);
-        // 
-        // const expertData = await customFetch(`experts/?user=${id}`, { method: "GET" }, null, null, () => {});
-        // if (expertData && expertData.length > 0) {
-        //   setExpert(expertData[0]);
-        // }
+        // Transform user data to match expected format
+        const transformedUser: UserDetail = {
+          id: userData.id,
+          username: userData.username || "",
+          email: userData.email || "",
+          first_name: userData.first_name || "",
+          last_name: userData.last_name || "",
+          member_id: userData.member_id || null,
+          city: userData.city || null,
+          state: userData.state || null,
+          phone: userData.phone || null,
+          role: userData.role || "member",
+          status: userData.status || "active",
+          date_joined: userData.date_joined || "",
+          local_group: userData.local_group || null,
+        };
 
-      } catch (error) {
+        setUser(transformedUser);
+
+        // Check if user is an expert (has occupation and background)
+        const isExpert = userData.occupation && userData.background;
+        
+        if (isExpert) {
+          // Transform expert data
+          const transformedExpert: Expert = {
+            id: userData.id,
+            occupation: userData.occupation || "",
+            industry: userData.industry ? {
+              id: userData.industry.id,
+              industry_name: userData.industry.industry_name,
+            } : null,
+            background: userData.background || "",
+            availability_status: userData.availability_status || "",
+            show_contact_info: userData.show_contact_info || false,
+            photo: userData.photo, // Optional, may not be present
+          };
+
+          // Fetch expertise records for this expert
+          const expertises: any[] = await apiRequest(`expertises/by_user/${id}/`) || [];
+          if (expertises && expertises.length > 0) {
+            transformedExpert.expertise = expertises.map((exp: any) => ({
+              area_of_expertise_name: exp.area_of_expertise_name,
+              what_offering: exp.what_offering || "",
+              who_would_benefit: exp.who_would_benefit || "",
+              why_choose_you: exp.why_choose_you || "",
+              skills_not_offered: exp.skills_not_offered || "",
+            }));
+          }
+
+          setExpert(transformedExpert);
+        } else {
+          setExpert(null);
+        }
+
+      } catch (error: any) {
         console.error("Failed to fetch user details:", error);
-        setError("Failed to load user profile. Please try again.");
+        setError(error.message || "Failed to load user profile. Please try again.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUserDetail();
-  }, [id]);
+  }, [id, apiRequest]);
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -190,6 +192,11 @@ const UserDetail: React.FC = () => {
     <Container className="centered-container">
       <Row>
         <Col md="10" className="mx-auto">
+          <div className="mb-3">
+            <Link to="/experts" style={{ textDecoration: 'none', color: '#007bff' }}>
+              ← Back to Experts
+            </Link>
+          </div>
           <Card className="text-dark bg-light m-3">
             <CardHeader>
               <Row className="align-items-center">
@@ -206,7 +213,7 @@ const UserDetail: React.FC = () => {
               <Row className="mb-4">
                 <Col md="4" className="text-center">
                   <img
-                    src={expert?.photo || "https://via.placeholder.com/150x150/6c757d/ffffff?text=?"}
+                    src={expert?.photo || getRandomPlaceholderImage()}
                     alt={`${user.first_name} ${user.last_name}`}
                     className="rounded-circle mb-3"
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
@@ -218,15 +225,17 @@ const UserDetail: React.FC = () => {
                       onClick={toggleModal}
                       className="w-100"
                     >
-                      Request Connection
+                      Send Message
                     </Button>
                   )}
                 </Col>
                 <Col md="8">
                   <Row>
-                    <Col md="6">
+                    <Col md="12">
                       <h4 className="mb-3"><strong>{user.first_name} {user.last_name}</strong></h4>
-                      <p><strong>Location:</strong> {user.city}, {user.state}</p>
+                      {user.city && user.state && (
+                        <p><strong>Location:</strong> {user.city}, {user.state}</p>
+                      )}
                       {user.local_group && (
                         <p><strong>Local Group:</strong> {user.local_group.group_name}</p>
                       )}
@@ -300,7 +309,7 @@ const UserDetail: React.FC = () => {
                     color="primary"
                     onClick={toggleModal}
                   >
-                    Request Connection
+                    Send Message
                   </Button>
                 )}
               </div>

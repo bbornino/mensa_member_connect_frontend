@@ -127,7 +127,7 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
       {error && <Alert color="danger">{error}</Alert>}
       {success && <Alert color="success">{success}</Alert>}
 
-      <Form onSubmit={handleSubmit}>
+      <Form id="edit-expert-form" onSubmit={handleSubmit}>
         <Row>
           <Col md="6">
             <FormGroup>
@@ -208,19 +208,6 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
             </FormGroup>
           </Col>
         </Row>
-
-        <div className="text-center mt-4">
-          <Button color="primary" type="submit" size="lg" disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <Spinner size="sm" className="me-2" />
-                Saving...
-              </>
-            ) : (
-              "Save Expert Profile"
-            )}
-          </Button>
-        </div>
       </Form>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Card,
@@ -9,7 +9,6 @@ import {
   Spinner,
   Alert,
   Input,
-  Label,
   Dropdown,
   DropdownToggle,
   DropdownMenu,
@@ -18,9 +17,8 @@ import {
   PaginationItem,
   PaginationLink,
 } from "reactstrap";
-import ConnectionRequestModal from "../shared/ConnectionRequestModal";
 import { useApiRequest } from "../../utils/useApiRequest";
-import demoExperts from '../../data/demoExperts.json';
+import { getRandomPlaceholderImage } from "../../utils/constants";
 
 interface Expert {
   id: number;
@@ -31,6 +29,9 @@ interface Expert {
     last_name: string;
     city: string;
     state: string;
+    local_group: {
+      group_name: string;
+    } | null;
   };
   occupation: string;
   industry: {
@@ -42,14 +43,13 @@ interface Expert {
   show_contact_info: boolean;
   photo?: string;
   expertise?: {
+    area_of_expertise_name?: string;
     what_offering: string;
     who_would_benefit: string;
     why_choose_you: string;
     skills_not_offered: string;
   }[];
 }
-
-type SortOption = 'name' | 'location' | 'occupation' | 'industry';
 
 const Experts: React.FC = () => {
   const { apiRequest } = useApiRequest();
@@ -60,34 +60,57 @@ const Experts: React.FC = () => {
   
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>('name');
   const [industryFilter, setIndustryFilter] = useState<string>("");
   const [locationFilter, setLocationFilter] = useState<string>("");
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
+  const [itemsPerPage] = useState(12);
   
   // Dropdown states
-  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [industryDropdownOpen, setIndustryDropdownOpen] = useState(false);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
-  
-  // Modal states for connection request
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null);
 
   useEffect(() => {
     const fetchExperts = async () => {
       try {
         setIsLoading(true);
-        // For now, use demo data. Later this will fetch from API
+        const apiExperts: any[] = await apiRequest("users/experts/");
+        
+        if (!apiExperts || !Array.isArray(apiExperts)) {
+          throw new Error("Invalid response from API");
+        }
 
-        const experts: Expert[] = await apiRequest("users/experts/");
-        console.log(experts)
+        // API response received successfully
 
-        setExperts(demoExperts);
-        setFilteredExperts(demoExperts);
+        // Transform API response to match the expected Expert interface
+        const transformedExperts: Expert[] = apiExperts.map((expert) => ({
+          id: expert.id,
+          user: {
+            id: expert.id,
+            username: expert.username || "",
+            first_name: expert.first_name || "",
+            last_name: expert.last_name || "",
+            city: expert.city || "",
+            state: expert.state || "",
+            local_group: expert.local_group || null,
+          },
+          occupation: expert.occupation || "",
+          industry: expert.industry ? {
+            id: expert.industry.id,
+            industry_name: expert.industry.industry_name,
+          } : null,
+          background: expert.background || "",
+          availability_status: expert.availability_status || "",
+          show_contact_info: expert.show_contact_info || false,
+          photo: expert.photo || getRandomPlaceholderImage(), // Assign placeholder once during transformation
+          expertise: expert.expertise || [],
+        }));
+
+        // Data transformation completed
+
+        setExperts(transformedExperts);
+        setFilteredExperts(transformedExperts);
       } catch (error) {
         console.error("Failed to fetch experts:", error);
         setError("Failed to load experts. Please try again.");
@@ -106,58 +129,52 @@ const Experts: React.FC = () => {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter((expert) => {
-        const searchableText = [
-          expert.user.first_name,
-          expert.user.last_name,
-          expert.occupation,
-          expert.industry?.industry_name,
-          expert.background,
-          expert.expertise?.[0]?.what_offering
-        ].join(' ').toLowerCase();
+        // Search through all expertise records for area_of_expertise_name and what_offering
+        const hasMatchingExpertise = expert.expertise?.some(exp => {
+          const areaOfExpertise = exp.area_of_expertise_name?.toLowerCase() || '';
+          const whatOffering = exp.what_offering?.toLowerCase() || '';
+          return areaOfExpertise.includes(searchLower) || whatOffering.includes(searchLower);
+        });
         
-        return searchableText.includes(searchLower);
+        return hasMatchingExpertise || false;
       });
     }
 
-    // Apply industry filter
+    // Apply area of expertise filter
     if (industryFilter) {
       filtered = filtered.filter(expert => 
-        expert.industry?.industry_name === industryFilter
+        expert.expertise?.some(exp => exp.area_of_expertise_name === industryFilter)
       );
     }
 
     // Apply location filter
     if (locationFilter) {
       filtered = filtered.filter(expert => 
-        `${expert.user.city}, ${expert.user.state}` === locationFilter
+        expert.user.local_group?.group_name === locationFilter
       );
     }
 
-    // Availability filter removed
-
-    // Apply sorting
+    // Sort alphabetically by name (default)
     filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return `${a.user.first_name} ${a.user.last_name}`.localeCompare(`${b.user.first_name} ${b.user.last_name}`);
-        case 'location':
-          return `${a.user.city}, ${a.user.state}`.localeCompare(`${b.user.city}, ${b.user.state}`);
-        case 'occupation':
-          return a.occupation.localeCompare(b.occupation);
-        case 'industry':
-          return (a.industry?.industry_name || '').localeCompare(b.industry?.industry_name || '');
-        default:
-          return 0;
-      }
+      return `${a.user.first_name} ${a.user.last_name}`.localeCompare(`${b.user.first_name} ${b.user.last_name}`);
     });
 
     setFilteredExperts(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [experts, searchTerm, sortBy, industryFilter, locationFilter]);
+  }, [experts, searchTerm, industryFilter, locationFilter]);
 
-  // Get unique values for filter dropdowns
-  const industries = [...new Set(experts.map(expert => expert.industry?.industry_name).filter(Boolean))];
-  const locations = [...new Set(experts.map(expert => `${expert.user.city}, ${expert.user.state}`))];
+  // Get unique values for filter dropdowns (memoized for performance)
+  const areasOfExpertise = useMemo(() => {
+    return [...new Set(
+      experts.flatMap(expert => 
+        expert.expertise?.map(exp => exp.area_of_expertise_name).filter(Boolean) || []
+      )
+    )].sort(); // Sort alphabetically
+  }, [experts]);
+  
+  const locations = useMemo(() => {
+    return [...new Set(experts.map(expert => expert.user.local_group?.group_name).filter(Boolean))].sort(); // Sort alphabetically
+  }, [experts]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredExperts.length / itemsPerPage);
@@ -174,23 +191,12 @@ const Experts: React.FC = () => {
     setSearchTerm("");
     setIndustryFilter("");
     setLocationFilter("");
-    setSortBy('name');
   };
 
   const handleSearch = () => {
     // The search is already handled by the useEffect when searchTerm changes
     // This function can be used for additional search logic if needed
     setCurrentPage(1); // Reset to first page when searching
-  };
-
-  const openModal = (expert: Expert) => {
-    setSelectedExpert(expert);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedExpert(null);
   };
 
   if (isLoading) {
@@ -213,7 +219,7 @@ const Experts: React.FC = () => {
   return (
     <div>
         {/* Main Title and Subtitle */}
-        <div className="mb-5">
+        <div className="mb-3">
           <h1 className="mb-3" style={{ fontWeight: 'bold', fontSize: '2.5rem' }}>
             Find Mensa member experts for mentorship & advice
           </h1>
@@ -224,9 +230,7 @@ const Experts: React.FC = () => {
 
         {/* Search by Keyword Section */}
         <div className="mb-5">
-          <h3 className="mb-3" style={{ fontWeight: 'bold' }}>Search by keyword</h3>
-          <div className="mb-3">
-            <Label for="keyword-search" className="form-label">Keywords</Label>
+          <div className="d-flex gap-2 mb-3">
             <Input
               id="keyword-search"
               type="text"
@@ -234,15 +238,15 @@ const Experts: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ fontStyle: 'italic' }}
+              className="flex-grow-1"
             />
+            <Button 
+              color="primary" 
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
           </div>
-          <Button 
-            color="primary" 
-            onClick={handleSearch}
-            className="mb-4"
-          >
-            Search
-          </Button>
         </div>
 
         {/* Filters and Sort Controls */}
@@ -257,52 +261,35 @@ const Experts: React.FC = () => {
           </Col>
           <Col xs="12" md="8">
             <div className="d-flex justify-content-md-end align-items-center gap-3 flex-wrap">
-              <span className="text-muted">Industry:</span>
+              <span className="text-muted">Area of expertise:</span>
               <Dropdown isOpen={industryDropdownOpen} toggle={() => setIndustryDropdownOpen(!industryDropdownOpen)}>
                 <DropdownToggle caret size="sm">
-                  {industryFilter || 'All Industries'}
+                  {industryFilter || 'All Areas of Expertise'}
                 </DropdownToggle>
                 <DropdownMenu>
-                  <DropdownItem onClick={() => setIndustryFilter('')}>All Industries</DropdownItem>
-                  {industries.map(industry => (
-                    <DropdownItem key={industry} onClick={() => setIndustryFilter(industry || '')}>
-                      {industry}
+                  <DropdownItem onClick={() => setIndustryFilter('')}>All Areas of Expertise</DropdownItem>
+                  {areasOfExpertise.map(area => (
+                    <DropdownItem key={area} onClick={() => setIndustryFilter(area || '')}>
+                      {area}
                     </DropdownItem>
                   ))}
                 </DropdownMenu>
               </Dropdown>
 
-              <span className="text-muted">Location:</span>
+              <span className="text-muted">Local Group:</span>
               <Dropdown isOpen={locationDropdownOpen} toggle={() => setLocationDropdownOpen(!locationDropdownOpen)}>
                 <DropdownToggle caret size="sm">
-                  {locationFilter || 'All Locations'}
+                  {locationFilter || 'All Local Groups'}
                 </DropdownToggle>
                 <DropdownMenu>
-                  <DropdownItem onClick={() => setLocationFilter('')}>All Locations</DropdownItem>
+                  <DropdownItem onClick={() => setLocationFilter('')}>All Local Groups</DropdownItem>
                   {locations.map(location => (
-                    <DropdownItem key={location} onClick={() => setLocationFilter(location)}>
+                    <DropdownItem key={location} onClick={() => setLocationFilter(location || '')}>
                       {location}
                     </DropdownItem>
                   ))}
                 </DropdownMenu>
               </Dropdown>
-
-              <span className="text-muted">Sort by:</span>
-              <Dropdown isOpen={sortDropdownOpen} toggle={() => setSortDropdownOpen(!sortDropdownOpen)}>
-                <DropdownToggle caret size="sm">
-                  {sortBy === 'name' ? 'Alphabetical (A - Z)' : 
-                   sortBy === 'location' ? 'Location' :
-                   sortBy === 'occupation' ? 'Occupation' :
-                   'Industry'}
-                </DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem onClick={() => setSortBy('name')}>Alphabetical (A - Z)</DropdownItem>
-                  <DropdownItem onClick={() => setSortBy('location')}>Location</DropdownItem>
-                  <DropdownItem onClick={() => setSortBy('occupation')}>Occupation</DropdownItem>
-                  <DropdownItem onClick={() => setSortBy('industry')}>Industry</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-
 
               <Button color="secondary" onClick={clearFilters} size="sm">
                 Clear Filters
@@ -328,7 +315,7 @@ const Experts: React.FC = () => {
                       {/* Photo */}
                       <div className="text-center mb-3">
                         <img
-                          src={expert.photo || "https://via.placeholder.com/120x120/6c757d/ffffff?text=?"}
+                          src={expert.photo}
                           alt={`${expert.user.first_name} ${expert.user.last_name}`}
                           className="rounded-circle"
                           style={{ width: '120px', height: '120px', objectFit: 'cover' }}
@@ -340,54 +327,46 @@ const Experts: React.FC = () => {
                         {expert.user.first_name} {expert.user.last_name}
                       </h5>
                       
-                      {/* Location */}
+                      {/* Local Group */}
                       <p className="text-center text-muted mb-3" style={{ fontSize: '0.9rem' }}>
-                        {expert.user.city}, {expert.user.state}
+                        {expert.user.local_group?.group_name || 'No local group'}
                       </p>
                       
                       {/* Divider */}
                       <hr className="my-3" />
                       
-                      {/* Area of Expertise */}
-                      <div className="mb-3">
-                        <p className="mb-1" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
-                          Area of expertise:
-                        </p>
-                        <p className="text-muted" style={{ fontSize: '0.85rem' }}>
-                          {expert.industry?.industry_name || 'General'} — {expert.occupation}
-                        </p>
-                      </div>
-                      
-                      {/* Description */}
-                      {expert.expertise && expert.expertise[0] && (
+                      {/* Expertise List */}
+                      {expert.expertise && expert.expertise.length > 0 && (
                         <div className="mb-4">
-                          <p className="text-muted" style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-                            {expert.expertise[0].what_offering.length > 120 
-                              ? `${expert.expertise[0].what_offering.substring(0, 120)}...` 
-                              : expert.expertise[0].what_offering}
-                          </p>
+                          {expert.expertise.map((exp, index) => (
+                            <div key={index} className="mb-3" style={{ fontSize: '0.85rem' }}>
+                              {exp.area_of_expertise_name && (
+                                <p className="mb-1" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                  {exp.area_of_expertise_name}
+                                </p>
+                              )}
+                              {exp.what_offering && (
+                                <p className="text-muted" style={{ lineHeight: '1.4' }}>
+                                  {exp.what_offering.length > 100 
+                                    ? `${exp.what_offering.substring(0, 100)}...` 
+                                    : exp.what_offering}
+                                </p>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                       
                       {/* Action Buttons */}
                       <div className="d-flex gap-2">
                         <Button
-                          color="outline-primary"
+                          color="primary"
                           size="sm"
                           tag={Link}
                           to={`/expert/${expert.user.id}`}
                           className="flex-fill"
-                          style={{ borderColor: '#007bff', color: '#007bff' }}
                         >
                           See full profile
-                        </Button>
-                        <Button
-                          color="primary"
-                          size="sm"
-                          onClick={() => openModal(expert)}
-                          className="flex-fill"
-                        >
-                          Send request
                         </Button>
                       </div>
                     </CardBody>
@@ -421,16 +400,6 @@ const Experts: React.FC = () => {
             </Row>
           )}
         </>
-      )}
-
-      {/* Connection Request Modal */}
-      {selectedExpert && (
-        <ConnectionRequestModal
-          isOpen={modalOpen}
-          toggle={closeModal}
-          expertName={`${selectedExpert.user.first_name} ${selectedExpert.user.last_name}`}
-          expertId={selectedExpert.user.id}
-        />
       )}
     </div>
   );
