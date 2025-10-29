@@ -77,12 +77,12 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
 
       console.log("API response:", data);
       
-      if (data && typeof data === 'object' && !Array.isArray(data) && data.id) {
+      if (data && typeof data === 'object' && !Array.isArray(data) && 'id' in data) {
         // Transform the response to ensure all fields are present
         const newIndustry = {
-          id: data.id,
-          industry_name: data.industry_name || '',
-          industry_description: data.industry_description || ''
+          id: (data as any).id,
+          industry_name: (data as any).industry_name || '',
+          industry_description: (data as any).industry_description || ''
         };
         console.log("Adding to state:", newIndustry);
         setIndustries((prev) => [...prev, newIndustry]);
@@ -131,9 +131,9 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
 
       if (data && !Array.isArray(data)) {
         const updatedIndustry = {
-          id: data.id,
-          industry_name: data.industry_name || '',
-          industry_description: data.industry_description || ''
+          id: (data as any).id,
+          industry_name: (data as any).industry_name || '',
+          industry_description: (data as any).industry_description || ''
         };
         setIndustries((prev) =>
           prev.map((i) =>

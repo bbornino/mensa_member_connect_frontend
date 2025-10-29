@@ -6,9 +6,7 @@ import {
   FormGroup,
   Label,
   Input,
-  Button,
   Alert,
-  Spinner,
 } from "reactstrap";
 import { useApiRequest } from "../../utils/useApiRequest";
 
@@ -40,7 +38,6 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
   const [industries, setIndustries] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -83,7 +80,6 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
     e.preventDefault();
     setError("");
     setSuccess("");
-    setIsSaving(true);
 
     try {
       // Save expert profile data
@@ -117,8 +113,6 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
       onSave();
     } catch (err: any) {
       setError(err.message || "Error updating expert profile");
-    } finally {
-      setIsSaving(false);
     }
   };
 
