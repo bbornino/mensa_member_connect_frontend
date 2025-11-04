@@ -45,6 +45,7 @@ interface MemberFormData {
   local_group_id?: string;
   role?: string;
   status?: string;
+  photo?: File | string;
 }
 
 interface FormErrors {
@@ -85,6 +86,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const [localGroups, setLocalGroups] = useState<{ id: number; group_name: string; group_number: string }[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
@@ -175,6 +177,19 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
   const handleMemberIdToggle = () => setShowMemberId((prev) => !prev);
+
+  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, photo: file }));
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   // Strict format: (555) 123-4567
@@ -324,42 +339,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           </Col>
           <Col md="6">
             <FormGroup>
-              <Label htmlFor="email">
-                Email <span className="text-danger">*</span>
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                invalid={!!formErrors.email}
-              />
-              <FormFeedback>{formErrors.email}</FormFeedback>
-            </FormGroup>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md="6">
-            <FormGroup>
-              <Label htmlFor="phone">
-                Phone Number <span className="text-danger">*</span>
-              </Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="(555) 123-4567"
-                invalid={!!formErrors.phone}
-              />
-              <FormFeedback>{formErrors.phone}</FormFeedback>
-            </FormGroup>
-          </Col>
-          <Col md="6">
-            <FormGroup>
               <Label htmlFor="member_id">
                 Member ID <span className="text-danger">*</span>
               </Label>
@@ -395,6 +374,42 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 />
               )}
               <FormFeedback>{formErrors.member_id}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="phone">
+                Phone Number <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="(555) 123-4567"
+                invalid={!!formErrors.phone}
+              />
+              <FormFeedback>{formErrors.phone}</FormFeedback>
+            </FormGroup>
+          </Col>
+          <Col md="6">
+            <FormGroup>
+              <Label htmlFor="email">
+                Email <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                invalid={!!formErrors.email}
+              />
+              <FormFeedback>{formErrors.email}</FormFeedback>
             </FormGroup>
           </Col>
         </Row>
@@ -464,6 +479,43 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 ))}
               </Input>
               <FormFeedback>{formErrors.local_group}</FormFeedback>
+            </FormGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md="12">
+            <FormGroup>
+              <Label htmlFor="photo">Profile Photo</Label>
+              <div className="d-flex align-items-center gap-3">
+                {photoPreview && (
+                  <div>
+                    <img
+                      src={photoPreview}
+                      alt="Profile preview"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                        border: "2px solid #dee2e6",
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="flex-grow-1">
+                  <Input
+                    id="photo"
+                    name="photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                  />
+                  <small className="text-muted d-block mt-1">
+                    Upload a profile photo (JPG, PNG, or GIF)
+                  </small>
+                </div>
+              </div>
             </FormGroup>
           </Col>
         </Row>
