@@ -286,12 +286,12 @@ const Register: React.FC = () => {
     }
 
     if (!formData.member_id.trim()) {
-      setError("Member ID is required.");
+      setError("Mensa Member ID is required.");
       return;
     }
 
     if (!validateMemberId(formData.member_id)) {
-      setError("Member ID must be numeric.");
+      setError("Mensa Member ID must be numeric.");
       return;
     }
 
@@ -370,63 +370,25 @@ const Register: React.FC = () => {
               </Col>
             </Row>
             <Row>
-              <Col md={6}>
+              <Col md={12}>
                 <FormGroup>
-                  <Label htmlFor="username">
-                    User Name <span className="text-danger">*</span>
+                  <Label htmlFor="local_group">
+                    Local Group <span className="text-danger">*</span>
                   </Label>
                   <Input
-                    id="username"
-                    type="text"
-                    value={formData.username}
+                    id="local_group"
+                    type="select"
+                    value={formData.local_group}
                     onChange={handleChange}
                     required
-                  />
-                </FormGroup>
-              </Col>
-              <Col>
-                <FormGroup>
-                  <Label htmlFor="email">
-                    Email <span className="text-danger">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label htmlFor="phone">
-                    Phone Number <span className="text-danger">*</span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="(555) 123-4567"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label htmlFor="member_id">
-                    Member ID <span className="text-danger">*</span>
-                  </Label>
-                  <Input
-                    id="member_id"
-                    type="text"
-                    value={formData.member_id}
-                    onChange={handleChange}
-                    required
-                  />
+                  >
+                    <option value="">Please select</option>
+                    {LOCAL_GROUPS.map((group) => (
+                      <option key={group} value={group}>
+                        {group}
+                      </option>
+                    ))}
+                  </Input>
                 </FormGroup>
               </Col>
             </Row>
@@ -468,25 +430,63 @@ const Register: React.FC = () => {
               </Col>
             </Row>
             <Row>
-              <Col md={12}>
+              <Col md={6}>
                 <FormGroup>
-                  <Label htmlFor="local_group">
-                    Local Group <span className="text-danger">*</span>
+                  <Label htmlFor="email">
+                    Email <span className="text-danger">*</span>
                   </Label>
                   <Input
-                    id="local_group"
-                    type="select"
-                    value={formData.local_group}
+                    id="email"
+                    type="email"
+                    value={formData.email}
                     onChange={handleChange}
                     required
-                  >
-                    <option value="">Please select</option>
-                    {LOCAL_GROUPS.map((group) => (
-                      <option key={group} value={group}>
-                        {group}
-                      </option>
-                    ))}
-                  </Input>
+                  />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label htmlFor="phone">
+                    Phone Number <span className="text-danger">*</span>
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label htmlFor="username">
+                    User Name <span className="text-danger">*</span>
+                  </Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={handleChange}
+                    required
+                  />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label htmlFor="member_id">
+                    Mensa Member ID <span className="text-danger">*</span>
+                  </Label>
+                  <Input
+                    id="member_id"
+                    type="text"
+                    value={formData.member_id}
+                    onChange={handleChange}
+                    required
+                  />
                 </FormGroup>
               </Col>
             </Row>
