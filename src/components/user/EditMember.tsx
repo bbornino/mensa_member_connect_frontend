@@ -42,10 +42,9 @@ interface MemberFormData {
   phone: string;
   member_id: string;
   local_group: string;
-  local_group_id?: string;
   role?: string;
   status?: string;
-  photo?: File | string;
+  profile_photo?: File | string;
 }
 
 interface FormErrors {
@@ -78,6 +77,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
     local_group: "",
     role: "",
     status: "",
+    profile_photo: undefined, 
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -107,7 +107,13 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         local_group: data.local_group || "",
         role: data.role,
         status: data.status,
+        profile_photo: data.profile_photo || undefined,
       });
+
+      // If editing an existing photo, set preview
+      if (data.profile_photo) {
+        setPhotoPreview(data.profile_photo);
+      }
     }
   }, [data]);
 
@@ -188,7 +194,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         setPhotoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
+      }
   };
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -262,12 +268,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       if (!payload.password) delete payload.password;
       if (!payload.confirm_password) delete payload.confirm_password;
       
-      // Convert local_group to local_group_id for the API
-      if (payload.local_group) {
-        (payload as any).local_group_id = payload.local_group;
-        delete (payload as any).local_group;
-      }
-
       await apiRequest(`users/${data.id}/`, {
         method: "PATCH",
         body: JSON.stringify(payload),
@@ -486,7 +486,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         <Row>
           <Col md="12">
             <FormGroup>
-              <Label htmlFor="photo">Profile Photo</Label>
+              <Label htmlFor="profile_photo">Profile Photo</Label>
               <div className="d-flex align-items-center gap-3">
                 {photoPreview && (
                   <div>
@@ -505,8 +505,8 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 )}
                 <div className="flex-grow-1">
                   <Input
-                    id="photo"
-                    name="photo"
+                    id="profile_photo"
+                    name="profile_photo"
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoChange}
