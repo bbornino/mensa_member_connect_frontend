@@ -44,7 +44,11 @@ export async function customFetch(
 
     let body: string | undefined;
     if (methodsWithBody.includes(options.method || '')) {
-      if (typeof options.body === 'string') {
+      if (options.body instanceof FormData) {
+        // FormData should be sent as-is
+        body = options.body;
+        // Do NOT manually set Content-Type for FormData
+      } else if (typeof options.body === 'string') {
         body = options.body; // already JSON stringified by caller
       } else {
         body = JSON.stringify(options.body); // convert object to JSON
