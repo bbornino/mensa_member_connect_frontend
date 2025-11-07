@@ -36,8 +36,8 @@ export async function customFetch(
     }
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     };
 
     const methodsWithBody = ['POST', 'PUT', 'PATCH', 'DELETE'];
