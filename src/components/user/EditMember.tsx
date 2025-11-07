@@ -112,7 +112,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
 
       // If editing an existing photo, set preview
       if (data.profile_photo) {
-        setPhotoPreview(data.profile_photo);
+        setPhotoPreview(`data:image/jpeg;base64,${data.profile_photo}`);
       }
     }
   }, [data]);
