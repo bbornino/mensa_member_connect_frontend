@@ -187,7 +187,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, photo: file }));
+      setFormData((prev) => ({ ...prev, profile_photo: file }));
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -263,15 +263,30 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
     setIsSaving(true);
 
     try {
-      const payload = { ...formData };
-      // Don't send empty password to API
-      if (!payload.password) delete payload.password;
-      if (!payload.confirm_password) delete payload.confirm_password;
-      
-      await apiRequest(`users/${data.id}/`, {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      });
+      const patchPayload: Partial<MemberFormData> = { ...formData };
+      if (!patchPayload.password) delete patchPayload.password;
+      if (!patchPayload.confirm_password) delete patchPayload.confirm_password;
+      if (patchPayload.profile_photo) delete patchPayload.profile_photo; // photo goes separately
+
+      // Prepare FormData for the photo (if one was selected)
+      let photoRequest: Promise<any> = Promise.resolve(); // default: do nothing
+      if (formData.profile_photo && formData.profile_photo instanceof File) {
+        const formDataObj = new FormData();
+        formDataObj.append("profile_photo", formData.profile_photo);
+        photoRequest = apiRequest(`users/${data.id}/photo/`, {
+          method: "POST",
+          body: formDataObj,
+        });
+      }
+
+      // Run PATCH and POST in parallel
+      await Promise.all([
+        apiRequest(`users/${data.id}/`, {
+          method: "PATCH",
+          body: JSON.stringify(patchPayload),
+        }),
+        photoRequest,
+      ]);
 
       setSuccess("Profile updated successfully!");
       onSave();
