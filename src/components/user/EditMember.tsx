@@ -57,6 +57,7 @@ interface FormErrors {
   state?: string;
   local_group?: string;
   password?: string;
+  profile_photo?: string;
   general?: string;
 }
 
@@ -187,6 +188,36 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (5MB limit)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > MAX_FILE_SIZE) {
+        setFormErrors((prev) => ({
+          ...prev,
+          profile_photo: "Image file size must be less than 5MB",
+        }));
+        // Clear the file input
+        e.target.value = "";
+        return;
+      }
+
+      // Validate file type
+      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+      if (!validTypes.includes(file.type)) {
+        setFormErrors((prev) => ({
+          ...prev,
+          profile_photo: "Please upload a JPG, PNG, or GIF image",
+        }));
+        e.target.value = "";
+        return;
+      }
+
+      // Clear any previous errors
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.profile_photo;
+        return newErrors;
+      });
+
       setFormData((prev) => ({ ...prev, profile_photo: file }));
       // Create preview URL
       const reader = new FileReader();
@@ -194,7 +225,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         setPhotoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      }
+    }
   };
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -523,12 +554,16 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                     id="profile_photo"
                     name="profile_photo"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/gif"
                     onChange={handlePhotoChange}
+                    invalid={!!formErrors.profile_photo}
                   />
                   <small className="text-muted d-block mt-1">
-                    Upload a profile photo (JPG, PNG, or GIF)
+                    Upload a profile photo (JPG, PNG, or GIF, max 5MB)
                   </small>
+                  {formErrors.profile_photo && (
+                    <FormFeedback>{formErrors.profile_photo}</FormFeedback>
+                  )}
                 </div>
               </div>
             </FormGroup>
