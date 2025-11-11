@@ -1,0 +1,81 @@
+@import './variables';
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-md}) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+// Container
+@mixin container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $spacing-sm;
+}
+
+// Flexbox utilities
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// Button base styles
+@mixin button-base {
+  padding: 0.75rem 2.5rem;
+  border-radius: $border-radius-lg;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 500;
+  font-size: $font-size-base;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-base;
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: $color-navy;
+  color: $color-white;
+
+  &:hover {
+    background-color: darken($color-navy, 10%);
+  }
+}
+
+// Text utilities
+@mixin text-center {
+  text-align: center;
+}
+
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

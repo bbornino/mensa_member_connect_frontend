@@ -1,0 +1,86 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.footer {
+  padding: $spacing-xl $spacing-sm $spacing-lg;
+  margin-top: auto;
+}
+
+.container {
+  @include container;
+  padding: 0;
+}
+
+.logoContainer {
+  @include flex-center;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-sm;
+  justify-content: flex-start;
+}
+
+.logoShape {
+  width: 20px;
+  height: 20px;
+  border: 2px solid $color-gray-medium;
+  border-radius: $border-radius-sm;
+
+  &.square {
+    // Default square shape
+  }
+
+  &.triangle {
+    width: 0;
+    height: 0;
+    border: none;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 18px solid $color-gray-medium;
+    border-radius: 0;
+  }
+
+  &.circle {
+    border-radius: 50%;
+  }
+}
+
+.linksContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-2xl;
+  flex-wrap: wrap;
+}
+
+.section {
+  // Platform and Support sections
+}
+
+.sectionTitle {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-gray-text;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  margin-bottom: $spacing-xs;
+}
+
+.link {
+  color: $color-gray-text;
+  text-decoration: none;
+  font-size: $font-size-sm;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $color-black;
+    text-decoration: underline;
+  }
+}

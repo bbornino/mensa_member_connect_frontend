@@ -1,0 +1,110 @@
+@import './variables';
+@import './mixins';
+
+// Base styles
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: 0;
+}
+
+code {
+  font-family: $font-family-code;
+}
+
+// Container utilities
+.centered-container {
+  max-width: $container-max-width !important;
+  margin: 0 auto !important;
+  padding: 0 $spacing-sm;
+
+  @include mobile {
+    padding: 0 $spacing-xs;
+  }
+}
+
+// Navbar styling
+.navbar {
+  box-shadow: $shadow-sm;
+}
+
+// Expert card styling
+.expert-card {
+  transition: transform $transition-base;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Search section styling
+.search-section {
+  background-color: $color-gray-lighter;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+// Sort dropdown styling
+.sort-dropdown {
+  min-width: 200px;
+}
+
+// Pagination styling
+.pagination {
+  justify-content: center;
+  margin-top: $spacing-lg;
+}
+
+// Loading spinner centering
+.loading-container {
+  @include flex-center;
+  min-height: 200px;
+}
+
+// Alert styling
+.alert {
+  border-radius: $border-radius-lg;
+}
+
+// Button styling (Bootstrap override)
+.btn {
+  border-radius: $border-radius-md;
+}
+
+.btn-primary {
+  background-color: $color-navy !important;
+  border-color: $color-navy !important;
+  color: $color-white !important;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &.active {
+    background-color: darken($color-navy, 10%) !important;
+    border-color: darken($color-navy, 10%) !important;
+    color: $color-white !important;
+  }
+
+  &:disabled {
+    background-color: $color-navy !important;
+    border-color: $color-navy !important;
+    opacity: 0.6;
+  }
+}
+
+// Form styling (Bootstrap override)
+.form-control {
+  border-radius: $border-radius-md;
+}
+
+// Card styling (Bootstrap override)
+.card {
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+}
+

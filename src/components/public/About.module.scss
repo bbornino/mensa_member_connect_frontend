@@ -1,0 +1,35 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cardBody {
+  padding: 2.5rem;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.content {
+  line-height: 1.8;
+}
+
+.sectionHeading {
+  font-size: $font-size-2xl;
+  font-weight: 600;
+  margin-top: $spacing-lg;
+  margin-bottom: $spacing-sm;
+
+  @include mobile {
+    font-size: 1.5rem;
+  }
+}
+
+.teamList {
+  list-style: none;
+  padding-left: 0;
+}

@@ -4,8 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 import { RefreshProvider } from './context/RefreshContext';
-import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles/globals.scss';
 
 import App from './App.tsx';
 

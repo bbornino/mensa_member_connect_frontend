@@ -29,6 +29,7 @@ import Dashboard from "./components/members/Dashboard";
 // Main Menu
 import { useAuth } from "./context/AuthContext";
 import MainMenu from "./components/shared/MainMenu";
+import Footer from "./components/shared/Footer";
 
 function App() {
   const { isLoading } = useAuth();
@@ -89,6 +90,7 @@ function App() {
           </Routes>
         </Container>
       </div>
+      <Footer />
     </>
   );
 }
