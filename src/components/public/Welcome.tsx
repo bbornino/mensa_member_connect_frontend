@@ -9,10 +9,10 @@ export default function Welcome() {
         {/* Hero Section */}
         <div className={styles.heroSection}>
           <h1 className={styles.heroTitle}>
-            Expert connections.
+            Expert member-to-member connections.
           </h1>        
           <p className={styles.heroSubtitle}>
-            Unlock member-to-member advice.
+          This interactive site is designed to bring together Mensa members who want to volunteer their expertise with those who may benefit from their guidance.
           </p>
 
           {/* Call-to-Action Section */}

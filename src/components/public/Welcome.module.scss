@@ -135,7 +135,8 @@
 .teamSection {
   text-align: center;
   margin-top: $spacing-lg;
-  margin-bottom: $spacing-lg;
+  margin-bottom: $spacing-sm;
+  display: none;
 }
 
 .teamHeader {
@@ -178,7 +179,6 @@
 
 .betaNote {
   @include text-center;
-  padding-bottom: $spacing-xl;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -195,7 +195,6 @@
   @include text-center;
   padding-top: $spacing-xl;
   padding-bottom: $spacing-xl;
-  border-top: 1px solid $color-gray-border;
   margin-top: $spacing-md;
 }
 
