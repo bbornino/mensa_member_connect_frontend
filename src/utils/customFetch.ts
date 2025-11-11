@@ -42,7 +42,7 @@ export async function customFetch(
 
     const methodsWithBody = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
-    let body: string | undefined;
+    let body: string | FormData | undefined;
     if (methodsWithBody.includes(options.method || '')) {
       if (options.body instanceof FormData) {
         // FormData should be sent as-is
@@ -71,7 +71,7 @@ export async function customFetch(
       localStorage.setItem('access_token', newAccessToken);
 
       const retryHeaders: HeadersInit = {
-        'Content-Type': 'application/json',
+        ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         Authorization: `Bearer ${newAccessToken}`,
       };
 
