@@ -242,6 +242,16 @@ const UserDetail: React.FC = () => {
                       {expert && (
                         <>
                           <p><strong>Occupation:</strong> {expert.occupation}</p>
+                          {expert.show_contact_info && (
+                            <>
+                              {user.phone && (
+                                <p><strong>Phone:</strong> {user.phone}</p>
+                              )}
+                              {user.email && (
+                                <p><strong>Email:</strong> {user.email}</p>
+                              )}
+                            </>
+                          )}
                           {expert.industry && (
                             <p><strong>Industry:</strong> {expert.industry.industry_name}</p>
                           )}
