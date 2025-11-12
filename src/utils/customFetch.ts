@@ -91,6 +91,27 @@ export async function customFetch(
 
     if (!response.ok && response.status !== 401) {
       console.error(`HTTP Error: ${response.status} - ${response.statusText}`);
+      
+      // Try to get error details from response
+      const contentType = response.headers.get('Content-Type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        console.error('Error details:', errorData);
+        // Log each field's errors for debugging
+        Object.entries(errorData).forEach(([field, errors]: [string, any]) => {
+          console.error(`Field "${field}" errors:`, errors);
+        });
+        // Throw error with details so it can be caught and handled
+        const error = new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
+        (error as any).status = response.status;
+        (error as any).data = errorData;
+        throw error;
+      } else {
+        const text = await response.text();
+        const error = new Error(`HTTP Error: ${response.status} - ${response.statusText}: ${text}`);
+        (error as any).status = response.status;
+        throw error;
+      }
     }
 
     const contentType = response.headers.get('Content-Type');
@@ -106,9 +127,14 @@ export async function customFetch(
     }
 
     return data || [];
-  } catch (error) {
+  } catch (error: any) {
+    // If error already has status/data, re-throw it (it's an HTTP error we want to propagate)
+    if (error.status) {
+      throw error;
+    }
+    // Otherwise, it's a network/other error
     console.error('Custom fetch error:', error);
-    return [];
+    throw error;
   } finally {
     isRefreshing = false;
     refreshPromise = null;

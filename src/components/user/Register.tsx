@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
+import { formatPhoneNumber, validatePhone } from "../../utils/phoneUtils";
 import {
   Container,
   Row,
@@ -196,22 +197,6 @@ const Register: React.FC = () => {
     document.title = "Register - MENSA Tracker";
   }, []);
 
-  const formatPhoneNumber = (value: string): string => {
-    // Remove all non-numeric characters
-    const numbers = value.replace(/\D/g, '');
-    
-    // Limit to 10 digits
-    const limitedNumbers = numbers.slice(0, 10);
-    
-    // Format based on length
-    if (limitedNumbers.length <= 3) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3)}`;
-    } else {
-      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3, 6)}-${limitedNumbers.slice(6)}`;
-    }
-  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -232,11 +217,6 @@ const Register: React.FC = () => {
     return emailRegex.test(email);
   };
 
-  const validatePhone = (phone: string): boolean => {
-    // Strict format: (555) 123-4567
-    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
-    return phoneRegex.test(phone);
-  };
 
   const validateMemberId = (memberId: string): boolean => {
     // Must be numeric (only digits)

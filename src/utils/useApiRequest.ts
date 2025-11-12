@@ -23,7 +23,8 @@ export function useApiRequest<T = any>() {
       } catch (err: any) {
         setError(err?.message ?? "Unknown error");
         console.error(err);
-        return null;
+        // Re-throw the error so it can be caught and handled by the caller
+        throw err;
       }
     },
     [navigate, accessToken, refreshToken]

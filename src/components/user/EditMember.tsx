@@ -13,6 +13,11 @@ import {
   Spinner,
 } from "reactstrap";
 import { useApiRequest } from "../../utils/useApiRequest";
+import {
+  formatPhoneNumber,
+  convertPhoneToE164,
+  validatePhoneNumber,
+} from "../../utils/phoneUtils";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -142,27 +147,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   }, [apiRequest]);
 
 
-  const formatPhoneNumber = (value: string): string => {
-    // Remove all non-numeric characters
-    let numbers = value.replace(/\D/g, '');
-
-    // Remove leading '1' if number is 11 digits (US country code)
-    if (numbers.length === 11 && numbers.startsWith('1')) {
-      numbers = numbers.slice(1);
-    }
-    
-    // Limit to 10 digits
-    const limitedNumbers = numbers.slice(0, 10);
-    
-    // Format based on length
-    if (limitedNumbers.length <= 3) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3)}`;
-    } else {
-      return `(${limitedNumbers.slice(0, 3)}) ${limitedNumbers.slice(3, 6)}-${limitedNumbers.slice(6)}`;
-    }
-  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, name, value } = e.target;
@@ -229,8 +213,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   };
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  // Strict format: (555) 123-4567
-  const validatePhone = (phone: string) => /^\(\d{3}\) \d{3}-\d{4}$/.test(phone);
   const validateMemberId = (memberId: string) => /^\d+$/.test(memberId);
 
   const validateForm = (): boolean => {
@@ -250,10 +232,10 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (!formData.phone?.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number in the format: (555) 123-4567";
+    // Validate phone number with detailed error messages
+    const phoneValidation = validatePhoneNumber(formData.phone || "");
+    if (!phoneValidation.isValid) {
+      newErrors.phone = phoneValidation.error || "Please enter a valid phone number";
     }
 
     if (!formData.member_id?.trim()) {
@@ -298,6 +280,31 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       if (!patchPayload.password) delete patchPayload.password;
       if (!patchPayload.confirm_password) delete patchPayload.confirm_password;
       if (patchPayload.profile_photo) delete patchPayload.profile_photo; // photo goes separately
+      
+      // Convert phone number from formatted (555) 123-4567 to E.164 format +15551234567
+      // The backend's DRFPhoneNumberField with region="US" should accept E.164 format
+      // If it's already in E.164 format (starts with +), send it as-is
+      if (patchPayload.phone) {
+        const originalPhone = patchPayload.phone;
+        // If already in E.164 format, use as-is
+        if (originalPhone.startsWith('+')) {
+          // Keep it as-is
+        } else {
+          // Convert from display format to E.164
+          const convertedPhone = convertPhoneToE164(patchPayload.phone);
+          if (convertedPhone === null) {
+            // If conversion fails, remove phone from payload (let backend handle validation)
+            delete patchPayload.phone;
+            console.warn("Phone conversion failed, removing from payload:", originalPhone);
+          } else {
+            patchPayload.phone = convertedPhone;
+          }
+        }
+      } else {
+        // If phone is empty, don't send it (backend will keep existing value)
+        delete patchPayload.phone;
+      }
+
 
       // Prepare FormData for the photo (if one was selected)
       let photoRequest: Promise<any> = Promise.resolve(); // default: do nothing
@@ -322,7 +329,45 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       setSuccess("Profile updated successfully!");
       onSave();
     } catch (err: any) {
-      setError(err.message || "Error updating profile");
+      console.error("Error updating profile:", err);
+      // Extract error message from backend response
+      let errorMessage = "Error updating profile";
+      const fieldErrors: FormErrors = {};
+      
+      if (err.data) {
+        // Backend validation errors
+        const errorDetails = err.data;
+        if (typeof errorDetails === 'object') {
+          Object.entries(errorDetails).forEach(([field, messages]: [string, any]) => {
+            const message = Array.isArray(messages) ? messages.join(', ') : String(messages);
+            
+            // Map backend field names to form field names
+            if (field === 'phone') {
+              fieldErrors.phone = message === 'Enter a valid phone number.' 
+                ? 'Please enter a valid phone number. Make sure it is a real phone number (not all the same digits).'
+                : message;
+            } else {
+              // Set field-specific errors
+              (fieldErrors as any)[field] = message;
+            }
+            
+            // Build general error message
+            const fieldLabel = field === 'phone' ? 'Phone number' : field;
+            errorMessage = `${fieldLabel}: ${message}`;
+          });
+        } else if (typeof errorDetails === 'string') {
+          errorMessage = errorDetails;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      // Set field-specific errors if any
+      if (Object.keys(fieldErrors).length > 0) {
+        setFormErrors((prev) => ({ ...prev, ...fieldErrors }));
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsSaving(false);
     }
