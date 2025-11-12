@@ -311,7 +311,7 @@ const Experts: React.FC = () => {
               {currentExperts.map((expert) => (
                 <Col md="6" lg="4" key={expert.id} className="mb-4">
                   <Card className="h-100 expert-card" style={{ border: '1px solid #e9ecef', borderRadius: '8px' }}>
-                    <CardBody className="p-4">
+                    <CardBody className="p-4 d-flex flex-column">
                       {/* Photo */}
                       <div className="text-center mb-3">
                         <img
@@ -335,27 +335,29 @@ const Experts: React.FC = () => {
                       {/* Divider */}
                       <hr className="my-3" />
                       
-                      {/* Expertise List */}
-                      {expert.expertise && expert.expertise.length > 0 && (
-                        <div className="mb-4">
-                          {expert.expertise.map((exp, index) => (
-                            <div key={index} className="mb-3" style={{ fontSize: '0.85rem' }}>
-                              {exp.area_of_expertise_name && (
-                                <p className="mb-1" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                  {exp.area_of_expertise_name}
-                                </p>
-                              )}
-                              {exp.what_offering && (
-                                <p className="text-muted" style={{ lineHeight: '1.4' }}>
-                                  {exp.what_offering.length > 100 
-                                    ? `${exp.what_offering.substring(0, 100)}...` 
-                                    : exp.what_offering}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {/* Expertise List - Wrapped in flex-grow container to push button to bottom */}
+                      <div className="flex-grow-1">
+                        {expert.expertise && expert.expertise.length > 0 && (
+                          <div className="mb-4">
+                            {expert.expertise.map((exp, index) => (
+                              <div key={index} className="mb-3" style={{ fontSize: '0.85rem' }}>
+                                {exp.area_of_expertise_name && (
+                                  <p className="mb-1" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                    {exp.area_of_expertise_name}
+                                  </p>
+                                )}
+                                {exp.what_offering && (
+                                  <p className="text-muted" style={{ lineHeight: '1.4' }}>
+                                    {exp.what_offering.length > 100 
+                                      ? `${exp.what_offering.substring(0, 100)}...` 
+                                      : exp.what_offering}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       
                       {/* Action Buttons */}
                       <div className="d-flex gap-2">
