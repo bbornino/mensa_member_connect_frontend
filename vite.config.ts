@@ -14,7 +14,9 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: [
       'frontend-production-2ea0.up.railway.app',
-      '.railway.app'
+      '.railway.app',
+      'namme.us',
+      'www.namme.us'
     ],
   },
 });
