@@ -315,7 +315,7 @@ const Register: React.FC = () => {
       <Form onSubmit={handleRegister}>
         <Card className="text-dark bg-light m-3 card-wide">
           <CardTitle tag="h5" className="p-3 mb-0">
-            <strong>Register</strong>
+            <strong>Register to use the network, either as an expert or an advice seeker</strong>
           </CardTitle>
 
           <CardBody>
@@ -458,7 +458,7 @@ const Register: React.FC = () => {
               <Col md={6}>
                 <FormGroup>
                   <Label htmlFor="member_id">
-                    Mensa Member ID <span className="text-danger">*</span>
+                    Mensa Membership Number <span className="text-danger">*</span>
                   </Label>
                   <Input
                     id="member_id"

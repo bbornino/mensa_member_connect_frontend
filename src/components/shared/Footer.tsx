@@ -18,9 +18,14 @@ export default function Footer() {
           <Col md={6}>
             {/* Logo */}
             <div className={styles.logoContainer}>
-              <div className={`${styles.logoShape} ${styles.square}`}></div>
-              <div className={`${styles.logoShape} ${styles.triangle}`}></div>
-              <div className={`${styles.logoShape} ${styles.circle}`}></div>
+              <Link to="/" className={styles.logoLink}>
+                <img 
+                  src="/favicon.svg" 
+                  alt="NAMME Logo" 
+                  className={styles.logo}
+                />
+                <span className={styles.siteName}>Network of American Mensa Member Experts</span>
+              </Link>
             </div>
           </Col>
           <Col md={6}>

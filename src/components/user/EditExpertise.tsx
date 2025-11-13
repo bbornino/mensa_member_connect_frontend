@@ -57,7 +57,15 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h6 className="mb-0">Expertise #{index + 1}</h6>
           {showRemove && onRemove && (
-            <Button color="danger" size="sm" onClick={onRemove}>
+            <Button 
+              color="danger" 
+              size="sm" 
+              onClick={() => {
+                if (window.confirm("Are you sure you want to remove this expertise?")) {
+                  onRemove();
+                }
+              }}
+            >
               Remove
             </Button>
           )}

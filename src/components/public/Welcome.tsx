@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
+import { useAuth } from "../../context/AuthContext";
 import styles from "./Welcome.module.scss";
 
 export default function Welcome() {
+  const { user } = useAuth();
   return (
     <div className={styles.welcomePage}>
       <Container className={styles.container}>
@@ -16,23 +18,36 @@ export default function Welcome() {
           </p>
 
           {/* Call-to-Action Section */}
-          <div className={styles.ctaSection}>
-            <Link 
-              to="/register" 
-              className={styles.ctaButton}
-            >
-              Join
-            </Link>
-          </div>
-          <p className={styles.loginPrompt}>
-            Already have an account?{" "}
-            <Link 
-              to="/login" 
-              className={styles.loginLink}
-            >
-              Login here
-            </Link>
-          </p>
+          {user ? (
+            <div className={styles.ctaSection}>
+              <Link 
+                to="/experts" 
+                className={styles.ctaButton}
+              >
+                View Experts
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className={styles.ctaSection}>
+                <Link 
+                  to="/register" 
+                  className={styles.ctaButton}
+                >
+                  Join
+                </Link>
+              </div>
+              <p className={styles.loginPrompt}>
+                Already have an account?{" "}
+                <Link 
+                  to="/login" 
+                  className={styles.loginLink}
+                >
+                  Login here
+                </Link>
+              </p>
+            </>
+          )}
         </div>
 
         {/* Feature Sections - Below main content */}
@@ -110,23 +125,36 @@ export default function Welcome() {
           <h2 className={styles.bottomCtaTitle}>
             Unlock new professional opportunities, insights, and impactful collaborations.
           </h2>
-          <div className={styles.bottomCtaButton}>
-            <Link 
-              to="/register" 
-              className={styles.ctaButton}
-            >
-              Join
-            </Link>
-          </div>
-          <p className={styles.loginPrompt}>
-            Already have an account?{" "}
-            <Link 
-              to="/login" 
-              className={styles.loginLink}
-            >
-              Login here
-            </Link>
-          </p>
+          {user ? (
+            <div className={styles.bottomCtaButton}>
+              <Link 
+                to="/experts" 
+                className={styles.ctaButton}
+              >
+                View Experts
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className={styles.bottomCtaButton}>
+                <Link 
+                  to="/register" 
+                  className={styles.ctaButton}
+                >
+                  Join
+                </Link>
+              </div>
+              <p className={styles.loginPrompt}>
+                Already have an account?{" "}
+                <Link 
+                  to="/login" 
+                  className={styles.loginLink}
+                >
+                  Login here
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </Container>
     </div>

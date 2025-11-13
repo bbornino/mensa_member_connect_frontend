@@ -28,11 +28,11 @@ export default function About() {
                 The idea for what became the <strong>Network of American Mensa Member Experts</strong> started with a simple desire: to make it easier for Mensa members to connect.
               </p>
 
-              <p className="mb-5">
+              <p className="mb-3">
                 At the 2025 Mensa Annual Gathering in Chicago, a session titled "Meeting Unmet Needs of Gifted Individuals" sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
               </p>
 
-              <p className="mb-5">
+              <p className="mb-3">
                 Ian Strock, a long-time American Mensa leader, had been developing an offline version of such a network on Mensa Connect. Meanwhile, Michael Miller independently proposed a similar initiative, MensaMentors. These parallel efforts converged into one unified project, bringing together a talented volunteer team of web designers, engineers, and editors who collaborated to create what is now the Network of American Mensa Member Experts.
               </p>
 
@@ -41,13 +41,14 @@ export default function About() {
               </h2>
               
               <ul className={`mb-5 ${styles.teamList}`}>
-                <li className="mb-2">Celline Lee – New York</li>
-                <li className="mb-2">Michael Miller – Chicago</li>
-                <li className="mb-2">Bryan Lenderman – Central Indiana</li>
-                <li className="mb-2">Sandy Feder – Sacramento</li>
-                <li className="mb-2">Steve Roberts – Central Texas</li>
-                <li className="mb-2">Briana Bornina – Sacramento</li>
-                <li className="mb-2">Billie Lee – Southeast Michigan</li>
+                <li className="mb-2">Billie Lee – Southeast Michigan Mensa</li>
+                <li className="mb-2">Briana Bornino – Sacramento Regional Mensa</li>
+                <li className="mb-2">Bryan Lenderman – Central Indiana Mensa</li>
+                <li className="mb-2">Celline Lee – Greater New York Mensa</li>
+                <li className="mb-2">Ian Randal Strock – Greater New York Mensa</li>
+                <li className="mb-2">Michael Miller – Chicago Area Mensa</li>
+                <li className="mb-2">Sandy Feder – Sacramento Regional Mensa</li>
+                <li className="mb-2">Steve Roberts – Central Texas Mensa</li>
               </ul>
 
               <Alert color="info" className="mt-4">

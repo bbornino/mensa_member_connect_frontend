@@ -221,10 +221,10 @@ const Experts: React.FC = () => {
         {/* Main Title and Subtitle */}
         <div className="mb-3">
           <h1 className="mb-3" style={{ fontWeight: 'bold', fontSize: '2.5rem' }}>
-            Find Mensa member experts for mentorship & advice
+            Find a Mensa member expert
           </h1>
           <p className="text-muted" style={{ fontSize: '1.1rem' }}>
-            Type a keyword (e.g., lawyer, ML mentor, violin) and browse results below.
+          Search by keyword (e.g.: real estate, baseball, genomics, lawyer, publishing)
           </p>
         </div>
 

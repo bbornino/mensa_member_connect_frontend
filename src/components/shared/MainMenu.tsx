@@ -85,6 +85,9 @@ export default function MainMenu() {
             {user ? (
               <>
                 <NavItem>
+                  <NavLink tag={Link} to="/about">About</NavLink>
+                </NavItem>
+                <NavItem>
                   <NavLink tag={Link} to="/experts">Experts</NavLink>
                 </NavItem>
                 <NavItem>
@@ -112,6 +115,9 @@ export default function MainMenu() {
               </>
             ) : (
               <>
+                <NavItem>
+                  <NavLink tag={Link} to="/about">About</NavLink>
+                </NavItem>
                 <NavItem>
                   <NavLink tag={Link} to="/login">Login</NavLink>
                 </NavItem>

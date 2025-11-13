@@ -229,7 +229,7 @@ const UserDetail: React.FC = () => {
                     </Button>
                   )}
                 </Col>
-                <Col md="8">
+                <Col md="8" className="mt-3 mt-md-0">
                   <Row>
                     <Col md="12">
                       <h4 className="mb-3"><strong>{user.first_name} {user.last_name}</strong></h4>

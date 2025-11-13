@@ -114,7 +114,7 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
 
               <FormGroup>
                 <Label htmlFor="message">
-                  Message / Context <span className="text-danger">*</span>
+                Message<span className="text-danger">*</span>
                 </Label>
                 <Input
                   id="message"
@@ -124,12 +124,11 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
                   value={formData.message}
                   onChange={handleInputChange}
                   invalid={!!formErrors.message}
-                  placeholder="Please describe what you're looking for help with, your background, and any specific questions you have..."
+                  placeholder="Please describe what expertise or advice you are seeking, and your pertinent information related to the request. Please be specific."
                 />
                 <FormFeedback>{formErrors.message}</FormFeedback>
                 <small className="form-text text-muted">
-                  Minimum 10 characters. Be specific about what you need help
-                  with.
+                  
                 </small>
               </FormGroup>
 
@@ -152,7 +151,7 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
                   <option value="other">Other (specify in message)</option>
                 </Input>
                 <small className="form-text text-muted">
-                  Let them know your preferred way to communicate.
+                  Let them know your preferred way to communicate. Some experts may have a chosen method of communication, and may not be able to respond to requests through other means.
                 </small>
               </FormGroup>
             </>

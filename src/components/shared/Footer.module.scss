@@ -15,34 +15,33 @@
 
 .logoContainer {
   @include flex-center;
-  gap: $spacing-xs;
   margin-bottom: $spacing-sm;
   justify-content: flex-start;
 }
 
-.logoShape {
-  width: 20px;
-  height: 20px;
-  border: 2px solid $color-gray-medium;
-  border-radius: $border-radius-sm;
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity $transition-base;
 
-  &.square {
-    // Default square shape
+  &:hover {
+    opacity: 0.8;
+    text-decoration: none;
   }
+}
 
-  &.triangle {
-    width: 0;
-    height: 0;
-    border: none;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 18px solid $color-gray-medium;
-    border-radius: 0;
-  }
+.logo {
+  width: 24px;
+  height: 24px;
+}
 
-  &.circle {
-    border-radius: 50%;
-  }
+.siteName {
+  font-weight: 600;
+  font-size: $font-size-base;
+  color: $color-black;
 }
 
 .linksContainer {

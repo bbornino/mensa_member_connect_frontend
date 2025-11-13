@@ -431,7 +431,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           <Col md="6">
             <FormGroup>
               <Label htmlFor="member_id">
-                Member ID <span className="text-danger">*</span>
+                Mensa Membership Number <span className="text-danger">*</span>
               </Label>
               {isAdminMode ? (
                 <div className="input-group">
