@@ -131,19 +131,23 @@ const UserDetail: React.FC = () => {
 
           // Fetch expertise records for this expert
           const expertises: any[] = await apiRequest(`expertises/by_user/${id}/`) || [];
-          if (expertises && expertises.length > 0) {
-            transformedExpert.expertise = expertises.map((exp: any) => ({
-              area_of_expertise_name: exp.area_of_expertise_name,
-              what_offering: exp.what_offering || "",
-              who_would_benefit: exp.who_would_benefit || "",
-              why_choose_you: exp.why_choose_you || "",
-              skills_not_offered: exp.skills_not_offered || "",
-            }));
+          
+          // Check if user has any expertise records
+          if (!expertises || expertises.length === 0) {
+            throw new Error("This user is not an expert and does not have any expertise listed.");
           }
+          
+          transformedExpert.expertise = expertises.map((exp: any) => ({
+            area_of_expertise_name: exp.area_of_expertise_name,
+            what_offering: exp.what_offering || "",
+            who_would_benefit: exp.who_would_benefit || "",
+            why_choose_you: exp.why_choose_you || "",
+            skills_not_offered: exp.skills_not_offered || "",
+          }));
 
           setExpert(transformedExpert);
         } else {
-          setExpert(null);
+          throw new Error("This user is not an expert and does not have any expertise listed.");
         }
 
       } catch (error: any) {
