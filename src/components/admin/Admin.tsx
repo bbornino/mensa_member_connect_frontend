@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState, useEffect} from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
   Container,
@@ -23,6 +23,10 @@ import AdminIndustryTypes from "./AdminIndustryTypes";
 const Admin: React.FC = () => {
   const { user} = useAuth();
   const [activeTab, setActiveTab] = useState<string>("users");
+
+  useEffect(() => {
+    document.title = "Admin | Network of American Mensa Member Experts";
+  }, []);
 
   if (!user) {
     // If auth context hasn't provided a user yet, show a small spinner

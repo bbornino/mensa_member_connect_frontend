@@ -72,6 +72,10 @@ const Experts: React.FC = () => {
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
 
   useEffect(() => {
+    document.title = "Experts | Network of American Mensa Member Experts";
+  }, []);
+
+  useEffect(() => {
     const fetchExperts = async () => {
       try {
         setIsLoading(true);

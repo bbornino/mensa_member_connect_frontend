@@ -35,6 +35,10 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    document.title = "Profile | Network of American Mensa Member Experts";
+  }, []);
+
+  useEffect(() => {
     fetchAllData();
   }, [memberId]);
 

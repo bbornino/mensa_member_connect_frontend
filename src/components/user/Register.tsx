@@ -194,7 +194,7 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Register - MENSA Tracker";
+    document.title = "Register | Network of American Mensa Member Experts";
   }, []);
 
 

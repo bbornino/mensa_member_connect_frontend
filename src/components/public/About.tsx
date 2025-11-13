@@ -1,7 +1,11 @@
+import { useEffect } from "react";
 import { Container, Card, CardBody, CardTitle, Alert } from "reactstrap";
 import styles from "./About.module.scss";
 
 export default function About() {
+  useEffect(() => {
+    document.title = "About | Network of American Mensa Member Experts";
+  }, []);
   return (
     <Container className="centered-container">
       <div className={styles.contentWrapper}>

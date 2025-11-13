@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
 import { useAuth } from "../../context/AuthContext";
@@ -5,6 +6,10 @@ import styles from "./Welcome.module.scss";
 
 export default function Welcome() {
   const { user } = useAuth();
+
+  useEffect(() => {
+    document.title = "Network of American Mensa Member Experts";
+  }, []);
   return (
     <div className={styles.welcomePage}>
       <Container className={styles.container}>

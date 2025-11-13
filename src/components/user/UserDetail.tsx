@@ -65,6 +65,16 @@ const UserDetail: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
+    document.title = "Expert Details | Network of American Mensa Member Experts";
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      document.title = `${user.first_name} ${user.last_name} | Network of American Mensa Member Experts`;
+    }
+  }, [user]);
+
+  useEffect(() => {
     const fetchUserDetail = async () => {
       if (!id) {
         setError("Invalid user ID");

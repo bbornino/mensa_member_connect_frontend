@@ -17,7 +17,7 @@ const Login: React.FC = () => {
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
   useEffect(() => {
-    document.title = "Welcome - MENSA Tracker";
+    document.title = "Login | Network of American Mensa Member Experts";
   }, []);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
