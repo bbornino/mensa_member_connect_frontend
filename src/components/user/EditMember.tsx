@@ -434,25 +434,30 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
                 Mensa Membership Number <span className="text-danger">*</span>
               </Label>
               {isAdminMode ? (
-                <div className="input-group">
-                  <Input
-                    id="member_id"
-                    name="member_id"
-                    type={showMemberId ? "text" : "password"}
-                    value={formData.member_id}
-                    onChange={handleChange}
-                    
-                    invalid={!!formErrors.member_id}
-                  />
-                  <span
-                    className="input-group-text"
-                    onClick={handleMemberIdToggle}
-                    style={{ cursor: "pointer" }}
-                    title={showMemberId ? "Hide Member ID" : "Show Member ID"}
-                  >
-                    {showMemberId ? "👁️" : "👁️‍🗨️"}
-                  </span>
-                </div>
+                <>
+                  <div className="input-group">
+                    <Input
+                      id="member_id"
+                      name="member_id"
+                      type={showMemberId ? "text" : "password"}
+                      value={formData.member_id}
+                      onChange={handleChange}
+                      
+                      invalid={!!formErrors.member_id}
+                    />
+                    <span
+                      className="input-group-text"
+                      onClick={handleMemberIdToggle}
+                      style={{ cursor: "pointer" }}
+                      title={showMemberId ? "Hide Member ID" : "Show Member ID"}
+                    >
+                      {showMemberId ? "👁️" : "👁️‍🗨️"}
+                    </span>
+                  </div>
+                  <small className="form-text text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                    You can find this on your Mensa membership card or on the website us.mensa.org under My Mensa &gt; My Membership Profile.
+                  </small>
+                </>
               ) : (
                 <Input
                   id="member_id"

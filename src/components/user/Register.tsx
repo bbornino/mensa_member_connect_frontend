@@ -467,6 +467,9 @@ const Register: React.FC = () => {
                     onChange={handleChange}
                     required
                   />
+                  <small className="form-text text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                    You can find this on your Mensa membership card or on the website us.mensa.org under My Mensa &gt; My Membership Profile.
+                  </small>
                 </FormGroup>
               </Col>
             </Row>
