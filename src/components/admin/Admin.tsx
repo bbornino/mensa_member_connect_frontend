@@ -12,6 +12,8 @@ import {
   NavLink,
   TabContent,
   TabPane,
+  Row,
+  Col,
 } from "reactstrap";
 import AdminUsers from "./AdminUsers";
 import AdminActions from "./AdminActions";
@@ -49,6 +51,47 @@ const Admin: React.FC = () => {
           <strong>Admin Panel</strong>
         </CardTitle>
         <CardBody>
+          {/* Dashboard Widgets */}
+          <div className="mb-4">
+            <h5 className="mb-3">Dashboard</h5>
+            <Row>
+              <Col md={6} lg={3} className="mb-3">
+                <Card className="h-100" style={{ borderLeft: '4px solid #007bff' }}>
+                  <CardBody>
+                    <h6 className="text-muted mb-2"># of Users</h6>
+                    <h3 className="mb-0">-</h3>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col md={6} lg={3} className="mb-3">
+                <Card className="h-100" style={{ borderLeft: '4px solid #28a745' }}>
+                  <CardBody>
+                    <h6 className="text-muted mb-2"># of Experts</h6>
+                    <h3 className="mb-0">-</h3>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col md={6} lg={3} className="mb-3">
+                <Card className="h-100" style={{ borderLeft: '4px solid #ffc107' }}>
+                  <CardBody>
+                    <h6 className="text-muted mb-2"># of Expertise Offered</h6>
+                    <h3 className="mb-0">-</h3>
+                  </CardBody>
+                </Card>
+              </Col>
+              <Col md={6} lg={3} className="mb-3">
+                <Card className="h-100" style={{ borderLeft: '4px solid #dc3545' }}>
+                  <CardBody>
+                    <h6 className="text-muted mb-2"># of Requests Sent</h6>
+                    <h3 className="mb-0">-</h3>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+
+          <hr className="my-4" />
+
           <Nav tabs>
             <NavItem>
               <NavLink
