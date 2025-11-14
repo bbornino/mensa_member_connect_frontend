@@ -58,7 +58,10 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
 
       // Fetch industries for expertise dropdowns
       const industryData = await apiRequest("industries/");
-      setIndustries(industryData || []);
+      const industriesArray = industryData || [];
+      // Sort industries alphabetically by name
+      industriesArray.sort((a: any, b: any) => a.industry_name.localeCompare(b.industry_name));
+      setIndustries(industriesArray);
 
     } catch (err: any) {
       setError(err.message || "Failed to load profile data");

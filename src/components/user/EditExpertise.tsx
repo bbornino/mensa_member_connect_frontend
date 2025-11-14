@@ -84,7 +84,7 @@ const EditExpertise: React.FC<EditExpertiseProps> = ({
               onChange={handleChange}
             >
               <option value="">Select an industry...</option>
-              {industries.map((industry) => (
+              {[...industries].sort((a, b) => a.industry_name.localeCompare(b.industry_name)).map((industry) => (
                 <option key={industry.id} value={industry.id}>
                   {industry.industry_name}
                 </option>

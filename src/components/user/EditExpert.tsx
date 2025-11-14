@@ -47,6 +47,8 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
           id: ind.id,
           industry_name: ind.industry_name,
         }));
+        // Sort industries alphabetically by name
+        industryArray.sort((a: any, b: any) => a.industry_name.localeCompare(b.industry_name));
         setIndustries(industryArray);
       } catch (err) {
         console.error("Failed to fetch industries:", err);
@@ -82,10 +84,17 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
     setSuccess("");
 
     try {
+      // Prepare data for API - use industry_id instead of industry
+      const apiData = {
+        ...formData,
+        industry_id: formData.industry,
+      };
+      delete (apiData as any).industry;
+
       // Save expert profile data
       await apiRequest(`users/${data.id}/`, {
         method: "PATCH",
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiData),
       });
 
       // Save expertise data
