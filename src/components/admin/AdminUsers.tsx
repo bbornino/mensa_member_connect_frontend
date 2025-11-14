@@ -30,6 +30,7 @@ interface User {
   status: string;
   local_group: LocalGroup | null;
   date_joined?: string;
+  is_expert?: boolean;
 }
 
 type SortField = "username" | "name" | "email" | "local_group" | "status";
@@ -51,6 +52,9 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<SortField>("username");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [expertFilter, setExpertFilter] = useState<"all" | "experts" | "non-experts">(
+    "all"
+  );
 
   const fetchUsers = useCallback(async () => {
     if (!accessToken) return;
@@ -99,6 +103,13 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
 
     if (statusFilter !== "all") {
       filteredUsers = filteredUsers.filter((u) => u.status === statusFilter);
+    }
+
+    if (expertFilter !== "all") {
+      filteredUsers = filteredUsers.filter((u) => {
+        const isExpert = Boolean(u.is_expert);
+        return expertFilter === "experts" ? isExpert : !isExpert;
+      });
     }
 
     const sorted = [...filteredUsers].sort((a, b) => {
@@ -175,6 +186,23 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
               <option value="inactive">Inactive</option>
               <option value="pending">Pending</option>
               <option value="suspended">Suspended</option>
+            </Input>
+          </FormGroup>
+        </Col>
+        <Col md="4">
+          <FormGroup>
+            <Label htmlFor="expertFilter">Filter by Expert Status:</Label>
+            <Input
+              id="expertFilter"
+              type="select"
+              value={expertFilter}
+              onChange={(e) =>
+                setExpertFilter(e.target.value as "all" | "experts" | "non-experts")
+              }
+            >
+              <option value="all">All Users</option>
+              <option value="experts">Experts</option>
+              <option value="non-experts">Non-Experts</option>
             </Input>
           </FormGroup>
         </Col>
