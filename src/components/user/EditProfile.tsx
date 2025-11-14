@@ -209,6 +209,10 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
                 <h6>
                   <strong>Expertise Records</strong>
                 </h6>
+                <p className="text-muted small">
+                  You can maintain up to three expertise offerings at a time, and at least
+                  one must be saved for your profile to appear in the experts directory.
+                </p>
 
                 {expertiseData.map((item, idx) => (
                   <EditExpertise
@@ -228,7 +232,10 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
                   className="mb-3"
                   disabled={expertiseData.length >= 3}
                 >
-                  Add Another Expertise {expertiseData.length >= 3 ? "(Maximum 3)" : ""}
+                  {expertiseData.some((item) => item.id)
+                    ? "Add Another Expertise"
+                    : "Add Expertise"}{" "}
+                  {expertiseData.length >= 3 ? "(Maximum 3)" : ""}
                 </Button>
               </div>
               
