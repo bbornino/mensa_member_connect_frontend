@@ -1,0 +1,71 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cardBody {
+  padding: 2.5rem;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.introText {
+  line-height: 1.7;
+  margin-bottom: $spacing-xl;
+}
+
+.faqItem {
+  padding: $spacing-lg 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  &:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.question {
+  font-size: $font-size-xl;
+  font-weight: 600;
+  margin-bottom: $spacing-sm;
+
+  @include mobile {
+    font-size: 1.25rem;
+  }
+}
+
+.answer {
+  line-height: 1.7;
+  color: $color-gray-text;
+
+  p {
+    margin-bottom: $spacing-md;
+  }
+
+  ul {
+    margin-bottom: $spacing-md;
+    padding-left: $spacing-xl;
+  }
+}
+
+.ctaCard {
+  background: $color-gray-lighter;
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  margin-top: $spacing-xl;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.ctaHeading {
+  font-size: $font-size-lg;
+  font-weight: 600;
+}
+

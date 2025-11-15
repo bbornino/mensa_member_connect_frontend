@@ -33,7 +33,7 @@ export default function About() {
               </p>
 
               <p className="mb-3">
-                At the 2025 Mensa Annual Gathering in Chicago, a session titled "Meeting Unmet Needs of Gifted Individuals" sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
+                At the 2025 Mensa Annual Gathering in Chicago, a session titled "How Can Mensa Address The Unmet Needs of Gifted Individuals" sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
               </p>
 
               <p className="mb-3">

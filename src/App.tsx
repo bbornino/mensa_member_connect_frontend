@@ -6,6 +6,7 @@ import { Container } from "reactstrap";
 import About from "./components/public/About";
 import Welcome from "./components/public/Welcome";
 import Feedback from "./components/public/Feedback";
+import Faq from "./components/public/Faq";
 
 // User Pages
 import Login from "./components/user/Login";
@@ -54,6 +55,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/faq" element={<Faq />} />
 
         {/* Protected Routes */}
         <Route
