@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Card, CardBody, CardTitle, Button } from "reactstrap";
 import { Link } from "react-router-dom";
 import styles from "./Faq.module.scss";
 
 type FAQItem = {
   question: string;
-  answer: JSX.Element;
+  answer: ReactNode;
 };
 
 const faqItems: FAQItem[] = [
