@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useApiRequest } from "../../utils/useApiRequest";
 import {
   Modal,
   ModalHeader,
@@ -37,6 +38,7 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
     preferred_contact_method: "",
   });
   const [formErrors, setFormErrors] = useState<{ message?: string }>({});
+  const { apiRequest } = useApiRequest();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -69,17 +71,33 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    // For now, just show success message without any API calls
-    // TODO: Implement actual API call to submit connection request
     console.log("Connection request for expert ID:", expertId, "with data:", formData);
-    setSubmitSuccess(true);
+
+    try {
+      const body = {
+        expert_id: expertId,
+        message: formData.message,
+        preferred_contact_method: formData.preferred_contact_method || null,
+      };
+
+      await apiRequest("connection_requests/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      setSubmitSuccess(true);
+    } catch (error: any) {
+      console.error("Error sending connection request:", error);
+      setFormErrors({ message: "Failed to send request. Please try again." });
+    }
   };
 
   const handleClose = () => {
