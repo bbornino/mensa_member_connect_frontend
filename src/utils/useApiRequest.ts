@@ -6,11 +6,14 @@ import { customFetch } from "./customFetch";
 export function useApiRequest<T = any>() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
-  const accessToken = localStorage.getItem("access_token");
-  const refreshToken = localStorage.getItem("refresh_token");
+  
 
   const apiRequest = useCallback(
+    
     async (url: string, options: RequestInit = {}): Promise<T | null> => {
+      const accessToken = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
+
       try {
         const response: T = await customFetch(
           url,
@@ -27,7 +30,7 @@ export function useApiRequest<T = any>() {
         throw err;
       }
     },
-    [navigate, accessToken, refreshToken]
+    [navigate]
   );
 
   return { apiRequest, error };
