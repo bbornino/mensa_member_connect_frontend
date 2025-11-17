@@ -87,7 +87,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showMemberId, setShowMemberId] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -168,7 +167,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   };
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
-  const handleMemberIdToggle = () => setShowMemberId((prev) => !prev);
 
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -436,25 +434,14 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
               </Label>
               {isAdminMode ? (
                 <>
-                  <div className="input-group">
-                    <Input
-                      id="member_id"
-                      name="member_id"
-                      type={showMemberId ? "text" : "password"}
-                      value={formData.member_id}
-                      onChange={handleChange}
-                      
-                      invalid={!!formErrors.member_id}
-                    />
-                    <span
-                      className="input-group-text"
-                      onClick={handleMemberIdToggle}
-                      style={{ cursor: "pointer" }}
-                      title={showMemberId ? "Hide Member ID" : "Show Member ID"}
-                    >
-                      {showMemberId ? "👁️" : "👁️‍🗨️"}
-                    </span>
-                  </div>
+                  <Input
+                    id="member_id"
+                    name="member_id"
+                    type="text"
+                    value={formData.member_id}
+                    onChange={handleChange}
+                    invalid={!!formErrors.member_id}
+                  />
                   <small className="form-text text-muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
                     You can find this on your Mensa membership card or on the website us.mensa.org under My Mensa &gt; My Membership Profile.
                   </small>
@@ -692,13 +679,23 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           <Col md="6">
             <FormGroup>
               <Label htmlFor="confirm_password">Confirm Password</Label>
-              <Input
-                id="confirm_password"
-                name="confirm_password"
-                type={showPassword ? "text" : "password"}
-                value={formData.confirm_password}
-                onChange={handleChange}
-              />
+              <div className="input-group">
+                <Input
+                  id="confirm_password"
+                  name="confirm_password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirm_password}
+                  onChange={handleChange}
+                  placeholder="Leave blank to keep current password"
+                />
+                <span
+                  className="input-group-text"
+                  onClick={handlePasswordToggle}
+                  style={{ cursor: "pointer" }}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </span>
+              </div>
             </FormGroup>
           </Col>
         </Row>
