@@ -502,13 +502,22 @@ const Register: React.FC = () => {
                   <Label htmlFor="confirm_password">
                     Confirm Password <span className="text-danger">*</span>
                   </Label>
-                  <Input
-                    id="confirm_password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.confirm_password}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="input-group">
+                    <Input
+                      id="confirm_password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.confirm_password}
+                      onChange={handleChange}
+                      required
+                    />
+                    <span
+                      className="input-group-text"
+                      onClick={handlePasswordToggle}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </span>
+                  </div>
                 </FormGroup>
               </Col>
             </Row>
