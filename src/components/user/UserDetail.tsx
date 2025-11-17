@@ -231,6 +231,14 @@ const UserDetail: React.FC = () => {
                     alt={`${user.first_name} ${user.last_name}`}
                     className="rounded-circle mb-3"
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      // If the photo fails to load, fall back to placeholder
+                      const target = e.target as HTMLImageElement;
+                      const placeholder = getRandomPlaceholderImage();
+                      if (!target.src.includes('meeple')) {
+                        target.src = placeholder;
+                      }
+                    }}
                   />
                   {expert && (
                     <Button
