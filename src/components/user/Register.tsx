@@ -166,7 +166,7 @@ async function registerUser(userData: Record<string, any>) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || "Registration failed");
+    throw new Error(error.error || error.detail || "Registration failed");
   }
 
   return response.json();
@@ -300,14 +300,14 @@ const Register: React.FC = () => {
       return;
     }
 
-    const isRegistered = await registerUser(formData);
-    if (!isRegistered) {
-      setError("Registration failed. Please try again.");
-      return;
+    try {
+      await registerUser(formData);
+      setSuccess("Registration successful! Redirecting...");
+      setTimeout(() => navigate("/experts"), 1000);
+    } catch (err: any) {
+      const errorMessage = err.message || "Registration failed. Please try again.";
+      setError(errorMessage);
     }
-
-    setSuccess("Registration successful! Redirecting...");
-    setTimeout(() => navigate("/experts"), 1000);
   };
 
   return (

@@ -1,0 +1,14 @@
+{
+  "regularUser": {
+    "username": "testuser",
+    "password": "testpassword123",
+    "email": "testuser@example.com"
+  },
+  "adminUser": {
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@example.com",
+    "role": "admin"
+  }
+}
+
