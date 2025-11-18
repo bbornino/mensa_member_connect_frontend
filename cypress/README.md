@@ -2,6 +2,78 @@
 
 This directory contains end-to-end (E2E) tests for the Mensa Member Connect application using Cypress.
 
+## Introduction for Beginners
+
+### What is Cypress?
+
+Cypress is an end-to-end (E2E) testing framework that lets you test your web application by simulating real user interactions in a browser. Think of it as an automated way to click buttons, fill forms, and verify that everything works as expected.
+
+**Why use it?**
+- Catches bugs before users do
+- Tests the entire user flow (login → navigate → interact → logout)
+- Runs automatically in CI/CD pipelines
+- Provides visual feedback of what's happening
+
+### Basic Concepts
+
+**Test Structure:**
+```typescript
+describe('Feature Name', () => {
+  it('should do something specific', () => {
+    // Test steps here
+  });
+});
+```
+
+**Common Commands:**
+
+- **Navigation:**
+  - `cy.visit('/page')` - Go to a page
+  - `cy.url().should('include', '/path')` - Check current URL
+
+- **Finding Elements:**
+  - `cy.get('#element-id')` - Find by ID
+  - `cy.get('.class-name')` - Find by class
+  - `cy.contains('Text')` - Find by text content
+
+- **Interactions:**
+  - `.type('text')` - Type into input fields
+  - `.click()` - Click buttons/links
+  - `.select('option')` - Select dropdown options
+  - `.submit()` - Submit forms
+
+- **Assertions:**
+  - `.should('be.visible')` - Element is visible
+  - `.should('have.value', 'text')` - Input has specific value
+  - `.should('be.checked')` - Checkbox is checked
+  - `.should('include', 'text')` - Text contains substring
+
+**Example Test:**
+```typescript
+it('should login successfully', () => {
+  cy.visit('/login');
+  cy.get('#username').type('testuser');
+  cy.get('#password').type('password123');
+  cy.get('form').submit();
+  cy.url().should('include', '/experts');
+});
+```
+
+### Tips for Beginners
+
+1. **Start with the GUI**: Use `cypress:open` to see tests run visually
+2. **Read the error messages**: Cypress gives helpful error messages
+3. **Use `.then()` for async operations**: When you need to use values from previous commands
+4. **Wait explicitly**: Use `cy.wait()` for API calls, `cy.waitForAppLoad()` for page loads
+5. **One assertion per test**: Keep tests focused on one thing
+
+### Common Gotchas
+
+1. **Timing issues**: If elements aren't found, they might not be loaded yet - use `cy.wait()` or `.should('be.visible')`
+2. **State persistence**: Clear localStorage between tests to avoid state leaks
+3. **Checkbox state**: Use `.should('be.checked')` not `.should('have.attr', 'checked')`
+4. **Multiple elements**: If selector matches multiple elements, use `.first()` or `.eq(0)`
+
 ## Quick Start
 
 ### Prerequisites
@@ -18,8 +90,9 @@ This directory contains end-to-end (E2E) tests for the Mensa Member Connect appl
    ```
 
 3. **Test data**: Ensure you have test users in your database:
-   - Regular user (username: `testuser`, password: `testpassword123`)
-   - Admin user (username: `admin`, password: `admin123`)
+   - **Pending user**: `testuser_pending` / `testpassword123` (status: pending)
+   - **Active user**: `testuser_active` / `testpassword123` (status: active)
+   - **Admin user**: `admin` / `admin123` (role: admin, status: active)
 
    You can customize these credentials using environment variables (see Configuration below).
 
@@ -65,13 +138,20 @@ cypress/
 │   ├── 02-authentication.cy.ts  # Login, logout, authentication flows
 │   ├── 03-protected-routes.cy.ts # Protected pages (Dashboard, Profile, Experts)
 │   ├── 04-admin-features.cy.ts  # Admin-only features
-│   └── 05-profile-management.cy.ts # Profile editing
+│   ├── 05-profile-management.cy.ts # Profile editing
+│   ├── 06-registration.cy.ts    # User registration flows
+│   ├── 07-login-details.cy.ts   # Detailed login scenarios and edge cases
+│   ├── 08-expert-profile.cy.ts  # Expert profile editing
+│   ├── 09-expertise-editing.cy.ts # Expertise management
+│   ├── 10-contact-expert.cy.ts  # Contact expert functionality
+│   └── 11-user-status-restrictions.cy.ts # User status-based access restrictions
 ├── fixtures/                     # Test data
 │   ├── example.json
 │   └── users.json
 ├── support/                      # Custom commands and configuration
 │   ├── commands.ts               # Custom Cypress commands
 │   └── e2e.ts                    # Support file
+├── cypress.config.ts             # Cypress configuration
 └── README.md                     # This file
 ```
 
@@ -141,6 +221,7 @@ export default defineConfig({
 
 - **Backend API URL**: Set via `CYPRESS_API_BASE_URL` or `VITE_API_BASE_URL` (default: `http://localhost:8000/api/`)
   - This is the URL where your Django backend API runs
+  - The API base URL should end with `/api/` (e.g., `http://localhost:8000/api/`)
   - If your backend runs on a different port, set: `CYPRESS_API_BASE_URL=http://localhost:8001/api/`
 
 **Example for different ports:**
@@ -150,6 +231,10 @@ export default defineConfig({
 export CYPRESS_BASE_URL=http://localhost:5173
 export CYPRESS_API_BASE_URL=http://localhost:8001/api/
 ```
+
+**Note:** When intercepting API calls in tests, use flexible URL patterns:
+- `cy.intercept('POST', /.*users\/authenticate.*/, ...)` - Matches any URL containing `users/authenticate`
+- `cy.intercept('GET', /.*users\/me.*/, ...)` - Matches any URL containing `users/me`
 
 ### Test Users
 
@@ -239,8 +324,14 @@ cy.waitForAppLoad();
 ```typescript
 describe('Feature Name', () => {
   beforeEach(() => {
-    // Setup before each test
-    cy.login('username', 'password');
+    // Clear localStorage and cookies before each test
+    cy.window().then((win) => {
+      win.localStorage.clear();
+    });
+    cy.clearCookies();
+    
+    // Setup: login if needed
+    cy.loginAsActive();
   });
 
   afterEach(() => {
@@ -256,6 +347,38 @@ describe('Feature Name', () => {
 });
 ```
 
+### Mocking API Calls
+
+When writing tests, you often need to mock API responses. Use `cy.intercept()`:
+
+```typescript
+// Intercept login API call
+cy.intercept('POST', /.*users\/authenticate.*/, {
+  statusCode: 200,
+  body: {
+    access: 'mock-access-token',
+    refresh: 'mock-refresh-token',
+    user: {
+      id: 1,
+      username: 'testuser',
+      email: 'test@example.com',
+      status: 'active',
+    },
+  },
+}).as('loginRequest');
+
+// Intercept GET requests (e.g., users/me)
+cy.intercept('GET', /.*users\/me.*/, {
+  statusCode: 200,
+  body: { id: 1, username: 'testuser', status: 'active' },
+}).as('getCurrentUser');
+
+// Wait for the intercepted request
+cy.wait('@loginRequest');
+```
+
+**Important:** Use RegExp patterns (e.g., `/.*users\/authenticate.*/`) instead of exact URLs to match API calls regardless of the base URL configuration.
+
 ### Best Practices
 
 1. **Use descriptive test names**: Test names should clearly describe what is being tested
@@ -263,6 +386,11 @@ describe('Feature Name', () => {
 3. **Use custom commands**: Leverage the custom commands for common actions
 4. **Wait for app loads**: Always use `cy.waitForAppLoad()` after navigation
 5. **Clean up**: Clear localStorage and cookies in `beforeEach` or `afterEach` when needed
+6. **Mock API calls**: Use `cy.intercept()` to mock API responses for consistent test results
+7. **Set up intercepts before visiting pages**: Set up `cy.intercept()` before `cy.visit()` to ensure they're ready
+8. **Wait for navigation**: After form submissions that trigger navigation, wait for the URL to change
+9. **Check checkbox state correctly**: Use `.should('be.checked')` or `.should('not.be.checked')` instead of checking attributes
+10. **Handle multiple elements**: If a selector matches multiple elements, use `.first()` or `.eq(0)`
 
 ### Selecting Elements
 
@@ -278,9 +406,20 @@ cy.contains('Login');
 
 // By data attribute (preferred)
 cy.get('[data-testid="login-button"]');
+
+// Handle multiple matches
+cy.get('a[href*="/register"]').first(); // Get first matching element
 ```
 
 > **Tip**: Consider adding `data-testid` attributes to your components for more stable test selectors.
+
+### Login and Redirect Behavior
+
+After successful login, users are automatically redirected:
+- **Active users** → `/experts` (full access to browse experts)
+- **Pending users** → `/experts` (but see a message about pending verification)
+
+The redirect happens automatically via a `useEffect` in the Login component that watches for the user state to be set. This ensures the user state is properly updated before navigation, preventing `ProtectedRoute` from redirecting back to login.
 
 ## Debugging Tests
 
@@ -366,6 +505,21 @@ Make sure to set environment variables in your CI/CD platform:
 - Use `cy.wait()` for elements that load dynamically
 - Check that selectors match your actual DOM structure
 - Consider using `data-testid` attributes for more stable selectors
+- Ensure elements are enabled before interacting: `.should('not.be.disabled')` before `.type()` or `.click()`
+
+### Login redirect not working in tests
+
+- Ensure intercepts are set up **before** visiting the login page
+- Intercept both `POST /users/authenticate` and `GET /users/me` (the latter is called during auth initialization)
+- Wait for the login API call to complete: `cy.wait('@loginRequest')`
+- Wait for URL to change: `cy.url().should('include', '/experts')`
+- The Login component uses a `useEffect` to redirect when user state is set - this ensures proper timing
+
+### Intercept not matching API calls
+
+- Use RegExp patterns instead of exact URLs: `/.*users\/authenticate.*/` instead of `**/api/users/authenticate/`
+- Set up intercepts before visiting pages
+- Check the Network tab in Cypress to see what URL is actually being called
 
 ## Resources
 
