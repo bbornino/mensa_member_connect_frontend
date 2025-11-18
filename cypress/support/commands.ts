@@ -32,6 +32,18 @@ declare global {
       loginAsAdmin(): Chainable<void>;
 
       /**
+       * Custom command to login as a pending user (status: pending)
+       * @example cy.loginAsPending()
+       */
+      loginAsPending(): Chainable<void>;
+
+      /**
+       * Custom command to login as an active user (status: active)
+       * @example cy.loginAsActive()
+       */
+      loginAsActive(): Chainable<void>;
+
+      /**
        * Custom command to wait for the app to finish loading
        * @example cy.waitForAppLoad()
        */
@@ -62,11 +74,24 @@ Cypress.Commands.add('logout', () => {
 });
 
 Cypress.Commands.add('loginAsAdmin', () => {
-  // This will need to be configured with actual admin credentials
-  // For now, using environment variable or default test admin
+  // Login as admin user (role: admin)
   const adminUsername = Cypress.env('ADMIN_USERNAME') || 'admin';
   const adminPassword = Cypress.env('ADMIN_PASSWORD') || 'admin123';
   cy.login(adminUsername, adminPassword);
+});
+
+Cypress.Commands.add('loginAsPending', () => {
+  // Login as pending user (status: pending) - has restricted access
+  const pendingUsername = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
+  const pendingPassword = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
+  cy.login(pendingUsername, pendingPassword);
+});
+
+Cypress.Commands.add('loginAsActive', () => {
+  // Login as active user (status: active) - has full access
+  const activeUsername = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
+  const activePassword = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
+  cy.login(activeUsername, activePassword);
 });
 
 Cypress.Commands.add('waitForAppLoad', () => {

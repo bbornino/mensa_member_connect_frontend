@@ -1,14 +1,27 @@
 {
-  "regularUser": {
-    "username": "testuser",
+  "pendingUser": {
+    "username": "testuser_pending",
     "password": "testpassword123",
-    "email": "testuser@example.com"
+    "email": "testuser_pending@example.com",
+    "status": "pending",
+    "role": "member",
+    "description": "User with pending status - has restricted access (cannot view expert details)"
+  },
+  "activeUser": {
+    "username": "testuser_active",
+    "password": "testpassword123",
+    "email": "testuser_active@example.com",
+    "status": "active",
+    "role": "member",
+    "description": "User with active status - has full access to all features"
   },
   "adminUser": {
     "username": "admin",
     "password": "admin123",
     "email": "admin@example.com",
-    "role": "admin"
+    "status": "active",
+    "role": "admin",
+    "description": "Admin user with admin role - has access to admin panel"
   }
 }
 

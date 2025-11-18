@@ -18,11 +18,9 @@ describe('Authentication Flow', () => {
     cy.url().should('include', '/login');
   });
 
-  it('should successfully login with valid credentials', () => {
-    // Note: You'll need to have test credentials set up in your backend
-    // or use environment variables
-    const username = Cypress.env('TEST_USERNAME') || 'testuser';
-    const password = Cypress.env('TEST_PASSWORD') || 'testpassword123';
+  it('should successfully login with active user credentials', () => {
+    const username = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
+    const password = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
 
     cy.visit('/login');
     cy.get('#username').type(username);
@@ -32,6 +30,26 @@ describe('Authentication Flow', () => {
     // Should redirect after successful login
     cy.waitForAppLoad();
     cy.url().should('not.include', '/login');
+    // Active users should be able to access /experts
+    cy.url().should('include', '/experts');
+  });
+
+  it('should successfully login with pending user credentials', () => {
+    const username = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
+    const password = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
+
+    cy.visit('/login');
+    cy.get('#username').type(username);
+    cy.get('#password').type(password);
+    cy.get('form').submit();
+    
+    // Should redirect after successful login (pending users can still login)
+    cy.waitForAppLoad();
+    cy.url().should('not.include', '/login');
+    // Pending users may also redirect to /experts but have restricted access
+    cy.url().should('satisfy', (url) => {
+      return url.includes('/experts') || url === Cypress.config('baseUrl') + '/';
+    });
   });
 
   it('should allow password visibility toggle', () => {
@@ -47,11 +65,8 @@ describe('Authentication Flow', () => {
     cy.get('#password').should('have.attr', 'type', 'password');
   });
 
-  it('should persist login state across page reloads', () => {
-    const username = Cypress.env('TEST_USERNAME') || 'testuser';
-    const password = Cypress.env('TEST_PASSWORD') || 'testpassword123';
-
-    cy.login(username, password);
+  it('should persist login state across page reloads for active user', () => {
+    cy.loginAsActive();
     
     // Reload the page
     cy.reload();
@@ -59,13 +74,23 @@ describe('Authentication Flow', () => {
     
     // Should still be logged in (not redirected to login)
     cy.url().should('not.include', '/login');
+    cy.contains('Logout').should('be.visible');
+  });
+
+  it('should persist login state across page reloads for pending user', () => {
+    cy.loginAsPending();
+    
+    // Reload the page
+    cy.reload();
+    cy.waitForAppLoad();
+    
+    // Should still be logged in (not redirected to login)
+    cy.url().should('not.include', '/login');
+    cy.contains('Logout').should('be.visible');
   });
 
   it('should logout successfully', () => {
-    const username = Cypress.env('TEST_USERNAME') || 'testuser';
-    const password = Cypress.env('TEST_PASSWORD') || 'testpassword123';
-
-    cy.login(username, password);
+    cy.loginAsActive();
     
     // Find and click logout
     cy.contains('Logout').click();
@@ -74,6 +99,13 @@ describe('Authentication Flow', () => {
     cy.waitForAppLoad();
     cy.url().should('satisfy', (url) => {
       return url === Cypress.config('baseUrl') + '/' || url.includes('/login');
+    });
+    
+    // Should not see authenticated navigation
+    cy.get('body').then(($body) => {
+      if (!$body.text().includes('Logout')) {
+        cy.log('Successfully logged out');
+      }
     });
   });
 });

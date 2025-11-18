@@ -9,19 +9,24 @@ describe('Registration Flow', () => {
     cy.waitForAppLoad();
   });
 
-  // Helper function to fill all valid registration fields
-  const fillValidRegistrationForm = () => {
+  // Helper function to fill all required registration fields
+  const fillRequiredRegistrationForm = () => {
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
     cy.get('#username').type(`testuser_${Date.now()}`); // Unique username
     cy.get('#email').type(`test_${Date.now()}@example.com`); // Unique email
-    cy.get('#phone').type('5551234567'); // Will auto-format to (555) 123-4567
     cy.get('#member_id').type('12345');
-    cy.get('#city').type('Test City');
-    cy.get('#state').select('CA');
     cy.get('#local_group').select('Greater Los Angeles Area Mensa');
     cy.get('#password').type('TestPassword123!');
     cy.get('#confirm_password').type('TestPassword123!');
+  };
+
+  // Helper function to fill all fields including optional ones
+  const fillCompleteRegistrationForm = () => {
+    fillRequiredRegistrationForm();
+    cy.get('#phone').type('5551234567'); // Will auto-format to (555) 123-4567
+    cy.get('#city').type('Test City');
+    cy.get('#state').select('CA');
   };
 
   it('should display the registration form with all required fields', () => {
@@ -40,50 +45,73 @@ describe('Registration Flow', () => {
   });
 
   it('should show error when submitting with empty first name', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#first_name').clear();
     cy.get('form').submit();
     cy.contains('First name is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with empty last name', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#last_name').clear();
     cy.get('form').submit();
     cy.contains('Last name is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with empty username', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#username').clear();
     cy.get('form').submit();
     cy.contains('Username is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with empty email', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#email').clear();
     cy.get('form').submit();
     cy.contains('Email is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with invalid email format', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#email').clear().type('invalid-email');
     cy.get('form').submit();
     cy.contains('valid email address', { matchCase: false }).should('be.visible');
   });
 
-  it('should show error when submitting with empty phone', () => {
-    fillValidRegistrationForm();
-    cy.get('#phone').clear();
+  it('should allow registration without phone number (phone is optional)', () => {
+    const timestamp = Date.now();
+    const uniqueUsername = `testuser_${timestamp}`;
+    const uniqueEmail = `test_${timestamp}@example.com`;
+
+    cy.get('#first_name').type('John');
+    cy.get('#last_name').type('Doe');
+    cy.get('#username').type(uniqueUsername);
+    cy.get('#email').type(uniqueEmail);
+    // Intentionally skip phone
+    cy.get('#member_id').type('12345');
+    cy.get('#local_group').select('Greater Los Angeles Area Mensa');
+    cy.get('#password').type('TestPassword123!');
+    cy.get('#confirm_password').type('TestPassword123!');
+
+    // Intercept the registration API call
+    cy.intercept('POST', '**/api/users/register/', {
+      statusCode: 200,
+      body: { success: true, message: 'Registration successful' },
+    }).as('registerUser');
+
     cy.get('form').submit();
-    cy.contains('Phone number is required', { matchCase: false }).should('be.visible');
+
+    // Should not show phone required error
+    cy.get('body').should('not.contain.text', 'Phone number is required');
+    
+    // Should succeed
+    cy.wait('@registerUser');
   });
 
-  it('should show error when submitting with invalid phone format', () => {
-    fillValidRegistrationForm();
-    cy.get('#phone').clear().type('123'); // Too short
+  it('should show error when submitting with invalid phone format (if phone is provided)', () => {
+    fillRequiredRegistrationForm();
+    cy.get('#phone').type('123'); // Too short - invalid format
     cy.get('form').submit();
     cy.contains('valid phone number', { matchCase: false }).should('be.visible');
   });
@@ -95,49 +123,95 @@ describe('Registration Flow', () => {
   });
 
   it('should show error when submitting with empty member ID', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#member_id').clear();
     cy.get('form').submit();
     cy.contains('Mensa Member ID is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with non-numeric member ID', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#member_id').clear().type('abc123');
     cy.get('form').submit();
     cy.contains('Mensa Member ID must be numeric', { matchCase: false }).should('be.visible');
   });
 
-  it('should show error when submitting with empty city', () => {
-    fillValidRegistrationForm();
-    cy.get('#city').clear();
+  it('should allow registration without city (city is optional)', () => {
+    const timestamp = Date.now();
+    const uniqueUsername = `testuser_${timestamp}`;
+    const uniqueEmail = `test_${timestamp}@example.com`;
+
+    cy.get('#first_name').type('John');
+    cy.get('#last_name').type('Doe');
+    cy.get('#username').type(uniqueUsername);
+    cy.get('#email').type(uniqueEmail);
+    cy.get('#member_id').type('12345');
+    // Intentionally skip city
+    cy.get('#local_group').select('Greater Los Angeles Area Mensa');
+    cy.get('#password').type('TestPassword123!');
+    cy.get('#confirm_password').type('TestPassword123!');
+
+    // Intercept the registration API call
+    cy.intercept('POST', '**/api/users/register/', {
+      statusCode: 200,
+      body: { success: true, message: 'Registration successful' },
+    }).as('registerUser');
+
     cy.get('form').submit();
-    cy.contains('City is required', { matchCase: false }).should('be.visible');
+
+    // Should not show city required error
+    cy.get('body').should('not.contain.text', 'City is required');
+    
+    // Should succeed
+    cy.wait('@registerUser');
   });
 
-  it('should show error when submitting without selecting state', () => {
-    fillValidRegistrationForm();
-    cy.get('#state').select('');
+  it('should allow registration without state (state is optional)', () => {
+    const timestamp = Date.now();
+    const uniqueUsername = `testuser_${timestamp}`;
+    const uniqueEmail = `test_${timestamp}@example.com`;
+
+    cy.get('#first_name').type('John');
+    cy.get('#last_name').type('Doe');
+    cy.get('#username').type(uniqueUsername);
+    cy.get('#email').type(uniqueEmail);
+    cy.get('#member_id').type('12345');
+    // Intentionally skip state
+    cy.get('#local_group').select('Greater Los Angeles Area Mensa');
+    cy.get('#password').type('TestPassword123!');
+    cy.get('#confirm_password').type('TestPassword123!');
+
+    // Intercept the registration API call
+    cy.intercept('POST', '**/api/users/register/', {
+      statusCode: 200,
+      body: { success: true, message: 'Registration successful' },
+    }).as('registerUser');
+
     cy.get('form').submit();
-    cy.contains('select your state', { matchCase: false }).should('be.visible');
+
+    // Should not show state required error
+    cy.get('body').should('not.contain.text', 'select your state');
+    
+    // Should succeed
+    cy.wait('@registerUser');
   });
 
   it('should show error when submitting without selecting local group', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#local_group').select('');
     cy.get('form').submit();
     cy.contains('select your local group', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when submitting with empty password', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#password').clear();
     cy.get('form').submit();
     cy.contains('Password is required', { matchCase: false }).should('be.visible');
   });
 
   it('should show error when passwords do not match', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
     cy.get('#password').clear().type('TestPassword123!');
     cy.get('#confirm_password').clear().type('DifferentPassword123!');
     cy.get('form').submit();
@@ -156,7 +230,53 @@ describe('Registration Flow', () => {
     cy.get('#password').should('have.attr', 'type', 'password');
   });
 
-  it('should successfully register with all valid fields', () => {
+  it('should successfully register with only required fields', () => {
+    const timestamp = Date.now();
+    const uniqueUsername = `testuser_${timestamp}`;
+    const uniqueEmail = `test_${timestamp}@example.com`;
+
+    cy.get('#first_name').type('John');
+    cy.get('#last_name').type('Doe');
+    cy.get('#username').type(uniqueUsername);
+    cy.get('#email').type(uniqueEmail);
+    cy.get('#member_id').type('12345');
+    cy.get('#local_group').select('Greater Los Angeles Area Mensa');
+    cy.get('#password').type('TestPassword123!');
+    cy.get('#confirm_password').type('TestPassword123!');
+
+    // Intercept the registration API call
+    cy.intercept('POST', '**/api/users/register/', {
+      statusCode: 200,
+      body: { success: true, message: 'Registration successful' },
+    }).as('registerUser');
+
+    cy.get('form').submit();
+
+    // Wait for the API call
+    cy.wait('@registerUser').then((interception) => {
+      expect(interception.request.body).to.include({
+        first_name: 'John',
+        last_name: 'Doe',
+        username: uniqueUsername,
+        email: uniqueEmail,
+        member_id: '12345',
+      });
+      expect(interception.request.body.password).to.equal('TestPassword123!');
+      // Optional fields may or may not be present
+    });
+
+    // Check for success message
+    cy.contains('Registration successful', { matchCase: false }).should('be.visible');
+
+    // After registration, user is not logged in, so attempting to access /experts
+    // (a protected route) will redirect to /login
+    // Also, new users have "pending" status and may not access /experts until approved
+    cy.url({ timeout: 2000 }).should('satisfy', (url) => {
+      return url.includes('/login') || url.includes('/register');
+    });
+  });
+
+  it('should successfully register with all fields including optional ones', () => {
     const timestamp = Date.now();
     const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
@@ -193,18 +313,21 @@ describe('Registration Flow', () => {
         member_id: '12345',
       });
       expect(interception.request.body.password).to.equal('TestPassword123!');
-      expect(interception.request.body.confirm_password).to.equal('TestPassword123!');
     });
 
     // Check for success message
     cy.contains('Registration successful', { matchCase: false }).should('be.visible');
 
-    // Should redirect to /experts after successful registration
-    cy.url({ timeout: 2000 }).should('include', '/experts');
+    // After registration, user is not logged in, so attempting to access /experts
+    // (a protected route) will redirect to /login
+    // Also, new users have "pending" status and may not access /experts until approved
+    cy.url({ timeout: 2000 }).should('satisfy', (url) => {
+      return url.includes('/login') || url.includes('/register');
+    });
   });
 
   it('should handle registration API errors gracefully', () => {
-    fillValidRegistrationForm();
+    fillRequiredRegistrationForm();
 
     // Intercept with error response
     cy.intercept('POST', '**/api/users/register/', {

@@ -79,38 +79,108 @@ cypress/
 
 ### Environment Variables
 
-You can configure test credentials and API endpoints using environment variables:
+You can configure test credentials, frontend URL, and backend API URL using environment variables:
+
+#### Option 1: Using environment variables (recommended)
+
+Create a `.env` file in the frontend directory or export them in your shell:
 
 ```bash
-# In cypress.config.ts or via .env file
-TEST_USERNAME=testuser
-TEST_PASSWORD=testpassword123
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+# Frontend URL (default: http://localhost:3000)
+CYPRESS_BASE_URL=http://localhost:3000
+
+# Backend API URL (default: http://localhost:8000/api/)
+CYPRESS_API_BASE_URL=http://localhost:8000/api/
+# OR use VITE_API_BASE_URL (which is already used by the app)
 VITE_API_BASE_URL=http://localhost:8000/api/
+
+# Test credentials - Three different user types
+# 1. Pending user (status: pending) - restricted access
+CYPRESS_PENDING_USERNAME=testuser_pending
+CYPRESS_PENDING_PASSWORD=testpassword123
+
+# 2. Active user (status: active) - full access
+CYPRESS_ACTIVE_USERNAME=testuser_active
+CYPRESS_ACTIVE_PASSWORD=testpassword123
+
+# 3. Admin user (role: admin) - admin access
+CYPRESS_ADMIN_USERNAME=admin
+CYPRESS_ADMIN_PASSWORD=admin123
+
+# Legacy support (defaults to active user)
+CYPRESS_TEST_USERNAME=testuser_active
+CYPRESS_TEST_PASSWORD=testpassword123
 ```
 
-Or set them in `cypress.config.ts`:
+#### Option 2: Directly in cypress.config.ts
+
+You can also modify `cypress.config.ts` directly:
 
 ```typescript
-env: {
-  TEST_USERNAME: 'testuser',
-  TEST_PASSWORD: 'testpassword123',
-  ADMIN_USERNAME: 'admin',
-  ADMIN_PASSWORD: 'admin123',
-  apiBaseUrl: 'http://localhost:8000/api/',
-}
+export default defineConfig({
+  e2e: {
+    baseUrl: 'http://localhost:3000', // Change this
+    env: {
+      apiBaseUrl: 'http://localhost:8000/api/', // Change this
+      PENDING_USERNAME: 'testuser_pending',
+      PENDING_PASSWORD: 'testpassword123',
+      ACTIVE_USERNAME: 'testuser_active',
+      ACTIVE_PASSWORD: 'testpassword123',
+      ADMIN_USERNAME: 'admin',
+      ADMIN_PASSWORD: 'admin123',
+    },
+  },
+});
 ```
 
-### Base URL
+### URL Configuration
 
-The base URL for the frontend is configured in `cypress.config.ts`:
+- **Frontend URL**: Set via `CYPRESS_BASE_URL` environment variable (default: `http://localhost:3000`)
+  - This is the URL where your Vite dev server runs
+  - If your frontend runs on a different port, set: `CYPRESS_BASE_URL=http://localhost:5173`
 
-```typescript
-baseUrl: 'http://localhost:3000'
+- **Backend API URL**: Set via `CYPRESS_API_BASE_URL` or `VITE_API_BASE_URL` (default: `http://localhost:8000/api/`)
+  - This is the URL where your Django backend API runs
+  - If your backend runs on a different port, set: `CYPRESS_API_BASE_URL=http://localhost:8001/api/`
+
+**Example for different ports:**
+
+```bash
+# Frontend on port 5173, backend on port 8001
+export CYPRESS_BASE_URL=http://localhost:5173
+export CYPRESS_API_BASE_URL=http://localhost:8001/api/
 ```
 
-Change this if your frontend runs on a different port or URL.
+### Test Users
+
+The test suite uses three different test users to test various access levels:
+
+1. **Pending User** (`testuser_pending` / `testpassword123`)
+   - Status: `pending`
+   - Role: `member`
+   - Access: Restricted - cannot view expert detail pages, must wait for approval
+   - Use: Testing restrictions for unapproved users
+
+2. **Active User** (`testuser_active` / `testpassword123`)
+   - Status: `active`
+   - Role: `member`
+   - Access: Full access to all member features (browse experts, contact experts, edit profile)
+   - Use: Testing normal user workflows (default for most tests)
+
+3. **Admin User** (`admin` / `admin123`)
+   - Status: `active`
+   - Role: `admin`
+   - Access: Full access plus admin panel access
+   - Use: Testing admin-only features
+
+**Setting up test users in your backend:**
+
+Make sure these three users exist in your Django backend database:
+- `testuser_pending` with status="pending"
+- `testuser_active` with status="active"
+- `admin` with role="admin" and status="active"
+
+You can create them manually in Django admin or via seed scripts.
 
 ## Custom Commands
 
@@ -132,10 +202,26 @@ cy.logout();
 
 ### `cy.loginAsAdmin()`
 
-Logs in as an admin user (uses environment variables or defaults).
+Logs in as an admin user (role: admin) - has access to admin panel.
 
 ```typescript
 cy.loginAsAdmin();
+```
+
+### `cy.loginAsPending()`
+
+Logs in as a pending user (status: pending) - has restricted access (cannot view expert details).
+
+```typescript
+cy.loginAsPending();
+```
+
+### `cy.loginAsActive()`
+
+Logs in as an active user (status: active) - has full access to all features.
+
+```typescript
+cy.loginAsActive();
 ```
 
 ### `cy.waitForAppLoad()`
@@ -248,18 +334,21 @@ jobs:
 ### Environment Setup for CI
 
 Make sure to set environment variables in your CI/CD platform:
-- `TEST_USERNAME`
-- `TEST_PASSWORD`
-- `ADMIN_USERNAME`
-- `ADMIN_PASSWORD`
-- `VITE_API_BASE_URL`
+- `CYPRESS_PENDING_USERNAME` / `CYPRESS_PENDING_PASSWORD`
+- `CYPRESS_ACTIVE_USERNAME` / `CYPRESS_ACTIVE_PASSWORD`
+- `CYPRESS_ADMIN_USERNAME` / `CYPRESS_ADMIN_PASSWORD`
+- `CYPRESS_TEST_USERNAME` / `CYPRESS_TEST_PASSWORD` (legacy, defaults to active user)
+- `VITE_API_BASE_URL` / `CYPRESS_API_BASE_URL`
 
 ## Troubleshooting
 
 ### Tests failing with "Cannot connect to server"
 
 - Ensure both frontend (`npm run dev`) and backend servers are running
-- Check that ports match your configuration (3000 for frontend, 8000 for backend)
+- Check that ports match your configuration:
+  - Frontend: Check `CYPRESS_BASE_URL` environment variable (default: `http://localhost:3000`)
+  - Backend: Check `CYPRESS_API_BASE_URL` or `VITE_API_BASE_URL` (default: `http://localhost:8000/api/`)
+- Verify your servers are actually running on those ports
 
 ### Authentication failures
 
