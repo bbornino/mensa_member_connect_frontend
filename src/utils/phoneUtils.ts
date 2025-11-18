@@ -86,8 +86,9 @@ export const validatePhoneNumber = (
   phone: string,
   convertToE164: (phone: string) => string | null = convertPhoneToE164
 ): { isValid: boolean; error?: string } => {
+  // Phone is optional - if empty, it's valid
   if (!phone || !phone.trim()) {
-    return { isValid: false, error: "Phone number is required" };
+    return { isValid: true };
   }
   
   // Check format first

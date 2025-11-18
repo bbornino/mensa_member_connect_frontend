@@ -33,6 +33,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   // const [isExpert, setIsExpert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     document.title = "Profile | Network of American Mensa Member Experts";
@@ -71,6 +72,14 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   };
 
   const handleSave = () => {
+    // Show success message
+    setSuccess("Changes saved successfully!");
+    // Scroll to top to show success message
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Auto-dismiss success message after 5 seconds
+    setTimeout(() => {
+      setSuccess("");
+    }, 5000);
     // Refresh data after save
     fetchAllData();
   };
@@ -107,10 +116,17 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
     // If record exists in DB (has an id) → delete via API
     if (item.id) {
       try {
+        setError(""); // Clear any previous errors
         await apiRequest(`expertises/${item.id}/`, {method: "DELETE"});
+        setSuccess("Expertise record deleted successfully!");
+        // Auto-dismiss success message after 3 seconds
+        setTimeout(() => {
+          setSuccess("");
+        }, 3000);
       } catch (err: any) {
         console.error("Failed to delete expertise:", err);
-        alert("Error deleting expertise. Please try again.");
+        setSuccess(""); // Clear any previous success messages
+        setError("Error deleting expertise. Please try again.");
         return;
       }
     }
@@ -166,6 +182,16 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
           </CardTitle>
         </CardHeader>
         <CardBody>
+          {error && (
+            <Alert color="danger" className="mb-3" toggle={() => setError("")}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert color="success" className="mb-3" style={{ fontWeight: '500' }} toggle={() => setSuccess("")}>
+              ✓ {success}
+            </Alert>
+          )}
           <Nav tabs>
             <NavItem>
               <NavLink
