@@ -15,7 +15,6 @@ import {
 import { useApiRequest } from "../../utils/useApiRequest";
 import {
   formatPhoneNumber,
-  convertPhoneToE164,
   validatePhoneNumber,
 } from "../../utils/phoneUtils";
 
@@ -98,6 +97,11 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
 
   useEffect(() => {
     if (data) {
+      // Extract local_group ID - it can be an object { id, group_name } or just an ID
+      const localGroupId = data.local_group 
+        ? (typeof data.local_group === 'object' ? data.local_group.id : data.local_group)
+        : "";
+      
       setFormData({
         username: data.username || "",
         email: data.email || "",
@@ -109,7 +113,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         state: data.state || "",
         phone: data.phone ? formatPhoneNumber(data.phone) : "",
         member_id: data.member_id?.toString() || "",
-        local_group: data.local_group || "",
+        local_group: localGroupId?.toString() || "",
         role: data.role,
         status: data.status,
         profile_photo: undefined, 
@@ -243,13 +247,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
       newErrors.member_id = "Member ID must be numeric";
     }
 
-    if (!formData.city?.trim()) {
-      newErrors.city = "City is required";
-    }
-
-    if (!formData.state) {
-      newErrors.state = "Please select your state";
-    }
+    // City and State are optional
 
     if (!formData.local_group) {
       newErrors.local_group = "Please select your local group";
@@ -275,33 +273,21 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
     setIsSaving(true);
 
     try {
-      const patchPayload: Partial<MemberFormData> = { ...formData };
+      const patchPayload: any = { ...formData };
       if (!patchPayload.password) delete patchPayload.password;
       if (!patchPayload.confirm_password) delete patchPayload.confirm_password;
       if (patchPayload.profile_photo) delete patchPayload.profile_photo; // photo goes separately
       
-      // Convert phone number from formatted (555) 123-4567 to E.164 format +15551234567
-      // The backend's DRFPhoneNumberField with region="US" should accept E.164 format
-      // If it's already in E.164 format (starts with +), send it as-is
-      if (patchPayload.phone) {
-        const originalPhone = patchPayload.phone;
-        // If already in E.164 format, use as-is
-        if (originalPhone.startsWith('+')) {
-          // Keep it as-is
-        } else {
-          // Convert from display format to E.164
-          const convertedPhone = convertPhoneToE164(patchPayload.phone);
-          if (convertedPhone === null) {
-            // If conversion fails, remove phone from payload (let backend handle validation)
-            delete patchPayload.phone;
-            console.warn("Phone conversion failed, removing from payload:", originalPhone);
-          } else {
-            patchPayload.phone = convertedPhone;
-          }
-        }
-      } else {
-        // If phone is empty, don't send it (backend will keep existing value)
+      // Backend will handle phone number normalization automatically
+      // If phone is empty, don't send it (backend will keep existing value)
+      if (!patchPayload.phone) {
         delete patchPayload.phone;
+      }
+
+      // Map local_group to local_group_id for backend
+      if (patchPayload.local_group) {
+        patchPayload.local_group_id = patchPayload.local_group;
+        delete patchPayload.local_group;
       }
 
 
@@ -325,7 +311,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         photoRequest,
       ]);
 
-      setSuccess("Profile updated successfully!");
+      // Call onSave which will show success message in parent
       onSave();
     } catch (err: any) {
       console.error("Error updating profile:", err);
@@ -374,8 +360,16 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
 
   return (
     <div className="mt-3">
-      {error && <Alert color="danger">{error}</Alert>}
-      {success && <Alert color="success">{success}</Alert>}
+      {error && (
+        <Alert color="danger" className="mb-3">
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert color="success" className="mb-3" style={{ fontWeight: '500' }}>
+          ✓ {success}
+        </Alert>
+      )}
 
       <Form onSubmit={handleSubmit}>
         <Row>
@@ -466,7 +460,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           <Col md="6">
             <FormGroup>
               <Label htmlFor="phone">
-                Phone Number <span className="text-danger">*</span>
+                Phone Number
               </Label>
               <Input
                 id="phone"
@@ -502,7 +496,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           <Col md="6">
             <FormGroup>
               <Label htmlFor="city">
-                City <span className="text-danger">*</span>
+                City
               </Label>
               <Input
                 id="city"
@@ -518,7 +512,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
           <Col md="6">
             <FormGroup>
               <Label htmlFor="state">
-                State <span className="text-danger">*</span>
+                State
               </Label>
               <Input
                 id="state"

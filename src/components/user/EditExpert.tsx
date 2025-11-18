@@ -85,11 +85,16 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
 
     try {
       // Prepare data for API - use industry_id instead of industry
-      const apiData = {
+      const apiData: any = {
         ...formData,
-        industry_id: formData.industry,
+        industry_id: formData.industry || null,
       };
-      delete (apiData as any).industry;
+      delete apiData.industry;
+      
+      // Allow empty occupation (convert empty string to empty string, which is fine)
+      if (apiData.occupation === "") {
+        apiData.occupation = "";
+      }
 
       // Save expert profile data
       await apiRequest(`users/${data.id}/`, {
@@ -97,8 +102,14 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
         body: JSON.stringify(apiData),
       });
 
-      // Save expertise data
-      for (const expertise of expertiseData) {
+      // Filter out blank expertise records (those without what_offering)
+      const nonBlankExpertise = expertiseData.filter((expertise) => {
+        const whatOffering = expertise.what_offering?.trim() || "";
+        return whatOffering.length > 0;
+      });
+
+      // Save expertise data (only non-blank ones)
+      for (const expertise of nonBlankExpertise) {
         if (expertise.id) {
           // Update existing expertise
           await apiRequest(`expertises/${expertise.id}/`, {
@@ -118,7 +129,23 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
         }
       }
 
-      setSuccess("Expert profile and expertise updated successfully!");
+      // Delete any existing expertise records that are now blank
+      for (const expertise of expertiseData) {
+        const whatOffering = expertise.what_offering?.trim() || "";
+        if (expertise.id && whatOffering.length === 0) {
+          // This expertise exists in DB but is now blank, delete it
+          try {
+            await apiRequest(`expertises/${expertise.id}/`, {
+              method: "DELETE",
+            });
+          } catch (err) {
+            console.error("Failed to delete blank expertise:", err);
+            // Continue with other operations even if deletion fails
+          }
+        }
+      }
+
+      // Call onSave which will show success message in parent
       onSave();
     } catch (err: any) {
       setError(err.message || "Error updating expert profile");
@@ -127,8 +154,16 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
 
   return (
     <div className="mt-3">
-      {error && <Alert color="danger">{error}</Alert>}
-      {success && <Alert color="success">{success}</Alert>}
+      {error && (
+        <Alert color="danger" className="mb-3">
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert color="success" className="mb-3" style={{ fontWeight: '500' }}>
+          ✓ {success}
+        </Alert>
+      )}
 
       <Form id="edit-expert-form" onSubmit={handleSubmit}>
         <Row>

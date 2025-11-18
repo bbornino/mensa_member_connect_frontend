@@ -255,12 +255,8 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (!formData.phone.trim()) {
-      setError("Phone number is required.");
-      return;
-    }
-
-    if (!validatePhone(formData.phone)) {
+    // Phone is optional, but if provided, validate format
+    if (formData.phone.trim() && !validatePhone(formData.phone)) {
       setError("Please enter a valid phone number in the format: (555) 123-4567");
       return;
     }
@@ -275,15 +271,7 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (!formData.city.trim()) {
-      setError("City is required.");
-      return;
-    }
-
-    if (!formData.state) {
-      setError("Please select your state.");
-      return;
-    }
+    // City and State are optional
 
     if (!formData.local_group) {
       setError("Please select your local group.");
@@ -300,8 +288,13 @@ const Register: React.FC = () => {
       return;
     }
 
+    // Prepare registration data
+    // Remove confirm_password from the data sent to backend
+    // Backend will handle phone number normalization automatically
+    const { confirm_password, ...registrationData } = formData;
+
     try {
-      await registerUser(formData);
+      await registerUser(registrationData);
       setSuccess("Registration successful! Redirecting...");
       setTimeout(() => navigate("/experts"), 1000);
     } catch (err: any) {
@@ -376,28 +369,26 @@ const Register: React.FC = () => {
               <Col md={6}>
                 <FormGroup>
                   <Label htmlFor="city">
-                    City <span className="text-danger">*</span>
+                    City
                   </Label>
                   <Input
                     id="city"
                     type="text"
                     value={formData.city}
                     onChange={handleChange}
-                    required
                   />
                 </FormGroup>
               </Col>
               <Col md={6}>
                 <FormGroup>
                   <Label htmlFor="state">
-                    State <span className="text-danger">*</span>
+                    State
                   </Label>
                   <Input
                     id="state"
                     type="select"
                     value={formData.state}
                     onChange={handleChange}
-                    required
                   >
                     <option value="">Select State...</option>
                     {US_STATES.map((abbr) => (
@@ -427,7 +418,7 @@ const Register: React.FC = () => {
               <Col md={6}>
                 <FormGroup>
                   <Label htmlFor="phone">
-                    Phone Number <span className="text-danger">*</span>
+                    Phone Number
                   </Label>
                   <Input
                     id="phone"
@@ -435,7 +426,6 @@ const Register: React.FC = () => {
                     placeholder="(555) 123-4567"
                     value={formData.phone}
                     onChange={handleChange}
-                    required
                   />
                 </FormGroup>
               </Col>

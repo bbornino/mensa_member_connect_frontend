@@ -19,6 +19,7 @@ import {
 } from "reactstrap";
 import { useApiRequest } from "../../utils/useApiRequest";
 import { getRandomPlaceholderImage } from "../../utils/constants";
+import { useAuth } from "../../context/AuthContext";
 
 interface Expert {
   id: number;
@@ -53,6 +54,7 @@ interface Expert {
 
 const Experts: React.FC = () => {
   const { apiRequest } = useApiRequest();
+  const { user } = useAuth();
   const [experts, setExperts] = useState<Expert[]>([]);
   const [filteredExperts, setFilteredExperts] = useState<Expert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -202,6 +204,28 @@ const Experts: React.FC = () => {
     // This function can be used for additional search logic if needed
     setCurrentPage(1); // Reset to first page when searching
   };
+
+  // Check if user status is pending
+  if (user && user.status === "pending") {
+    return (
+      <div>
+        <Alert color="warning" className="mb-4">
+          <h5 className="alert-heading">Account Pending Verification</h5>
+          <p>
+            Your account is pending until your membership is verified. This will be completed within 48 hours.
+          </p>
+          <p className="mb-0">
+            In the meantime, you can edit your profile and expertise. Once your membership is verified, you'll have full access to browse experts and their profiles.
+          </p>
+        </Alert>
+        <div className="text-center">
+          <Button color="primary" tag={Link} to="/profile" size="lg">
+            Edit My Profile
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
