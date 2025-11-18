@@ -14,6 +14,7 @@ import {
 import ConnectionRequestModal from "../shared/ConnectionRequestModal";
 import { useApiRequest } from "../../utils/useApiRequest";
 import { getRandomPlaceholderImage } from "../../utils/constants";
+import { useAuth } from "../../context/AuthContext";
 
 interface UserDetail {
   id: number;
@@ -56,6 +57,7 @@ interface Expert {
 const UserDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { apiRequest } = useApiRequest();
+  const { user: currentUser } = useAuth();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [expert, setExpert] = useState<Expert | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -164,6 +166,28 @@ const UserDetail: React.FC = () => {
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
+
+  // Check if current user status is pending
+  if (currentUser && currentUser.status === "pending") {
+    return (
+      <Container className="centered-container">
+        <Alert color="warning" className="mb-4">
+          <h5 className="alert-heading">Account Pending Verification</h5>
+          <p>
+            Your account is pending until your membership is verified. This will be completed within 48 hours.
+          </p>
+          <p className="mb-0">
+            In the meantime, you can edit your profile and expertise. Once your membership is verified, you'll have full access to browse experts and their profiles.
+          </p>
+        </Alert>
+        <div className="text-center">
+          <Button color="primary" tag={Link} to="/profile" size="lg">
+            Edit My Profile
+          </Button>
+        </div>
+      </Container>
+    );
+  }
 
   if (isLoading) {
     return (
