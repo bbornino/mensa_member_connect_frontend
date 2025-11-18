@@ -107,11 +107,23 @@ describe('Expert Profile Editing', () => {
 
       // Toggle checkbox
       cy.get('#show_contact_info').click();
-      cy.get('#show_contact_info').should('have.attr', 'checked', initialState ? '' : 'checked');
+      
+      // Verify state changed (opposite of initial state)
+      if (initialState) {
+        cy.get('#show_contact_info').should('not.be.checked');
+      } else {
+        cy.get('#show_contact_info').should('be.checked');
+      }
 
       // Toggle back
       cy.get('#show_contact_info').click();
-      cy.get('#show_contact_info').should('have.attr', 'checked', initialState ? 'checked' : '');
+      
+      // Verify state is back to initial
+      if (initialState) {
+        cy.get('#show_contact_info').should('be.checked');
+      } else {
+        cy.get('#show_contact_info').should('not.be.checked');
+      }
     });
   });
 

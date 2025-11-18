@@ -23,7 +23,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#password').type('somepassword');
+    cy.get('#password').should('not.be.disabled').type('somepassword');
     cy.get('form').submit();
 
     // Should show error or stay on login page
@@ -35,7 +35,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').type('testuser');
+    cy.get('#username').should('not.be.disabled').type('testuser');
     cy.get('form').submit();
 
     // Should show error or stay on login page
@@ -53,8 +53,8 @@ describe('Login Details', () => {
       body: { error: 'Invalid credentials' },
     }).as('loginError');
 
-    cy.get('#username').type('invaliduser');
-    cy.get('#password').type('wrongpassword');
+    cy.get('#username').should('not.be.disabled').type('invaliduser');
+    cy.get('#password').should('not.be.disabled').type('wrongpassword');
     cy.get('form').submit();
 
     cy.wait('@loginError');
@@ -73,16 +73,7 @@ describe('Login Details', () => {
     const username = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
     const password = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
 
-    cy.visit('/login');
-    cy.waitForAppLoad();
-
-    // Intercept successful login for active user
-    cy.intercept('POST', '**/api/users/authenticate/', {
-      statusCode: 200,
-      body: {
-        access: 'mock-access-token',
-        refresh: 'mock-refresh-token',
-        user: {
+    const mockUser = {
           id: 1,
           username: username,
           email: 'active@example.com',
@@ -90,29 +81,58 @@ describe('Login Details', () => {
           last_name: 'User',
           role: 'member',
           status: 'active',
-        },
-      },
-    }).as('loginSuccess');
+    };
 
+    // Intercept login API call
+    cy.intercept('POST', /.*users\/authenticate.*/, {
+      statusCode: 200,
+      body: {
+        access: 'mock-access-token',
+        refresh: 'mock-refresh-token',
+        user: mockUser,
+      },
+    }).as('loginRequest');
+
+    // Intercept users/me call that happens during auth initialization
+    // This is called when the app checks if user is already logged in
+    cy.intercept('GET', /.*users\/me.*/, {
+      statusCode: 200,
+      body: mockUser,
+    }).as('getCurrentUser');
+
+    // Visit login page
+    cy.visit('/login');
+    
+    // Fill in login form
     cy.get('#username').type(username);
     cy.get('#password').type(password);
+    
+    // Submit form
     cy.get('form').submit();
 
-    cy.wait('@loginSuccess');
-    cy.waitForAppLoad();
+    // Wait for login API call to complete
+    cy.wait('@loginRequest', { timeout: 10000 });
+    
+    // Verify that user data was stored in localStorage (login succeeded)
+    cy.window().its('localStorage').should('have.property', 'access_token');
+    cy.window().its('localStorage').should('have.property', 'user');
 
-    // Should redirect to /experts after successful login
-    cy.url().should('include', '/experts');
+    // Wait for navigation to /experts
+    // The navigate() happens in Login component, but React state needs to update first
+    // ProtectedRoute checks user state, so we need to wait for state to propagate
+    cy.url({ timeout: 10000 }).should((url) => {
+      expect(url).to.include('/experts');
+    });
+    
+    // Verify we're not redirected back to login (user state is set correctly)
+    cy.url().should('not.include', '/login');
   });
 
   it('should successfully login as pending user and redirect', () => {
     const username = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
     const password = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
 
-    cy.visit('/login');
-    cy.waitForAppLoad();
-
-    // Intercept successful login for pending user
+    // Intercept successful login for pending user BEFORE visiting the page
     cy.intercept('POST', '**/api/users/authenticate/', {
       statusCode: 200,
       body: {
@@ -130,25 +150,26 @@ describe('Login Details', () => {
       },
     }).as('loginSuccess');
 
-    cy.get('#username').type(username);
-    cy.get('#password').type(password);
-    cy.get('form').submit();
-
-    cy.wait('@loginSuccess');
+    cy.visit('/login');
     cy.waitForAppLoad();
 
-    // Pending users can login but may have restricted access
-    cy.url().should('not.include', '/login');
-    cy.url().should('satisfy', (url) => {
-      return url.includes('/experts') || url === Cypress.config('baseUrl') + '/';
-    });
+    cy.get('#username').should('not.be.disabled').type(username);
+    cy.get('#password').should('not.be.disabled').type(password);
+    cy.get('form').submit();
+
+    // Wait for the login API call to complete
+    cy.wait('@loginSuccess');
+    
+    // Wait for navigation to /experts to complete (pending users also redirect to /experts)
+    cy.url().should('include', '/experts');
+    cy.waitForAppLoad();
   });
 
   it('should toggle password visibility', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#password').type('secretpassword');
+    cy.get('#password').should('not.be.disabled').type('secretpassword');
     cy.get('#password').should('have.attr', 'type', 'password');
 
     // Click show/hide toggle
@@ -165,8 +186,8 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').type('testuser123');
-    cy.get('#password').type('password123');
+    cy.get('#username').should('not.be.disabled').type('testuser123');
+    cy.get('#password').should('not.be.disabled').type('password123');
 
     // Toggle password visibility
     cy.contains('Show').click();
@@ -183,7 +204,8 @@ describe('Login Details', () => {
     // Check if there's a link to register (if present in UI)
     cy.get('body').then(($body) => {
       if ($body.find('a[href*="/register"]').length > 0) {
-        cy.get('a[href*="/register"]').click();
+        // Click the first register link if multiple exist
+        cy.get('a[href*="/register"]').first().click();
         cy.url().should('include', '/register');
       } else {
         // Or can navigate via URL
@@ -221,8 +243,8 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').type('testuser');
-    cy.get('#password').type('password');
+    cy.get('#username').should('not.be.disabled').type('testuser');
+    cy.get('#password').should('not.be.disabled').type('password');
 
     // Navigate away
     cy.visit('/');

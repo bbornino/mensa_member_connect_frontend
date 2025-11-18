@@ -9,9 +9,10 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [shouldRedirect, setShouldRedirect] = useState<boolean>(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
@@ -19,6 +20,14 @@ const Login: React.FC = () => {
   useEffect(() => {
     document.title = "Login | Network of American Mensa Member Experts";
   }, []);
+
+  // Redirect to /experts when user is set after a successful login
+  useEffect(() => {
+    if (user && shouldRedirect) {
+      navigate("/experts");
+      setShouldRedirect(false);
+    }
+  }, [user, shouldRedirect, navigate]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,7 +38,9 @@ const Login: React.FC = () => {
       return;
     }
 
-    navigate("/experts");
+    // Set flag to trigger redirect when user state updates
+    // This ensures ProtectedRoute sees the user and doesn't redirect back
+    setShouldRedirect(true);
   };
 
   return (

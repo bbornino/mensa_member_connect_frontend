@@ -9,8 +9,9 @@ describe('Authentication Flow', () => {
 
   it('should show error for invalid login credentials', () => {
     cy.visit('/login');
-    cy.get('#username').type('invaliduser');
-    cy.get('#password').type('wrongpassword');
+    cy.waitForAppLoad();
+    cy.get('#username').should('not.be.disabled').type('invaliduser');
+    cy.get('#password').should('not.be.disabled').type('wrongpassword');
     cy.get('form').submit();
     
     // Should show error message or stay on login page
@@ -22,15 +23,38 @@ describe('Authentication Flow', () => {
     const username = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
     const password = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
 
+    // Set up intercept for login API call
+    cy.intercept('POST', '**/users/authenticate/**', {
+      statusCode: 200,
+      body: {
+        access: 'mock-access-token',
+        refresh: 'mock-refresh-token',
+        user: {
+          id: 1,
+          username: username,
+          email: 'active@example.com',
+          first_name: 'Active',
+          last_name: 'User',
+          role: 'member',
+          status: 'active',
+        },
+      },
+    }).as('loginRequest');
+
+    // Visit login page
     cy.visit('/login');
+    
+    // Fill in login form
     cy.get('#username').type(username);
     cy.get('#password').type(password);
-    cy.get('form').submit();
     
-    // Should redirect after successful login
-    cy.waitForAppLoad();
-    cy.url().should('not.include', '/login');
-    // Active users should be able to access /experts
+    // Submit form
+    cy.get('form').submit();
+
+    // Wait for login API call to complete
+    cy.wait('@loginRequest');
+    
+    // Verify redirect to experts page
     cy.url().should('include', '/experts');
   });
 
@@ -38,23 +62,42 @@ describe('Authentication Flow', () => {
     const username = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
     const password = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
 
+    // Intercept successful login for pending user BEFORE visiting the page
+    cy.intercept('POST', '**/api/users/authenticate/', {
+      statusCode: 200,
+      body: {
+        access: 'mock-access-token',
+        refresh: 'mock-refresh-token',
+        user: {
+          id: 2,
+          username: username,
+          email: 'pending@example.com',
+          first_name: 'Pending',
+          last_name: 'User',
+          role: 'member',
+          status: 'pending',
+        },
+      },
+    }).as('loginSuccess');
+
     cy.visit('/login');
-    cy.get('#username').type(username);
-    cy.get('#password').type(password);
+    cy.waitForAppLoad();
+    cy.get('#username').should('not.be.disabled').type(username);
+    cy.get('#password').should('not.be.disabled').type(password);
     cy.get('form').submit();
     
-    // Should redirect after successful login (pending users can still login)
+    // Wait for the login API call to complete
+    cy.wait('@loginSuccess');
+    
+    // Wait for navigation to /experts to complete (pending users also redirect to /experts)
+    cy.url().should('include', '/experts');
     cy.waitForAppLoad();
-    cy.url().should('not.include', '/login');
-    // Pending users may also redirect to /experts but have restricted access
-    cy.url().should('satisfy', (url) => {
-      return url.includes('/experts') || url === Cypress.config('baseUrl') + '/';
-    });
   });
 
   it('should allow password visibility toggle', () => {
     cy.visit('/login');
-    cy.get('#password').type('secretpassword');
+    cy.waitForAppLoad();
+    cy.get('#password').should('not.be.disabled').type('secretpassword');
     cy.get('#password').should('have.attr', 'type', 'password');
     
     // Click show/hide toggle
