@@ -1,5 +1,5 @@
-// import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Container } from "reactstrap";
 
 // Public / Static Pages
@@ -34,6 +34,15 @@ import Footer from "./components/shared/Footer";
 
 function App() {
   const { isLoading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Fix malformed paths (e.g., "/!" from Railway redirects)
+  useEffect(() => {
+    if (location.pathname === "/!") {
+      navigate("/", { replace: true });
+    }
+  }, [location.pathname, navigate]);
   
   if (isLoading) {
     return (
@@ -89,6 +98,12 @@ function App() {
         />
 
         <Route path="/logout" element={<ProtectedRoute element={<Logout />} />} />
+
+        {/* Handle malformed redirects (e.g., from Cloudflare) */}
+        <Route path="/!" element={<Navigate to="/" replace />} />
+        
+        {/* Catch-all route - redirect unknown paths to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Container>
       </div>
