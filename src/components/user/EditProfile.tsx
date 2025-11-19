@@ -217,6 +217,22 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
 
           <TabContent activeTab={activeTab}>
             <TabPane tabId="basic">
+              {expertiseData.length === 0 || !expertiseData.some(item => item.id) ? (
+                <Alert color="secondary" className="mb-4" style={{ fontSize: '0.95rem', backgroundColor: '#f8f9fa', borderColor: '#dee2e6' }}>
+                  <strong>Share your talents!</strong> Want to share your talents with other members?{" "}
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleTab("expert");
+                    }}
+                    style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    Fill out your expert profile here
+                  </a>
+                  .
+                </Alert>
+              ) : null}
               {userData && <EditMember data={userData} onSave={handleSave} isAdminMode={!!memberId} />}
             </TabPane>
 
