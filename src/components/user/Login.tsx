@@ -2,6 +2,7 @@ import React, { useState, useEffect} from "react";
 import type { FormEvent } from "react"; 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
+import { PASSWORD_RESET_API_URL } from "../../utils/constants";
 import { Container, Form, Card, CardTitle, CardBody, CardFooter, FormGroup, Label, Input } from "reactstrap";
 
 const Login: React.FC = () => {
@@ -43,6 +44,25 @@ const Login: React.FC = () => {
     setShouldRedirect(true);
   };
 
+  const handleForgotPassword = async () => {
+    try {
+      const response = await fetch(PASSWORD_RESET_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "brianabornino@gmail.com" }) // hard-coded for now
+      });
+
+      if (response.ok) {
+        alert("Password reset email sent!");
+      } else {
+        alert("Failed to send email.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error sending request.");
+    }
+  };
+
   return (
     <Container className="centered-container">
       <Form onSubmit={handleLogin}>
@@ -76,6 +96,16 @@ const Login: React.FC = () => {
                 </span>
               </div>
             </FormGroup>
+            <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
+              <button
+                type="button"
+                className="btn btn-link p-0"
+                onClick={handleForgotPassword}
+              >
+                Forgot password?
+              </button>
+            </div>
+
             {error && <p style={{ color: "red" }}>{error}</p>}
           </CardBody>
           <CardFooter>
