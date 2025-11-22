@@ -558,8 +558,8 @@ const Register: React.FC = () => {
           </CardBody>
 
           <CardFooter>
-            <button type="submit" className="btn btn-primary w-100">
-              Register
+            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
             </button>
           </CardFooter>
         </Card>
