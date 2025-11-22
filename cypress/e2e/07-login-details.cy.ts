@@ -13,13 +13,13 @@ describe('Login Details', () => {
 
     // Check form elements
     cy.get('form').should('exist');
-    cy.get('#username').should('be.visible');
+    cy.get('#email').should('be.visible');
     cy.get('#password').should('be.visible');
     cy.get('button[type="submit"]').should('contain', 'Login');
     cy.contains('Login', { matchCase: false }).should('be.visible');
   });
 
-  it('should show error for empty username', () => {
+  it('should show error for empty email', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
@@ -35,7 +35,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').should('not.be.disabled').type('testuser');
+    cy.get('#email').should('not.be.disabled').type('testuser@example.com');
     cy.get('form').submit();
 
     // Should show error or stay on login page
@@ -53,7 +53,7 @@ describe('Login Details', () => {
       body: { error: 'Invalid credentials' },
     }).as('loginError');
 
-    cy.get('#username').should('not.be.disabled').type('invaliduser');
+    cy.get('#email').should('not.be.disabled').type('invalid@example.com');
     cy.get('#password').should('not.be.disabled').type('wrongpassword');
     cy.get('form').submit();
 
@@ -70,13 +70,12 @@ describe('Login Details', () => {
   });
 
   it('should successfully login as active user and redirect to experts', () => {
-    const username = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
+    const email = Cypress.env('ACTIVE_EMAIL') || 'testuser_active@example.com';
     const password = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
 
     const mockUser = {
           id: 1,
-          username: username,
-          email: 'active@example.com',
+          email: email,
           first_name: 'Active',
           last_name: 'User',
           role: 'member',
@@ -104,7 +103,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     
     // Fill in login form
-    cy.get('#username').type(username);
+    cy.get('#email').type(email);
     cy.get('#password').type(password);
     
     // Submit form
@@ -129,7 +128,7 @@ describe('Login Details', () => {
   });
 
   it('should successfully login as pending user and redirect', () => {
-    const username = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
+    const email = Cypress.env('PENDING_EMAIL') || 'testuser_pending@example.com';
     const password = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
 
     // Intercept successful login for pending user BEFORE visiting the page
@@ -140,8 +139,7 @@ describe('Login Details', () => {
         refresh: 'mock-refresh-token',
         user: {
           id: 2,
-          username: username,
-          email: 'pending@example.com',
+          email: email,
           first_name: 'Pending',
           last_name: 'User',
           role: 'member',
@@ -153,7 +151,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').should('not.be.disabled').type(username);
+    cy.get('#email').should('not.be.disabled').type(email);
     cy.get('#password').should('not.be.disabled').type(password);
     cy.get('form').submit();
 
@@ -186,14 +184,14 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').should('not.be.disabled').type('testuser123');
+    cy.get('#email').should('not.be.disabled').type('testuser123@example.com');
     cy.get('#password').should('not.be.disabled').type('password123');
 
     // Toggle password visibility
     cy.contains('Show').click();
     
     // Values should still be there
-    cy.get('#username').should('have.value', 'testuser123');
+    cy.get('#email').should('have.value', 'testuser123@example.com');
     cy.get('#password').should('have.value', 'password123');
   });
 
@@ -243,7 +241,7 @@ describe('Login Details', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
 
-    cy.get('#username').should('not.be.disabled').type('testuser');
+    cy.get('#email').should('not.be.disabled').type('testuser@example.com');
     cy.get('#password').should('not.be.disabled').type('password');
 
     // Navigate away
@@ -255,7 +253,7 @@ describe('Login Details', () => {
     cy.waitForAppLoad();
 
     // Form should be cleared or empty
-    cy.get('#username').should('have.value', '');
+    cy.get('#email').should('have.value', '');
     cy.get('#password').should('have.value', '');
   });
 });

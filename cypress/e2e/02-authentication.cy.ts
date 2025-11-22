@@ -10,7 +10,7 @@ describe('Authentication Flow', () => {
   it('should show error for invalid login credentials', () => {
     cy.visit('/login');
     cy.waitForAppLoad();
-    cy.get('#username').should('not.be.disabled').type('invaliduser');
+    cy.get('#email').should('not.be.disabled').type('invalid@example.com');
     cy.get('#password').should('not.be.disabled').type('wrongpassword');
     cy.get('form').submit();
     
@@ -20,7 +20,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should successfully login with active user credentials', () => {
-    const username = Cypress.env('ACTIVE_USERNAME') || 'testuser_active';
+    const email = Cypress.env('ACTIVE_EMAIL') || 'testuser_active@example.com';
     const password = Cypress.env('ACTIVE_PASSWORD') || 'testpassword123';
 
     // Set up intercept for login API call
@@ -31,8 +31,7 @@ describe('Authentication Flow', () => {
         refresh: 'mock-refresh-token',
         user: {
           id: 1,
-          username: username,
-          email: 'active@example.com',
+          email: email,
           first_name: 'Active',
           last_name: 'User',
           role: 'member',
@@ -41,11 +40,25 @@ describe('Authentication Flow', () => {
       },
     }).as('loginRequest');
 
+    // Mock the experts endpoint that will be called after redirect
+    cy.intercept('GET', '**/users/experts/**', {
+      statusCode: 200,
+      body: [],
+    }).as('expertsRequest');
+
+    // Mock token refresh endpoint to prevent 401 errors
+    cy.intercept('POST', '**/token/refresh/**', {
+      statusCode: 200,
+      body: {
+        access: 'mock-refreshed-access-token',
+      },
+    }).as('tokenRefresh');
+
     // Visit login page
     cy.visit('/login');
     
     // Fill in login form
-    cy.get('#username').type(username);
+    cy.get('#email').type(email);
     cy.get('#password').type(password);
     
     // Submit form
@@ -59,7 +72,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should successfully login with pending user credentials', () => {
-    const username = Cypress.env('PENDING_USERNAME') || 'testuser_pending';
+    const email = Cypress.env('PENDING_EMAIL') || 'testuser_pending@example.com';
     const password = Cypress.env('PENDING_PASSWORD') || 'testpassword123';
 
     // Intercept successful login for pending user BEFORE visiting the page
@@ -70,8 +83,7 @@ describe('Authentication Flow', () => {
         refresh: 'mock-refresh-token',
         user: {
           id: 2,
-          username: username,
-          email: 'pending@example.com',
+          email: email,
           first_name: 'Pending',
           last_name: 'User',
           role: 'member',
@@ -80,9 +92,23 @@ describe('Authentication Flow', () => {
       },
     }).as('loginSuccess');
 
+    // Mock the experts endpoint that will be called after redirect
+    cy.intercept('GET', '**/users/experts/**', {
+      statusCode: 200,
+      body: [],
+    }).as('expertsRequest');
+
+    // Mock token refresh endpoint to prevent 401 errors
+    cy.intercept('POST', '**/token/refresh/**', {
+      statusCode: 200,
+      body: {
+        access: 'mock-refreshed-access-token',
+      },
+    }).as('tokenRefresh');
+
     cy.visit('/login');
     cy.waitForAppLoad();
-    cy.get('#username').should('not.be.disabled').type(username);
+    cy.get('#email').should('not.be.disabled').type(email);
     cy.get('#password').should('not.be.disabled').type(password);
     cy.get('form').submit();
     

@@ -174,7 +174,6 @@ async function registerUser(userData: Record<string, any>) {
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
     confirm_password: "",
@@ -237,11 +236,6 @@ const Register: React.FC = () => {
 
     if (!formData.last_name.trim()) {
       setError("Last name is required.");
-      return;
-    }
-
-    if (!formData.username.trim()) {
-      setError("Username is required.");
       return;
     }
 
@@ -431,21 +425,7 @@ const Register: React.FC = () => {
               </Col>
             </Row>
             <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label htmlFor="username">
-                    User Name <span className="text-danger">*</span>
-                  </Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
+              <Col md={12}>
                 <FormGroup>
                   <Label htmlFor="member_id">
                     Mensa Membership Number <span className="text-danger">*</span>

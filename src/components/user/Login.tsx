@@ -1,20 +1,18 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect, useRef} from "react";
 import type { FormEvent } from "react"; 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
-import { PASSWORD_RESET_API_URL } from "../../utils/constants";
 import { Container, Form, Card, CardTitle, CardBody, CardFooter, FormGroup, Label, Input } from "reactstrap";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [shouldRedirect, setShouldRedirect] = useState<boolean>(false);
+  const loginSuccessRef = useRef<boolean>(false);
 
   const navigate = useNavigate();
   const { login, user } = useAuth();
-
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
@@ -22,44 +20,32 @@ const Login: React.FC = () => {
     document.title = "Login | Network of American Mensa Member Experts";
   }, []);
 
-  // Redirect to /experts when user is set after a successful login
+  // Redirect when user becomes available after successful login
   useEffect(() => {
-    if (user && shouldRedirect) {
-      navigate("/experts");
-      setShouldRedirect(false);
+    if (user && loginSuccessRef.current) {
+      loginSuccessRef.current = false;
+      navigate("/experts", { replace: true });
     }
-  }, [user, shouldRedirect, navigate]);
+  }, [user, navigate]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    loginSuccessRef.current = false;
 
-    const isSignedIn = await login(username, password);
+    const isSignedIn = await login(email, password);
     if (!isSignedIn) {
       setError("Failed to sign in. Please try again.");
       return;
     }
 
-    // Set flag to trigger redirect when user state updates
-    // This ensures ProtectedRoute sees the user and doesn't redirect back
-    setShouldRedirect(true);
-  };
-
-  const handleForgotPassword = async () => {
-    try {
-      const response = await fetch(PASSWORD_RESET_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: "brianabornino@gmail.com" }) // hard-coded for now
-      });
-
-      if (response.ok) {
-        alert("Password reset email sent!");
-      } else {
-        alert("Failed to send email.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error sending request.");
+    // Mark that login was successful - useEffect will handle redirect when user state updates
+    loginSuccessRef.current = true;
+    
+    // If user is already available (from localStorage), navigate immediately
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      navigate("/experts", { replace: true });
     }
   };
 
@@ -70,12 +56,13 @@ const Login: React.FC = () => {
           <CardTitle tag="h5" className="p-3 mb-0"><strong>Login</strong></CardTitle>
           <CardBody>
             <FormGroup>
-              <Label htmlFor="username">User Name</Label>
+              <Label htmlFor="email">Email Address</Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </FormGroup>
             <FormGroup>
@@ -96,17 +83,10 @@ const Login: React.FC = () => {
                 </span>
               </div>
             </FormGroup>
-            <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
-              <button
-                type="button"
-                className="btn btn-link p-0"
-                onClick={handleForgotPassword}
-              >
-                Forgot password?
-              </button>
-            </div>
-
             {error && <p style={{ color: "red" }}>{error}</p>}
+            <div className="text-center mt-3">
+              <Link to="/forgot-password">Forgot Password?</Link>
+            </div>
           </CardBody>
           <CardFooter>
             <button type="submit" className="btn btn-primary w-100">Login</button>

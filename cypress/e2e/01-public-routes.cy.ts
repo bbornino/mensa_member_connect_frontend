@@ -25,7 +25,7 @@ describe('Public Routes', () => {
 
   it('should display login page', () => {
     cy.visit('/login');
-    cy.get('#username').should('be.visible');
+    cy.get('#email').should('be.visible');
     cy.get('#password').should('be.visible');
     cy.get('button[type="submit"]').should('contain', 'Login');
   });

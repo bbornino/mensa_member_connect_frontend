@@ -23,9 +23,9 @@ describe('Admin Features', () => {
   it('should not show admin link for non-admin users', () => {
     cy.logout();
     
-    const username = Cypress.env('TEST_USERNAME') || 'testuser';
+    const email = Cypress.env('TEST_EMAIL') || 'testuser@example.com';
     const password = Cypress.env('TEST_PASSWORD') || 'testpassword123';
-    cy.login(username, password);
+    cy.login(email, password);
     
     cy.visit('/');
     cy.waitForAppLoad();

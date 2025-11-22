@@ -52,7 +52,7 @@ describe('Feature Name', () => {
 ```typescript
 it('should login successfully', () => {
   cy.visit('/login');
-  cy.get('#username').type('testuser');
+  cy.get('#email').type('testuser@example.com');
   cy.get('#password').type('password123');
   cy.get('form').submit();
   cy.url().should('include', '/experts');
@@ -269,12 +269,12 @@ You can create them manually in Django admin or via seed scripts.
 
 ## Custom Commands
 
-### `cy.login(username, password)`
+### `cy.login(email, password)`
 
-Logs in a user with the provided credentials.
+Logs in a user with the provided email and password.
 
 ```typescript
-cy.login('testuser', 'testpassword123');
+cy.login('testuser@example.com', 'testpassword123');
 ```
 
 ### `cy.logout()`
@@ -360,8 +360,9 @@ cy.intercept('POST', /.*users\/authenticate.*/, {
     refresh: 'mock-refresh-token',
     user: {
       id: 1,
-      username: 'testuser',
       email: 'test@example.com',
+      first_name: 'Test',
+      last_name: 'User',
       status: 'active',
     },
   },
@@ -370,7 +371,7 @@ cy.intercept('POST', /.*users\/authenticate.*/, {
 // Intercept GET requests (e.g., users/me)
 cy.intercept('GET', /.*users\/me.*/, {
   statusCode: 200,
-  body: { id: 1, username: 'testuser', status: 'active' },
+  body: { id: 1, email: 'test@example.com', status: 'active' },
 }).as('getCurrentUser');
 
 // Wait for the intercepted request
@@ -396,7 +397,7 @@ cy.wait('@loginRequest');
 
 ```typescript
 // By ID
-cy.get('#username');
+cy.get('#email');
 
 // By class
 cy.get('.btn-primary');
@@ -432,7 +433,7 @@ The redirect happens automatically via a `useEffect` in the Login component that
 5. Use `.debug()` command in your tests:
 
 ```typescript
-cy.get('#username').debug();
+cy.get('#email').debug();
 ```
 
 ### Console Logs

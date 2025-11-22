@@ -12,6 +12,8 @@ import Faq from "./components/public/Faq";
 import Login from "./components/user/Login";
 import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
+import ForgotPassword from "./components/user/ForgotPassword";
+import ResetPassword from "./components/user/ResetPassword";
 import Profile from "./components/user/EditProfile";
 import UserDetail from "./components/user/UserDetail";
 import AdminEditUser from "./components/user/AdminEditUser";
@@ -63,6 +65,8 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/faq" element={<Faq />} />
 

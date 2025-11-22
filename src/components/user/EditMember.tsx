@@ -35,7 +35,6 @@ interface EditMemberProps {
 }
 
 interface MemberFormData {
-  username: string;
   email: string;
   password?: string;
   confirm_password?: string;
@@ -69,7 +68,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
   const { apiRequest } = useApiRequest();
 
   const [formData, setFormData] = useState<MemberFormData>({
-    username: "",
     email: "",
     password: "",
     confirm_password: "",
@@ -103,7 +101,6 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         : "";
       
       setFormData({
-        username: data.username || "",
         email: data.email || "",
         password: "",
         confirm_password: "",
@@ -408,20 +405,7 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         </Row>
 
         <Row>
-          <Col md="6">
-            <FormGroup>
-              <Label htmlFor="username">User Name</Label>
-              <Input
-                id="username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleChange}
-                disabled
-              />
-            </FormGroup>
-          </Col>
-          <Col md="6">
+          <Col md="12">
             <FormGroup>
               <Label htmlFor="member_id">
                 Mensa Membership Number <span className="text-danger">*</span>

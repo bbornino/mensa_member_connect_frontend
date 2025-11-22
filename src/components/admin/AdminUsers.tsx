@@ -21,19 +21,18 @@ interface LocalGroup {
 
 interface User {
   id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  member_id: number;
-  role: string;
-  status: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  member_id?: number;
+  role?: string;
+  status?: string;
   local_group: LocalGroup | null;
   date_joined?: string;
   is_expert?: boolean;
 }
 
-type SortField = "username" | "name" | "email" | "local_group" | "status";
+type SortField = "name" | "email" | "local_group" | "status";
 type SortDirection = "asc" | "desc";
 
 interface Props {
@@ -50,7 +49,7 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
 
   // Persisted filter & sort state
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortField, setSortField] = useState<SortField>("username");
+  const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [expertFilter, setExpertFilter] = useState<"all" | "experts" | "non-experts">(
     "all"
@@ -117,25 +116,21 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
       let bValue = "";
 
       switch (sortField) {
-        case "username":
-          aValue = a.username.toLowerCase();
-          bValue = b.username.toLowerCase();
-          break;
         case "name":
-          aValue = `${a.first_name} ${a.last_name}`.toLowerCase();
-          bValue = `${b.first_name} ${b.last_name}`.toLowerCase();
+          aValue = `${a.first_name || ""} ${a.last_name || ""}`.trim().toLowerCase();
+          bValue = `${b.first_name || ""} ${b.last_name || ""}`.trim().toLowerCase();
           break;
         case "email":
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
+          aValue = (a.email || "").toLowerCase();
+          bValue = (b.email || "").toLowerCase();
           break;
         case "local_group":
           aValue = a.local_group?.group_name?.toLowerCase() || "";
           bValue = b.local_group?.group_name?.toLowerCase() || "";
           break;
         case "status":
-          aValue = a.status.toLowerCase();
-          bValue = b.status.toLowerCase();
+          aValue = (a.status || "").toLowerCase();
+          bValue = (b.status || "").toLowerCase();
           break;
         default:
           aValue = "";
@@ -221,12 +216,6 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
             <thead>
               <tr>
                 <th
-                  onClick={() => handleSort("username")}
-                  style={{ cursor: "pointer", userSelect: "none" }}
-                >
-                  Username <SortIcon field="username" />
-                </th>
-                <th
                   onClick={() => handleSort("name")}
                   style={{ cursor: "pointer", userSelect: "none" }}
                 >
@@ -256,15 +245,14 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
             <tbody>
               {getSortedAndFilteredUsers().map((u) => (
                 <tr key={u.id}>
-                  <td>{u.username}</td>
                   <td>
-                    {u.first_name} {u.last_name}
+                    {[u.first_name, u.last_name].filter(Boolean).join(" ") || "N/A"}
                   </td>
-                  <td>{u.email}</td>
+                  <td>{u.email || "N/A"}</td>
                   <td>{u.local_group?.group_name || "N/A"}</td>
                   <td>
                     <Badge color={u.status === "active" ? "success" : "secondary"}>
-                      {u.status}
+                      {u.status || "N/A"}
                     </Badge>
                   </td>
                   <td>

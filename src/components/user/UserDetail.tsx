@@ -18,7 +18,6 @@ import { useAuth } from "../../context/AuthContext";
 
 interface UserDetail {
   id: number;
-  username: string;
   email: string;
   first_name: string;
   last_name: string;
@@ -97,7 +96,6 @@ const UserDetail: React.FC = () => {
         // Transform user data to match expected format
         const transformedUser: UserDetail = {
           id: userData.id,
-          username: userData.username || "",
           email: userData.email || "",
           first_name: userData.first_name || "",
           last_name: userData.last_name || "",

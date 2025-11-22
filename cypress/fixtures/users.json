@@ -1,27 +1,27 @@
 {
   "pendingUser": {
-    "username": "testuser_pending",
-    "password": "testpassword123",
     "email": "testuser_pending@example.com",
+    "password": "testpassword123",
     "status": "pending",
     "role": "member",
-    "description": "User with pending status - has restricted access (cannot view expert details)"
+    "description": "User with pending status - has restricted access (cannot view expert details)",
+    "note": "Username field removed - email is now used for authentication"
   },
   "activeUser": {
-    "username": "testuser_active",
-    "password": "testpassword123",
     "email": "testuser_active@example.com",
+    "password": "testpassword123",
     "status": "active",
     "role": "member",
-    "description": "User with active status - has full access to all features"
+    "description": "User with active status - has full access to all features",
+    "note": "Username field removed - email is now used for authentication"
   },
   "adminUser": {
-    "username": "admin",
-    "password": "admin123",
     "email": "admin@example.com",
+    "password": "admin123",
     "status": "active",
     "role": "admin",
-    "description": "Admin user with admin role - has access to admin panel"
+    "description": "Admin user with admin role - has access to admin panel",
+    "note": "Username field removed - email is now used for authentication"
   }
 }
 

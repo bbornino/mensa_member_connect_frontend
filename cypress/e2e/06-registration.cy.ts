@@ -13,7 +13,6 @@ describe('Registration Flow', () => {
   const fillRequiredRegistrationForm = () => {
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(`testuser_${Date.now()}`); // Unique username
     cy.get('#email').type(`test_${Date.now()}@example.com`); // Unique email
     cy.get('#member_id').type('12345');
     cy.get('#local_group').select('Greater Los Angeles Area Mensa');
@@ -32,7 +31,6 @@ describe('Registration Flow', () => {
   it('should display the registration form with all required fields', () => {
     cy.get('#first_name').should('be.visible');
     cy.get('#last_name').should('be.visible');
-    cy.get('#username').should('be.visible');
     cy.get('#email').should('be.visible');
     cy.get('#phone').should('be.visible');
     cy.get('#member_id').should('be.visible');
@@ -58,13 +56,6 @@ describe('Registration Flow', () => {
     cy.contains('Last name is required', { matchCase: false }).should('be.visible');
   });
 
-  it('should show error when submitting with empty username', () => {
-    fillRequiredRegistrationForm();
-    cy.get('#username').clear();
-    cy.get('form').submit();
-    cy.contains('Username is required', { matchCase: false }).should('be.visible');
-  });
-
   it('should show error when submitting with empty email', () => {
     fillRequiredRegistrationForm();
     cy.get('#email').clear();
@@ -81,12 +72,10 @@ describe('Registration Flow', () => {
 
   it('should allow registration without phone number (phone is optional)', () => {
     const timestamp = Date.now();
-    const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
 
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(uniqueUsername);
     cy.get('#email').type(uniqueEmail);
     // Intentionally skip phone
     cy.get('#member_id').type('12345');
@@ -138,12 +127,10 @@ describe('Registration Flow', () => {
 
   it('should allow registration without city (city is optional)', () => {
     const timestamp = Date.now();
-    const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
 
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(uniqueUsername);
     cy.get('#email').type(uniqueEmail);
     cy.get('#member_id').type('12345');
     // Intentionally skip city
@@ -168,12 +155,10 @@ describe('Registration Flow', () => {
 
   it('should allow registration without state (state is optional)', () => {
     const timestamp = Date.now();
-    const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
 
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(uniqueUsername);
     cy.get('#email').type(uniqueEmail);
     cy.get('#member_id').type('12345');
     // Intentionally skip state
@@ -232,12 +217,10 @@ describe('Registration Flow', () => {
 
   it('should successfully register with only required fields', () => {
     const timestamp = Date.now();
-    const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
 
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(uniqueUsername);
     cy.get('#email').type(uniqueEmail);
     cy.get('#member_id').type('12345');
     cy.get('#local_group').select('Greater Los Angeles Area Mensa');
@@ -257,12 +240,13 @@ describe('Registration Flow', () => {
       expect(interception.request.body).to.include({
         first_name: 'John',
         last_name: 'Doe',
-        username: uniqueUsername,
         email: uniqueEmail,
         member_id: '12345',
       });
       expect(interception.request.body.password).to.equal('TestPassword123!');
       // Optional fields may or may not be present
+      // Username should not be in the request
+      expect(interception.request.body).to.not.have.property('username');
     });
 
     // Check for success message
@@ -278,12 +262,10 @@ describe('Registration Flow', () => {
 
   it('should successfully register with all fields including optional ones', () => {
     const timestamp = Date.now();
-    const uniqueUsername = `testuser_${timestamp}`;
     const uniqueEmail = `test_${timestamp}@example.com`;
 
     cy.get('#first_name').type('John');
     cy.get('#last_name').type('Doe');
-    cy.get('#username').type(uniqueUsername);
     cy.get('#email').type(uniqueEmail);
     cy.get('#phone').type('5551234567');
     cy.get('#member_id').type('12345');
@@ -306,13 +288,14 @@ describe('Registration Flow', () => {
       expect(interception.request.body).to.include({
         first_name: 'John',
         last_name: 'Doe',
-        username: uniqueUsername,
         email: uniqueEmail,
         city: 'Test City',
         state: 'CA',
         member_id: '12345',
       });
       expect(interception.request.body.password).to.equal('TestPassword123!');
+      // Username should not be in the request
+      expect(interception.request.body).to.not.have.property('username');
     });
 
     // Check for success message
@@ -332,7 +315,7 @@ describe('Registration Flow', () => {
     // Intercept with error response
     cy.intercept('POST', '**/api/users/register/', {
       statusCode: 400,
-      body: { error: 'Username already exists.' },
+      body: { error: 'Email already exists.' },
     }).as('registerError');
 
     cy.get('form').submit();

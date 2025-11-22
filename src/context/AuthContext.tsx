@@ -7,7 +7,7 @@ import { API_BASE_URL, TOKEN_REFRESH_API_URL } from "../utils/constants";
 interface AuthContextType {
   user: any | null;
   accessToken: string | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   refreshAccessToken: () => Promise<void>;
   isLoading: boolean;
@@ -169,10 +169,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await axios.post(`${API_BASE_URL}users/authenticate/`, 
-        { username, password },
+        { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
 
