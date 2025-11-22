@@ -33,7 +33,7 @@ export default function About() {
               </p>
 
               <p className="mb-3">
-                At the 2025 Mensa Annual Gathering in Chicago, a session titled "How Can Mensa Address The Unmet Needs of Gifted Individuals" sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
+                At the 2025 Mensa Annual Gathering in Chicago, the Mensa Foundation held a workshop titled "How Can Mensa Address The Unmet Needs of Gifted Individuals." Facilitated by Billie Lee, the session sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
               </p>
 
               <p className="mb-3">
@@ -45,14 +45,34 @@ export default function About() {
               </h2>
               
               <ul className={`mb-5 ${styles.teamList}`}>
-                <li className="mb-2">Billie Lee – Southeast Michigan Mensa</li>
-                <li className="mb-2">Briana Bornino – Sacramento Regional Mensa</li>
-                <li className="mb-2">Bryan Lenderman – Central Indiana Mensa</li>
-                <li className="mb-2">Celline Lee – Greater New York Mensa</li>
-                <li className="mb-2">Ian Randal Strock – Greater New York Mensa</li>
-                <li className="mb-2">Michael Miller – Chicago Area Mensa</li>
-                <li className="mb-2">Sandy Feder – Sacramento Regional Mensa</li>
-                <li className="mb-2">Steve Roberts – Central Texas Mensa</li>
+                <li className="mb-2">
+                  <strong>Briana Bornino</strong> – Engineering<br />
+                  <span className={styles.localGroup}>Sacramento Regional Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Sandy Feder</strong> – Contributor<br />
+                  <span className={styles.localGroup}>Sacramento Regional Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Billie Lee</strong> – Project Lead, Engineering<br />
+                  <span className={styles.localGroup}>Southeast Michigan Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Celline Lee</strong> – UX<br />
+                  <span className={styles.localGroup}>Greater New York Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Michael Miller</strong> – Content<br />
+                  <span className={styles.localGroup}>Chicago Area Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Steve Roberts</strong> – Contributor<br />
+                  <span className={styles.localGroup}>Central Texas Mensa</span>
+                </li>
+                <li className="mb-2">
+                  <strong>Ian Randal Strock</strong> – Content, SIG Coordinator<br />
+                  <span className={styles.localGroup}>Greater New York Mensa</span>
+                </li>
               </ul>
 
               <Alert color="info" className="mt-4">
