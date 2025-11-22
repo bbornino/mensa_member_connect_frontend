@@ -41,11 +41,11 @@ export function trackEvent(
       });
     } catch (error) {
       // Silently fail in production, but log in development
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.warn('GA event tracking failed:', error);
       }
     }
-  } else if (process.env.NODE_ENV === 'development') {
+  } else if (import.meta.env.DEV) {
     console.warn('Google Analytics (gtag) is not available');
   }
 }
