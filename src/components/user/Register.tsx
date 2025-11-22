@@ -158,31 +158,47 @@ const LOCAL_GROUPS = [
 
 
 async function registerUser(userData: Record<string, any>) {
-  const response = await fetch(`${API_BASE_URL}users/register/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
+  const url = `${API_BASE_URL}users/register/`;
+  console.log("Registering user at URL:", url);
+  console.log("API_BASE_URL:", API_BASE_URL);
+  
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
 
-  if (!response.ok) {
-    // Try to parse error response
-    let errorMessage = "Registration failed";
-    try {
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const error = await response.json();
-        errorMessage = error.error || error.detail || error.message || JSON.stringify(error);
-      } else {
-        const text = await response.text();
-        errorMessage = text || `Server error: ${response.status}`;
+    console.log("Registration response status:", response.status, response.statusText);
+
+    if (!response.ok) {
+      // Try to parse error response
+      let errorMessage = "Registration failed";
+      try {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const error = await response.json();
+          errorMessage = error.error || error.detail || error.message || JSON.stringify(error);
+        } else {
+          const text = await response.text();
+          errorMessage = text || `Server error: ${response.status}`;
+        }
+      } catch (parseError) {
+        errorMessage = `Server error: ${response.status} ${response.statusText}`;
       }
-    } catch (parseError) {
-      errorMessage = `Server error: ${response.status} ${response.statusText}`;
+      throw new Error(errorMessage);
     }
-    throw new Error(errorMessage);
-  }
 
-  return response.json();
+    return response.json();
+  } catch (error: any) {
+    // Handle network errors (CORS, connection refused, etc.)
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      console.error("Network error - possible CORS or connection issue:", error);
+      throw new Error("Unable to connect to the server. Please check your internet connection and try again. If the problem persists, the server may be down or there may be a CORS configuration issue.");
+    }
+    // Re-throw other errors (including our custom Error from above)
+    throw error;
+  }
 }
 
 const Register: React.FC = () => {
@@ -202,6 +218,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -240,41 +257,49 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setIsLoading(true);
 
     // Check all required fields
     if (!formData.first_name.trim()) {
       setError("First name is required.");
+      setIsLoading(false);
       return;
     }
 
     if (!formData.last_name.trim()) {
       setError("Last name is required.");
+      setIsLoading(false);
       return;
     }
 
     if (!formData.email.trim()) {
       setError("Email is required.");
+      setIsLoading(false);
       return;
     }
 
     if (!validateEmail(formData.email)) {
       setError("Please enter a valid email address.");
+      setIsLoading(false);
       return;
     }
 
     // Phone is optional, but if provided, validate format
     if (formData.phone.trim() && !validatePhone(formData.phone)) {
       setError("Please enter a valid phone number in the format: (555) 123-4567");
+      setIsLoading(false);
       return;
     }
 
     if (!formData.member_id.trim()) {
       setError("Mensa Member ID is required.");
+      setIsLoading(false);
       return;
     }
 
     if (!validateMemberId(formData.member_id)) {
       setError("Mensa Member ID must be numeric.");
+      setIsLoading(false);
       return;
     }
 
@@ -282,16 +307,19 @@ const Register: React.FC = () => {
 
     if (!formData.local_group) {
       setError("Please select your local group.");
+      setIsLoading(false);
       return;
     }
 
     if (!formData.password) {
       setError("Password is required.");
+      setIsLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirm_password) {
       setError("Passwords do not match.");
+      setIsLoading(false);
       return;
     }
 
@@ -309,6 +337,7 @@ const Register: React.FC = () => {
 
     // Log the data being sent for debugging
     console.log("Registration data being sent:", cleanedData);
+    console.log("Current API_BASE_URL:", API_BASE_URL);
 
     try {
       await registerUser(cleanedData);
@@ -317,7 +346,15 @@ const Register: React.FC = () => {
     } catch (err: any) {
       const errorMessage = err.message || "Registration failed. Please try again.";
       console.error("Registration error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        stack: err.stack,
+        name: err.name,
+        response: err.response
+      });
       setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
