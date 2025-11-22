@@ -33,9 +33,9 @@ const Login: React.FC = () => {
     setError("");
     loginSuccessRef.current = false;
 
-    const isSignedIn = await login(email, password);
-    if (!isSignedIn) {
-      setError("Failed to sign in. Please try again.");
+    const result = await login(email, password);
+    if (!result.success) {
+      setError(result.error || "Failed to sign in. Please try again.");
       return;
     }
 

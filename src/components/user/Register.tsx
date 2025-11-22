@@ -165,8 +165,21 @@ async function registerUser(userData: Record<string, any>) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || error.detail || "Registration failed");
+    // Try to parse error response
+    let errorMessage = "Registration failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.detail || error.message || JSON.stringify(error);
+      } else {
+        const text = await response.text();
+        errorMessage = text || `Server error: ${response.status}`;
+      }
+    } catch (parseError) {
+      errorMessage = `Server error: ${response.status} ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -287,12 +300,23 @@ const Register: React.FC = () => {
     // Backend will handle phone number normalization automatically
     const { confirm_password, ...registrationData } = formData;
 
+    // Remove empty strings for optional fields (phone, city, state)
+    // This prevents sending empty strings that might cause validation issues
+    const cleanedData: Record<string, any> = { ...registrationData };
+    if (cleanedData.phone === "") delete cleanedData.phone;
+    if (cleanedData.city === "") delete cleanedData.city;
+    if (cleanedData.state === "") delete cleanedData.state;
+
+    // Log the data being sent for debugging
+    console.log("Registration data being sent:", cleanedData);
+
     try {
-      await registerUser(registrationData);
+      await registerUser(cleanedData);
       setSuccess("Registration successful! Redirecting...");
       setTimeout(() => navigate("/experts"), 1000);
     } catch (err: any) {
       const errorMessage = err.message || "Registration failed. Please try again.";
+      console.error("Registration error:", err);
       setError(errorMessage);
     }
   };

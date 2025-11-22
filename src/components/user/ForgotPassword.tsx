@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
 import {
   Container,
@@ -19,8 +19,6 @@ const ForgotPassword: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Forgot Password | Network of American Mensa Member Experts";

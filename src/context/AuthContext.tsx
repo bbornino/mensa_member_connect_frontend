@@ -7,7 +7,7 @@ import { API_BASE_URL, TOKEN_REFRESH_API_URL } from "../utils/constants";
 interface AuthContextType {
   user: any | null;
   accessToken: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshAccessToken: () => Promise<void>;
   isLoading: boolean;
@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await axios.post(`${API_BASE_URL}users/authenticate/`, 
         { email, password },
@@ -186,10 +186,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(access);
       setUser(user);
 
-      return true;
-    } catch (err) {
+      return { success: true };
+    } catch (err: any) {
       console.error("Login failed:", err);
-      return false;
+      
+      // Extract error message from response
+      let errorMessage = "Failed to sign in. Please try again.";
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        errorMessage = errorData.error || errorData.detail || errorData.message || errorMessage;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      return { success: false, error: errorMessage };
     }
   };
 
