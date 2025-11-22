@@ -17,6 +17,7 @@ import {
   formatPhoneNumber,
   validatePhoneNumber,
 } from "../../utils/phoneUtils";
+import { analytics } from "../../utils/analytics";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -308,10 +309,12 @@ const EditMember: React.FC<EditMemberProps> = ({ data, onSave, isAdminMode = fal
         photoRequest,
       ]);
 
+      analytics.trackProfileUpdate('member', true);
       // Call onSave which will show success message in parent
       onSave();
     } catch (err: any) {
       console.error("Error updating profile:", err);
+      analytics.trackProfileUpdate('member', false);
       // Extract error message from backend response
       let errorMessage = "Error updating profile";
       const fieldErrors: FormErrors = {};

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
+import { analytics } from "../../utils/analytics";
 import {
   Container,
   Form,
@@ -77,6 +78,7 @@ const ResetPassword: React.FC = () => {
       }
 
       // Success
+      analytics.trackPasswordResetConfirm(true);
       setSuccess(data.message || "Password has been successfully reset. You can now log in with your new password.");
       
       // Redirect to login after 3 seconds
@@ -84,6 +86,7 @@ const ResetPassword: React.FC = () => {
         navigate("/login");
       }, 3000);
     } catch (err: any) {
+      analytics.trackPasswordResetConfirm(false);
       setError(err?.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);

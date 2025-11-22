@@ -9,6 +9,7 @@ import {
   Alert,
 } from "reactstrap";
 import { useApiRequest } from "../../utils/useApiRequest";
+import { analytics } from "../../utils/analytics";
 
 interface ExpertFormData {
   occupation: string;
@@ -145,9 +146,15 @@ const EditExpert: React.FC<EditExpertProps> = ({ data, onSave, expertiseData, us
         }
       }
 
+      // Determine if this is a create or update based on whether expert data already exists
+      const isCreate = !data.occupation && !data.background && !data.industry;
+      analytics.trackExpertProfileUpdate(isCreate ? 'create' : 'update', true);
+      
       // Call onSave which will show success message in parent
       onSave();
     } catch (err: any) {
+      const isCreate = !data.occupation && !data.background && !data.industry;
+      analytics.trackExpertProfileUpdate(isCreate ? 'create' : 'update', false);
       setError(err.message || "Error updating expert profile");
     }
   };

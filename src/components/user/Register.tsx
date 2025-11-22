@@ -3,6 +3,7 @@ import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
 import { formatPhoneNumber, validatePhone } from "../../utils/phoneUtils";
+import { analytics } from "../../utils/analytics";
 import {
   Container,
   Row,
@@ -342,6 +343,7 @@ const Register: React.FC = () => {
     try {
       await registerUser(cleanedData);
       setSuccess("Registration successful! Redirecting...");
+      analytics.trackRegistration(true);
       setTimeout(() => navigate("/experts"), 1000);
     } catch (err: any) {
       const errorMessage = err.message || "Registration failed. Please try again.";
@@ -352,6 +354,7 @@ const Register: React.FC = () => {
         name: err.name,
         response: err.response
       });
+      analytics.trackRegistration(false, errorMessage);
       setError(errorMessage);
     } finally {
       setIsLoading(false);

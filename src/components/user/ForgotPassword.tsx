@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
+import { analytics } from "../../utils/analytics";
 import {
   Container,
   Form,
@@ -54,9 +55,11 @@ const ForgotPassword: React.FC = () => {
       }
 
       // Success - show message (we don't reveal if email exists)
+      analytics.trackPasswordResetRequest(true);
       setSuccess(data.message || "If that email exists, a reset message will be sent.");
     } catch (err: any) {
       // Handle network errors (connection refused, etc.)
+      analytics.trackPasswordResetRequest(false);
       if (err instanceof TypeError && err.message === "Failed to fetch") {
         setError("Unable to connect to the server. Please check that the backend is running and try again.");
       } else {

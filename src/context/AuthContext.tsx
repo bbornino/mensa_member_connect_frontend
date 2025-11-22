@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback } f
 import type { ReactNode } from "react";
 import axios from "axios";
 import { API_BASE_URL, TOKEN_REFRESH_API_URL } from "../utils/constants";
+import { analytics } from "../utils/analytics";
 
 interface AuthContextType {
   user: any | null;
@@ -186,6 +187,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(access);
       setUser(user);
 
+      analytics.trackLogin(true);
       return { success: true };
     } catch (err: any) {
       console.error("Login failed:", err);
@@ -199,6 +201,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         errorMessage = err.message;
       }
       
+      analytics.trackLogin(false, errorMessage);
       return { success: false, error: errorMessage };
     }
   };
@@ -224,6 +227,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.warn("Backend logout failed (continuing local logout):", error);
     } finally {
       clearAuthState();
+      analytics.trackLogout();
     }
   };
 

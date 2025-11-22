@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useApiRequest } from "../../utils/useApiRequest";
+import { analytics } from "../../utils/analytics";
 import {
   Modal,
   ModalHeader,
@@ -93,6 +94,7 @@ const ConnectionRequestModal: React.FC<ConnectionRequestModalProps> = ({
         body: JSON.stringify(body),
       });
 
+      analytics.trackConnectionRequest(expertId, formData.preferred_contact_method || undefined);
       setSubmitSuccess(true);
     } catch (error: any) {
       console.error("Error sending connection request:", error);
