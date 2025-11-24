@@ -84,40 +84,49 @@ const Admin: React.FC = () => {
           {/* Dashboard Widgets */}
           <div className="mb-4">
             <h5 className="mb-3">Dashboard</h5>
-            <Row>
-              <Col md={6} lg={3} className="mb-3">
-                <Card className="h-100" style={{ borderLeft: '4px solid #007bff' }}>
-                  <CardBody>
-                    <h6 className="text-muted mb-2"># of Users</h6>
-                    <h3 className="mb-0">{stats?.total_users}</h3>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col md={6} lg={3} className="mb-3">
-                <Card className="h-100" style={{ borderLeft: '4px solid #28a745' }}>
-                  <CardBody>
-                    <h6 className="text-muted mb-2"># of Experts</h6>
-                    <h3 className="mb-0">{stats?.total_experts}</h3>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col md={6} lg={3} className="mb-3">
-                <Card className="h-100" style={{ borderLeft: '4px solid #ffc107' }}>
-                  <CardBody>
-                    <h6 className="text-muted mb-2"># of Expertise Offered</h6>
-                    <h3 className="mb-0">{stats?.total_expertise}</h3>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col md={6} lg={3} className="mb-3">
-                <Card className="h-100" style={{ borderLeft: '4px solid #dc3545' }}>
-                  <CardBody>
-                    <h6 className="text-muted mb-2"># of Requests Sent</h6>
-                    <h3 className="mb-0">{stats?.total_connection_requests}</h3>
-                  </CardBody>
-                </Card>
-              </Col>
-            </Row>
+            {loadingStats ? (
+              <div className="text-center py-4">
+                <Spinner color="primary" />
+                <p className="mt-2">Loading statistics...</p>
+              </div>
+            ) : statsError ? (
+              <Alert color="warning">{statsError}</Alert>
+            ) : (
+              <Row>
+                <Col md={6} lg={3} className="mb-3">
+                  <Card className="h-100" style={{ borderLeft: '4px solid #007bff' }}>
+                    <CardBody>
+                      <h6 className="text-muted mb-2"># of Users</h6>
+                      <h3 className="mb-0">{stats?.total_users}</h3>
+                    </CardBody>
+                  </Card>
+                </Col>
+                <Col md={6} lg={3} className="mb-3">
+                  <Card className="h-100" style={{ borderLeft: '4px solid #28a745' }}>
+                    <CardBody>
+                      <h6 className="text-muted mb-2"># of Experts</h6>
+                      <h3 className="mb-0">{stats?.total_experts}</h3>
+                    </CardBody>
+                  </Card>
+                </Col>
+                <Col md={6} lg={3} className="mb-3">
+                  <Card className="h-100" style={{ borderLeft: '4px solid #ffc107' }}>
+                    <CardBody>
+                      <h6 className="text-muted mb-2"># of Expertise Offered</h6>
+                      <h3 className="mb-0">{stats?.total_expertise}</h3>
+                    </CardBody>
+                  </Card>
+                </Col>
+                <Col md={6} lg={3} className="mb-3">
+                  <Card className="h-100" style={{ borderLeft: '4px solid #dc3545' }}>
+                    <CardBody>
+                      <h6 className="text-muted mb-2"># of Requests Sent</h6>
+                      <h3 className="mb-0">{stats?.total_connection_requests}</h3>
+                    </CardBody>
+                  </Card>
+                </Col>
+              </Row>
+            )}
           </div>
 
           <hr className="my-4" />
