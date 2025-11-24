@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useApiRequest } from "../../utils/useApiRequest";
 import {
   Container,
   Card,
@@ -21,11 +22,36 @@ import AdminLocalGroups from "./AdminLocalGroups";
 import AdminIndustryTypes from "./AdminIndustryTypes";
 
 const Admin: React.FC = () => {
-  const { user} = useAuth();
+  const [stats, setStats] = useState<{
+    total_users: number;
+    total_experts: number;
+    total_expertise: number;
+    total_connection_requests: number;
+  } | null>(null);
+
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState("");
   const [activeTab, setActiveTab] = useState<string>("users");
+
+  const { user} = useAuth();
+  const { apiRequest } = useApiRequest();
+
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    setStatsError("");
+    try {
+      const data = await apiRequest("stats/");
+      setStats(data);
+    } catch (err: any) {
+      setStatsError("Failed to load dashboard statistics.");
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   useEffect(() => {
     document.title = "Admin | Network of American Mensa Member Experts";
+    fetchStats();
   }, []);
 
   if (!user) {
@@ -63,7 +89,7 @@ const Admin: React.FC = () => {
                 <Card className="h-100" style={{ borderLeft: '4px solid #007bff' }}>
                   <CardBody>
                     <h6 className="text-muted mb-2"># of Users</h6>
-                    <h3 className="mb-0">-</h3>
+                    <h3 className="mb-0">{stats?.total_users}</h3>
                   </CardBody>
                 </Card>
               </Col>
@@ -71,7 +97,7 @@ const Admin: React.FC = () => {
                 <Card className="h-100" style={{ borderLeft: '4px solid #28a745' }}>
                   <CardBody>
                     <h6 className="text-muted mb-2"># of Experts</h6>
-                    <h3 className="mb-0">-</h3>
+                    <h3 className="mb-0">{stats?.total_experts}</h3>
                   </CardBody>
                 </Card>
               </Col>
@@ -79,7 +105,7 @@ const Admin: React.FC = () => {
                 <Card className="h-100" style={{ borderLeft: '4px solid #ffc107' }}>
                   <CardBody>
                     <h6 className="text-muted mb-2"># of Expertise Offered</h6>
-                    <h3 className="mb-0">-</h3>
+                    <h3 className="mb-0">{stats?.total_expertise}</h3>
                   </CardBody>
                 </Card>
               </Col>
@@ -87,7 +113,7 @@ const Admin: React.FC = () => {
                 <Card className="h-100" style={{ borderLeft: '4px solid #dc3545' }}>
                   <CardBody>
                     <h6 className="text-muted mb-2"># of Requests Sent</h6>
-                    <h3 className="mb-0">-</h3>
+                    <h3 className="mb-0">{stats?.total_connection_requests}</h3>
                   </CardBody>
                 </Card>
               </Col>
