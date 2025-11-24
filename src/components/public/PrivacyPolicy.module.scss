@@ -1,0 +1,74 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cardBody {
+  padding: 2.5rem;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.content {
+  line-height: 1.8;
+}
+
+.lastUpdated {
+  text-align: center;
+  color: $color-gray-text;
+  margin-bottom: $spacing-xl;
+  font-size: 0.9em;
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionHeading {
+  font-size: $font-size-2xl;
+  font-weight: 600;
+  margin-top: $spacing-lg;
+  margin-bottom: $spacing-sm;
+  color: $color-navy;
+
+  @include mobile {
+    font-size: 1.5rem;
+  }
+}
+
+.subsectionHeading {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  margin-top: $spacing-md;
+  margin-bottom: $spacing-sm;
+  color: $color-gray-dark;
+
+  @include mobile {
+    font-size: 1.1rem;
+  }
+}
+
+.content {
+  p {
+    margin-bottom: $spacing-md;
+  }
+
+  ul {
+    margin-bottom: $spacing-md;
+    padding-left: $spacing-xl;
+
+    li {
+      margin-bottom: $spacing-xs;
+    }
+  }
+}
+

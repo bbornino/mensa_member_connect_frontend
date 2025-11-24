@@ -101,6 +101,24 @@ export default function Footer() {
                   )}
                 </ul>
               </div>
+              {/* Legal Links */}
+              <div className={styles.section}>
+                <h3 className={styles.sectionTitle}>
+                  Legal
+                </h3>
+                <ul className={styles.linkList}>
+                  <li className={styles.listItem}>
+                    <Link to="/privacy-policy" className={styles.link}>
+                      Privacy Policy
+                    </Link>
+                  </li>
+                  <li className={styles.listItem}>
+                    <Link to="/terms-of-service" className={styles.link}>
+                      Terms of Service
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
           </Col>
         </Row>

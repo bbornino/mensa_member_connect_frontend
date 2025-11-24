@@ -7,6 +7,8 @@ import About from "./components/public/About";
 import Welcome from "./components/public/Welcome";
 import Feedback from "./components/public/Feedback";
 import Faq from "./components/public/Faq";
+import PrivacyPolicy from "./components/public/PrivacyPolicy";
+import TermsOfService from "./components/public/TermsOfService";
 
 // User Pages
 import Login from "./components/user/Login";
@@ -69,6 +71,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/faq" element={<Faq />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
 
         {/* Protected Routes */}
         <Route
