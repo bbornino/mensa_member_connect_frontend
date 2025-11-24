@@ -6,12 +6,10 @@ import { Spinner, Alert, Table } from "reactstrap";
 
 interface AdminAction {
   id: number;
-  admin: {
-    username: string;
-  };
-  target_user: {
-    username: string;
-  };
+  admin_id: number;
+  admin_name: string;
+  user_id: number;
+  user_name: string;
   action: string;
   created_at: string;
 }
@@ -95,8 +93,8 @@ const AdminActions: React.FC<Props> = ({ isActive }) => {
             {adminActions.map((action) => (
               <tr key={action.id}>
                 <td>{new Date(action.created_at).toLocaleDateString()}</td>
-                <td>{action.admin.username}</td>
-                <td>{action.target_user.username}</td>
+                <td>{action.admin_name}</td>
+                <td>{action.user_name}</td>
                 <td>{action.action}</td>
               </tr>
             ))}
