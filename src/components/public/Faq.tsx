@@ -32,12 +32,12 @@ const faqItems: FAQItem[] = [
     answer: (
       <>
         <p>
-          Any active member of American Mensa may create a profile, search for help, or volunteer
+          Only active members of American Mensa who are 18 years of age or older may create a profile, search for help, or volunteer
           as an expert. You can participate whether you want to offer expertise, seek guidance, or do both.
         </p>
         <p>
           At this time, non-members can browse public information about the project (like this FAQ)
-          but need to join Mensa before logging in or contacting individual experts.
+          but need to join American Mensa and be 18 or older before logging in or contacting individual experts.
         </p>
       </>
     ),

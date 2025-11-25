@@ -33,7 +33,7 @@ export default function About() {
               </p>
 
               <p className="mb-3">
-                At the 2025 Mensa Annual Gathering in Chicago, the Mensa Foundation held a workshop titled "How Can Mensa Address The Unmet Needs of Gifted Individuals." Facilitated by Billie Lee, the session sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
+                At the 2025 Mensa Annual Gathering in Chicago, the Mensa Foundation held a workshop titled "How Can Mensa Address The Unmet Needs of Gifted Individuals." The session sparked a strong call from attendees for a way to link members who had knowledge to share with those seeking guidance. Around the same time, several Mensans were already exploring similar ideas, each envisioning a platform to bring expertise-sharing to life.
               </p>
 
               <p className="mb-3">
@@ -54,7 +54,7 @@ export default function About() {
                   <span className={styles.localGroup}>Sacramento Regional Mensa</span>
                 </li>
                 <li className="mb-2">
-                  <strong>Billie Lee</strong> – Project Lead, Engineering<br />
+                  <strong>Billie Lee</strong> – Lead, Engineering<br />
                   <span className={styles.localGroup}>Southeast Michigan Mensa</span>
                 </li>
                 <li className="mb-2">
