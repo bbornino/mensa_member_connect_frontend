@@ -160,9 +160,13 @@ const Experts: React.FC = () => {
       );
     }
 
-    // Sort alphabetically by name (default)
+    // Sort alphabetically by last name, then first name
     filtered.sort((a, b) => {
-      return `${a.user.first_name} ${a.user.last_name}`.localeCompare(`${b.user.first_name} ${b.user.last_name}`);
+      const lastNameCompare = (a.user.last_name || '').localeCompare(b.user.last_name || '');
+      if (lastNameCompare !== 0) {
+        return lastNameCompare;
+      }
+      return (a.user.first_name || '').localeCompare(b.user.first_name || '');
     });
 
     setFilteredExperts(filtered);
