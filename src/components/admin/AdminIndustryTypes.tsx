@@ -50,6 +50,10 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
             industry_name: item.industry_name || '',
             industry_description: item.industry_description || ''
           }));
+          // Sort alphabetically by industry_name
+          transformedData.sort((a, b) => 
+            a.industry_name.localeCompare(b.industry_name)
+          );
           setIndustries(transformedData);
         }
       } catch (error) {
@@ -85,7 +89,12 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
           industry_description: (data as any).industry_description || ''
         };
         console.log("Adding to state:", newIndustry);
-        setIndustries((prev) => [...prev, newIndustry]);
+        setIndustries((prev) => {
+          const updated = [...prev, newIndustry];
+          // Sort alphabetically by industry_name
+          updated.sort((a, b) => a.industry_name.localeCompare(b.industry_name));
+          return updated;
+        });
         setNewName("");
         setNewDesc("");
       } else {
@@ -99,6 +108,10 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
             industry_name: item.industry_name || '',
             industry_description: item.industry_description || ''
           }));
+          // Sort alphabetically by industry_name
+          transformedData.sort((a, b) => 
+            a.industry_name.localeCompare(b.industry_name)
+          );
           setIndustries(transformedData);
           // Clear error if the item was actually added
           if (transformedData.some(item => item.industry_name === newName)) {
@@ -121,7 +134,28 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
     const edit = editingIndustries[id];
     if (!edit) return;
 
+    // Check if there are actual changes
+    const original = industries.find(i => i.id === id);
+    if (original && 
+        original.industry_name === edit.industry_name && 
+        original.industry_description === edit.industry_description) {
+      // No changes, just remove from editing state
+      setEditingIndustries((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+      return;
+    }
+
+    // Validate that name is not empty
+    if (!edit.industry_name.trim()) {
+      setErrorMessage("Industry name cannot be empty.");
+      return;
+    }
+
     setIsLoading(true);
+    setErrorMessage("");
     try {
       const data = await apiRequest(`industries/${id}/`, {
         method: "PUT",
@@ -135,22 +169,29 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
           industry_name: (data as any).industry_name || '',
           industry_description: (data as any).industry_description || ''
         };
-        setIndustries((prev) =>
-          prev.map((i) =>
+        setIndustries((prev) => {
+          const updated = prev.map((i) =>
             i.id === id
               ? { ...i, industry_name: updatedIndustry.industry_name, industry_description: updatedIndustry.industry_description }
               : i
-          )
-        );
+          );
+          // Sort alphabetically by industry_name after update
+          updated.sort((a, b) => a.industry_name.localeCompare(b.industry_name));
+          return updated;
+        });
         // Remove from editing state
         setEditingIndustries((prev) => {
           const copy = { ...prev };
           delete copy[id];
           return copy;
         });
+        setErrorMessage(""); // Clear any previous errors
+      } else {
+        setErrorMessage("Failed to update industry. Invalid response from server.");
       }
     } catch (error) {
       console.error("Failed to update industry:", error);
+      setErrorMessage("Failed to update industry. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -158,8 +199,15 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
 
   // DELETE
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this industry?")) return;
+    const industry = industries.find(i => i.id === id);
+    const industryName = industry?.industry_name || "this industry";
+    
+    if (!window.confirm(`Are you sure you want to delete "${industryName}"? This action cannot be undone.`)) {
+      return;
+    }
+
     setIsLoading(true);
+    setErrorMessage("");
     try {
       await apiRequest(`industries/${id}/`, { method: "DELETE" });
       setIndustries((prev) => prev.filter((i) => i.id !== id));
@@ -169,8 +217,10 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
         delete copy[id];
         return copy;
       });
+      setErrorMessage(""); // Clear any previous errors
     } catch (error) {
       console.error("Failed to delete industry:", error);
+      setErrorMessage(`Failed to delete industry. ${error instanceof Error ? error.message : "Please try again."}`);
     } finally {
       setIsLoading(false);
     }
@@ -228,6 +278,11 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
                 industry_description: industry.industry_description,
               };
 
+              // Check if there are changes
+              const hasChanges = 
+                edit.industry_name !== industry.industry_name ||
+                edit.industry_description !== industry.industry_description;
+
               return (
                 <tr key={industry.id}>
                   <td>
@@ -239,6 +294,7 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
                           [industry.id]: { ...edit, industry_name: e.target.value },
                         }))
                       }
+                      disabled={isLoading}
                     />
                   </td>
                   <td>
@@ -251,6 +307,7 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
                         }))
                       }
                       placeholder="Optional description"
+                      disabled={isLoading}
                     />
                   </td>
                   <td>
@@ -259,6 +316,7 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
                       size="sm"
                       className="me-2"
                       onClick={() => handleUpdate(industry.id)}
+                      disabled={isLoading || !hasChanges}
                     >
                       Save
                     </Button>
@@ -266,6 +324,7 @@ const AdminIndustryTypes: React.FC<Props> = ({ isActive }) => {
                       color="danger"
                       size="sm"
                       onClick={() => handleDelete(industry.id)}
+                      disabled={isLoading}
                     >
                       Delete
                     </Button>

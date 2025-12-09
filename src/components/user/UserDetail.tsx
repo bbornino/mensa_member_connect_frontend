@@ -111,10 +111,32 @@ const UserDetail: React.FC = () => {
 
         setUser(transformedUser);
 
-        // Check if user is an expert (has occupation and background)
-        const isExpert = userData.occupation && userData.background;
+        // Check if user is an expert by fetching their expertise records
+        // This matches the logic used in the experts list (expertises__isnull=False)
+        let expertises: any[] = [];
+        try {
+          expertises = await apiRequest(`expertises/by_user/${id}/`) || [];
+        } catch (expertiseError) {
+          console.error("Failed to fetch expertise records:", expertiseError);
+          // If expertise fetch fails, check if user appears in experts list as fallback
+          try {
+            const allExperts: any[] = await apiRequest("users/experts/") || [];
+            const userInExpertsList = allExperts.some((expert: any) => expert.id === parseInt(id));
+            if (userInExpertsList) {
+              // User is in experts list, so they have expertise but endpoint failed
+              // Try to get expertise from the experts list data
+              const expertFromList = allExperts.find((expert: any) => expert.id === parseInt(id));
+              if (expertFromList && expertFromList.expertise) {
+                expertises = expertFromList.expertise;
+              }
+            }
+          } catch (expertsListError) {
+            console.error("Failed to verify expert status:", expertsListError);
+          }
+        }
         
-        if (isExpert) {
+        // User is an expert if they have expertise records (matching experts list logic)
+        if (expertises && expertises.length > 0) {
           // Transform expert data
           const transformedExpert: Expert = {
             id: userData.id,
@@ -128,17 +150,9 @@ const UserDetail: React.FC = () => {
             show_contact_info: userData.show_contact_info || false,
             photo: userData.photo, // Optional, may not be present
           };
-
-          // Fetch expertise records for this expert
-          const expertises: any[] = await apiRequest(`expertises/by_user/${id}/`) || [];
-          
-          // Check if user has any expertise records
-          if (!expertises || expertises.length === 0) {
-            throw new Error("This user is not an expert and does not have any expertise listed.");
-          }
           
           transformedExpert.expertise = expertises.map((exp: any) => ({
-            area_of_expertise_name: exp.area_of_expertise_name,
+            area_of_expertise_name: exp.area_of_expertise_name || exp.area_of_expertise?.industry_name,
             what_offering: exp.what_offering || "",
             who_would_benefit: exp.who_would_benefit || "",
             why_choose_you: exp.why_choose_you || "",
