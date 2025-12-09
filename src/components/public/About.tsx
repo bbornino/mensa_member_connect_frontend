@@ -21,7 +21,7 @@ export default function About() {
               </p>
               
               <p className="mb-5">
-                By highlighting the diverse skills and knowledge within our community, the Member Connection aims to turn Mensa's collective intelligence into a practical resource for personal growth, innovation, and service. Members can search by interest or expertise, start conversations, and discover new opportunities to engage with others who share their passions.
+                By highlighting the diverse skills and knowledge within our community, NAMME aims to turn Mensa's collective intelligence into a practical resource for personal growth, innovation, and service. Members can search by interest or expertise, start conversations, and discover new opportunities to engage with others who share their passions.
               </p>
 
               <h2 className={`mb-3 ${styles.sectionHeading}`}>

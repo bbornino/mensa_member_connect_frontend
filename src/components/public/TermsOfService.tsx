@@ -5,6 +5,8 @@ import styles from "./TermsOfService.module.scss";
 export default function TermsOfService() {
   useEffect(() => {
     document.title = "Terms of Service | Network of American Mensa Member Experts";
+    // Scroll to top when component mounts
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return (

@@ -47,6 +47,11 @@ function App() {
       navigate("/", { replace: true });
     }
   }, [location.pathname, navigate]);
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
   
   if (isLoading) {
     return (
