@@ -21,7 +21,7 @@ export default function MainMenu() {
               style={{ width: "32px", height: "32px" }}
             />
             <strong className="d-none d-md-inline">Network of American Mensa Member Experts</strong>
-            <strong className="d-inline d-md-none">NAME</strong>
+            <strong className="d-inline d-md-none">NAMME</strong>
           </NavbarBrand>
           
           {/* Desktop Navigation - Always visible on md+ screens */}
