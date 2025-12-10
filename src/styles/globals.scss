@@ -1,5 +1,6 @@
-@import './variables';
-@import './mixins';
+@use 'sass:color';
+@use './variables' as *;
+@use './mixins' as *;
 
 // Base styles
 body {
@@ -85,8 +86,8 @@ code {
   &:focus,
   &:active,
   &.active {
-    background-color: darken($color-navy, 10%) !important;
-    border-color: darken($color-navy, 10%) !important;
+    background-color: color.scale($color-navy, $lightness: -10%) !important;
+    border-color: color.scale($color-navy, $lightness: -10%) !important;
     color: $color-white !important;
   }
 
