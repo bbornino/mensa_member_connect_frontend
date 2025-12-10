@@ -42,6 +42,7 @@ interface Expert {
   background: string;
   availability_status: string;
   show_contact_info: boolean;
+  status: string;
   photo?: string;
   expertise?: {
     area_of_expertise_name?: string;
@@ -109,6 +110,7 @@ const Experts: React.FC = () => {
           background: expert.background || "",
           availability_status: expert.availability_status || "",
           show_contact_info: expert.show_contact_info || false,
+          status: expert.status || "",
           photo: expert.photo || getRandomPlaceholderImage(), // Assign placeholder once during transformation
           expertise: expert.expertise || [],
         }));
@@ -130,6 +132,16 @@ const Experts: React.FC = () => {
 
   useEffect(() => {
     let filtered = [...experts];
+
+    // Only include users with availability_status = "available"
+    filtered = filtered.filter(expert => 
+      expert.availability_status === "available"
+    );
+
+    // Only include users who are "active" status
+    filtered = filtered.filter(expert => 
+      expert.status === "active"
+    );
 
     // Apply search filter
     if (searchTerm) {

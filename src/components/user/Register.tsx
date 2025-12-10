@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../utils/constants";
 import { formatPhoneNumber, validatePhone } from "../../utils/phoneUtils";
 import { analytics } from "../../utils/analytics";
+import { useAuth } from "../../context/AuthContext";
 import {
   Container,
   Row,
@@ -222,6 +223,7 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     document.title = "Register | Network of American Mensa Member Experts";
@@ -341,10 +343,30 @@ const Register: React.FC = () => {
     console.log("Current API_BASE_URL:", API_BASE_URL);
 
     try {
-      await registerUser(cleanedData);
-      setSuccess("Registration successful! Redirecting...");
+      const response = await registerUser(cleanedData);
+      setSuccess("Registration successful! Setting up your account...");
       analytics.trackRegistration(true);
-      setTimeout(() => navigate("/experts"), 1000);
+      
+      // Auto-login with the tokens returned from registration
+      if (response.access && response.refresh && response.user) {
+        // Store tokens and user data
+        localStorage.setItem("access_token", response.access);
+        localStorage.setItem("refresh_token", response.refresh);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        
+        // Force a page reload to ensure AuthContext picks up the new tokens
+        // This is cleaner than trying to manually update AuthContext state
+        window.location.href = "/register/expert-profile";
+      } else {
+        // Fallback: try to login with email/password if tokens not provided
+        const loginResult = await login(cleanedData.email, cleanedData.password);
+        if (loginResult.success) {
+          setTimeout(() => navigate("/register/expert-profile"), 1000);
+        } else {
+          setError("Registration successful, but auto-login failed. Please log in manually.");
+          setTimeout(() => navigate("/login"), 2000);
+        }
+      }
     } catch (err: any) {
       const errorMessage = err.message || "Registration failed. Please try again.";
       console.error("Registration error:", err);

@@ -14,6 +14,8 @@ import TermsOfService from "./components/public/TermsOfService";
 import Login from "./components/user/Login";
 import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
+import RegisterExpertProfile from "./components/user/RegisterExpertProfile";
+import RegistrationComplete from "./components/user/RegistrationComplete";
 import ForgotPassword from "./components/user/ForgotPassword";
 import ResetPassword from "./components/user/ResetPassword";
 import Profile from "./components/user/EditProfile";
@@ -91,6 +93,14 @@ function App() {
         <Route
           path="/profile"
           element={<ProtectedRoute element={<Profile />} />}
+        />
+        <Route
+          path="/register/expert-profile"
+          element={<ProtectedRoute element={<RegisterExpertProfile />} />}
+        />
+        <Route
+          path="/register/complete"
+          element={<ProtectedRoute element={<RegistrationComplete />} />}
         />
         <Route
           path="/experts"

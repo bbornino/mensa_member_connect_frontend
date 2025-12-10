@@ -152,8 +152,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
       <Container className="centered-container">
         <Alert color="danger">{error}</Alert>
         <div className="text-center">
-          <Button color="primary" tag={Link} to="/dashboard">
-            Back to Dashboard
+          <Button color="primary" tag={Link} to="/experts">
+            Back to Experts
           </Button>
         </div>
       </Container>
@@ -165,8 +165,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
       <Container className="centered-container">
         <Alert color="warning">No profile data available.</Alert>
         <div className="text-center">
-          <Button color="primary" tag={Link} to="/dashboard">
-            Back to Dashboard
+          <Button color="primary" tag={Link} to="/experts">
+            Back to Experts
           </Button>
         </div>
       </Container>
@@ -295,8 +295,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
           </TabContent>
         </CardBody>
         <div className="text-center p-3">
-          <Button color="secondary" tag={Link} to={memberId ? "/admin" : "/dashboard"}>
-            {memberId ? "Back to Admin Panel" : "Back to Dashboard"}
+          <Button color="secondary" tag={Link} to={memberId ? "/admin" : "/experts"}>
+            {memberId ? "Back to Admin Panel" : "Back to Experts"}
           </Button>
         </div>
       </Card>
