@@ -351,21 +351,23 @@ const Experts: React.FC = () => {
         </Alert>
       ) : (
         <>
-          <Row>
+          <Row className="align-items-stretch">
               {currentExperts.map((expert) => (
-                <Col md="6" lg="4" key={expert.id} className="mb-4">
+                <Col md="6" lg="4" key={expert.id} className="mb-4 d-flex">
                   <Link 
                     to={`/expert/${expert.user.id}`}
                     style={{ textDecoration: 'none', color: 'inherit' }}
-                    className="d-block"
+                    className="d-flex w-100"
                   >
                     <Card 
-                      className="h-100 expert-card" 
+                      className="h-100 expert-card w-100" 
                       style={{ 
                         border: '1px solid #e9ecef', 
                         borderRadius: '8px',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out'
+                        transition: 'all 0.2s ease-in-out',
+                        display: 'flex',
+                        flexDirection: 'column'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
