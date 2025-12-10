@@ -161,9 +161,11 @@ const RegisterExpertProfile: React.FC = () => {
         });
       }
 
-      // Track analytics
+      // Track analytics - only track if there's actual data
       const hasData = !!(formData.occupation || formData.background || formData.industry || nonBlankExpertise.length > 0);
-      analytics.trackExpertProfileUpdate(hasData ? 'create' : 'skip', true);
+      if (hasData) {
+        analytics.trackExpertProfileUpdate('create', true);
+      }
       
       // Navigate to completion page
       navigate("/register/complete");
