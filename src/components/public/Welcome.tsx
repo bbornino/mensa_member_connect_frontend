@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
 import { useAuth } from "../../context/AuthContext";
+import ExpertShowcase from "./ExpertShowcase";
 import styles from "./Welcome.module.scss";
 
 export default function Welcome() {
@@ -98,6 +99,9 @@ export default function Welcome() {
               </div>
             </Col>
           </Row>
+
+          {/* Expert Showcase Section */}
+          <ExpertShowcase />
 
           {/* Team Section */}
           <Row className={`align-items-center ${styles.featureRow}`}>
