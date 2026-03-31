@@ -24,7 +24,7 @@ export default function Footer() {
                   alt="NAMME Logo" 
                   className={styles.logo}
                 />
-                <span className={styles.siteName}>Network of American M Member Experts</span>
+                <span className={styles.siteName}>Network of American M-Member Experts</span>
               </Link>
             </div>
           </Col>

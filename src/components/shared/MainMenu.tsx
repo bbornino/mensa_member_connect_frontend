@@ -20,7 +20,7 @@ export default function MainMenu() {
               className="me-2" 
               style={{ width: "32px", height: "32px" }}
             />
-            <strong className="d-none d-md-inline">Network of American M Member Experts (NAMME)</strong>
+            <strong className="d-none d-md-inline">Network of American M-Member Experts (NAMME)</strong>
             <strong className="d-inline d-md-none">NAMME</strong>
           </NavbarBrand>
           
