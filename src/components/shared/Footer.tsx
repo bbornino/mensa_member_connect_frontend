@@ -24,7 +24,7 @@ export default function Footer() {
                   alt="NAMME Logo" 
                   className={styles.logo}
                 />
-                <span className={styles.siteName}>Network of American Mensa Member Experts</span>
+                <span className={styles.siteName}>Network of American M Member Experts</span>
               </Link>
             </div>
           </Col>
@@ -122,6 +122,9 @@ export default function Footer() {
             </div>
           </Col>
         </Row>
+        <div className={styles.disclaimer}>
+          NAMME is an independent project developed and maintained by volunteer Mensa members. It is not officially affiliated with, endorsed by, or operated by American Mensa, Ltd.
+        </div>
       </Container>
     </footer>
   );

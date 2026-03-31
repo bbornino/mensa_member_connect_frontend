@@ -17,7 +17,7 @@ export default function About() {
 
             <div className={styles.content}>
               <p className="mb-4">
-                The <strong>Network of American Mensa Member Experts</strong> (NAMME) is a platform designed to help Mensa members share their expertise, collaborate on ideas, and support one another's goals. Whether you're looking for professional insight, creative collaboration, or simply to learn from another member's experience, this platform makes it easy to find and connect with the right people.
+                <strong>NAMME (Network of American Mensa Member Experts)</strong> is a platform designed to help Mensa members share their expertise, collaborate on ideas, and support one another's goals. Whether you're looking for professional insight, creative collaboration, or simply to learn from another member's experience, this platform makes it easy to find and connect with the right people.
               </p>
               
               <p className="mb-5">
@@ -84,7 +84,11 @@ export default function About() {
                 </li>
               </ul>
 
-              <Alert color="info" className="mt-4">
+              <Alert color="warning" className="mt-4">
+                <strong>Disclaimer:</strong> The Network of American Mensa Member Experts (NAMME) is an independent project developed and maintained by volunteer Mensa members. It is not officially affiliated with, endorsed by, or operated by American Mensa, Ltd.
+              </Alert>
+
+              <Alert color="info" className="mt-3">
                 <em>This platform is currently in a beta-testing phase. As membership grows, look for many new features to be added. If you have any suggestions or questions, please submit them by clicking the Support tab above.</em>
               </Alert>
             </div>

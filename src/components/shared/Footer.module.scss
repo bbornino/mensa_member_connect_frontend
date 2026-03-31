@@ -85,3 +85,12 @@
     text-decoration: underline;
   }
 }
+
+.disclaimer {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-gray-border;
+  font-size: 0.8rem;
+  color: $color-gray-medium;
+  text-align: center;
+}
