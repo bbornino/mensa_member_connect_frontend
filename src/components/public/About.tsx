@@ -17,7 +17,7 @@ export default function About() {
 
             <div className={styles.content}>
               <p className="mb-4">
-                <strong>NAMME (Network of American Mensa Member Experts)</strong> is a platform designed to help Mensa members share their expertise, collaborate on ideas, and support one another's goals. Whether you're looking for professional insight, creative collaboration, or simply to learn from another member's experience, this platform makes it easy to find and connect with the right people.
+                <strong>NAMME (Network of American M Member Experts)</strong> is a platform designed to help American Mensa members share their expertise, collaborate on ideas, and support one another's goals. Whether you're looking for professional insight, creative collaboration, or simply to learn from another member's experience, this platform makes it easy to find and connect with the right people.
               </p>
               
               <p className="mb-5">
@@ -38,7 +38,7 @@ export default function About() {
               </h2>
               
               <p className="mb-3">
-                The idea for what became the <strong>Network of American Mensa Member Experts</strong> started with a simple desire: to make it easier for Mensa members to connect.
+                The idea for what became the <strong>Network of American M Member Experts</strong> started with a simple desire: to make it easier for Mensa members to connect.
               </p>
 
               <p className="mb-3">
@@ -85,7 +85,7 @@ export default function About() {
               </ul>
 
               <Alert color="warning" className="mt-4">
-                <strong>Disclaimer:</strong> The Network of American Mensa Member Experts (NAMME) is an independent project developed and maintained by volunteer Mensa members. It is not officially affiliated with, endorsed by, or operated by American Mensa, Ltd.
+                <strong>Disclaimer:</strong> The Network of American M Member Experts (NAMME) is an independent project developed and maintained by volunteer Mensa members. It is not officially affiliated with, endorsed by, or operated by American Mensa, Ltd.
               </Alert>
 
               <Alert color="info" className="mt-3">
