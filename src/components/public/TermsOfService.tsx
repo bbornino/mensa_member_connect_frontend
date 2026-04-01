@@ -4,7 +4,7 @@ import styles from "./TermsOfService.module.scss";
 
 export default function TermsOfService() {
   useEffect(() => {
-    document.title = "Terms of Service | Network of American Mensa Member Experts";
+    document.title = "Terms of Service | Network of American M-Member Experts";
     // Scroll to top when component mounts
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -26,7 +26,7 @@ export default function TermsOfService() {
               <section className={styles.section}>
                 <h2 className={styles.sectionHeading}>1. Acceptance of Terms</h2>
                 <p>
-                  By accessing and using the Network of American Mensa Member Experts ("NAMME", "the Platform", "we", "us", or "our"), you accept and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Platform.
+                  By accessing and using the Network of American M-Member Experts ("NAMME", "the Platform", "we", "us", or "our"), you accept and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Platform.
                 </p>
               </section>
 

@@ -226,7 +226,7 @@ const Register: React.FC = () => {
   const { login } = useAuth();
 
   useEffect(() => {
-    document.title = "Register | Network of American Mensa Member Experts";
+    document.title = "Register | Network of American M-Member Experts";
   }, []);
 
 

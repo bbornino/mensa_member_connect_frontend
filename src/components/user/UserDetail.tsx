@@ -66,12 +66,12 @@ const UserDetail: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    document.title = "Expert Details | Network of American Mensa Member Experts";
+    document.title = "Expert Details | Network of American M-Member Experts";
   }, []);
 
   useEffect(() => {
     if (user) {
-      document.title = `${user.first_name} ${user.last_name} | Network of American Mensa Member Experts`;
+      document.title = `${user.first_name} ${user.last_name} | Network of American M-Member Experts`;
     }
   }, [user]);
 

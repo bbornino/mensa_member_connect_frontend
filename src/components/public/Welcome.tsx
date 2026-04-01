@@ -9,7 +9,7 @@ export default function Welcome() {
   const { user } = useAuth();
 
   useEffect(() => {
-    document.title = "Network of American Mensa Member Experts";
+    document.title = "Network of American M-Member Experts";
   }, []);
   return (
     <div className={styles.welcomePage}>

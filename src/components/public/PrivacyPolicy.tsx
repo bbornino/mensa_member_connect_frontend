@@ -4,7 +4,7 @@ import styles from "./PrivacyPolicy.module.scss";
 
 export default function PrivacyPolicy() {
   useEffect(() => {
-    document.title = "Privacy Policy | Network of American Mensa Member Experts";
+    document.title = "Privacy Policy | Network of American M-Member Experts";
   }, []);
 
   return (
@@ -24,7 +24,7 @@ export default function PrivacyPolicy() {
               <section className={styles.section}>
                 <h2 className={styles.sectionHeading}>1. Introduction</h2>
                 <p>
-                  The Network of American Mensa Member Experts ("NAMME", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. By using NAMME, you consent to the data practices described in this policy.
+                  The Network of American M-Member Experts ("NAMME", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. By using NAMME, you consent to the data practices described in this policy.
                 </p>
               </section>
 

@@ -14,7 +14,7 @@ const faqItems: FAQItem[] = [
     answer: (
       <>
         <p>
-          Think of the Network of American Mensa Member Experts (NAMME) as a curated talent
+          Think of the Network of American M-Member Experts (NAMME) as a curated talent
           directory that is only accessible to verified Mensans. Once you create a profile, you can browse
           member experts by specialty, see what they are comfortable helping with, and send a focused
           request for collaboration or advice.
@@ -125,7 +125,7 @@ const faqItems: FAQItem[] = [
 
 export default function Faq() {
   useEffect(() => {
-    document.title = "FAQ | Network of American Mensa Member Experts";
+    document.title = "FAQ | Network of American M-Member Experts";
   }, []);
 
   return (

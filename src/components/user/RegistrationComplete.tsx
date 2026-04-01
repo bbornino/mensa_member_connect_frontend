@@ -15,7 +15,7 @@ const RegistrationComplete: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Registration Complete | Network of American Mensa Member Experts";
+    document.title = "Registration Complete | Network of American M-Member Experts";
     
     // Redirect if not logged in
     if (!user) {
@@ -34,7 +34,7 @@ const RegistrationComplete: React.FC = () => {
           <Alert color="info" className="mb-4">
             <h5 className="alert-heading">Account Pending Approval</h5>
             <p className="mb-0">
-              Thank you for registering with the Network of American Mensa Member Experts. 
+              Thank you for registering with the Network of American M-Member Experts. 
               Your account is awaiting approval by our team. You will be notified once it is active.
             </p>
           </Alert>

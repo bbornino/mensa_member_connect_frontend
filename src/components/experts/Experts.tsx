@@ -75,7 +75,7 @@ const Experts: React.FC = () => {
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
 
   useEffect(() => {
-    document.title = "Experts | Network of American Mensa Member Experts";
+    document.title = "Experts | Network of American M-Member Experts";
   }, []);
 
   useEffect(() => {

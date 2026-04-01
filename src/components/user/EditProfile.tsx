@@ -36,7 +36,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ memberId }) => {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    document.title = "Profile | Network of American Mensa Member Experts";
+    document.title = "Profile | Network of American M-Member Experts";
   }, []);
 
   useEffect(() => {

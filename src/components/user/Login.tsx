@@ -17,7 +17,7 @@ const Login: React.FC = () => {
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
   useEffect(() => {
-    document.title = "Login | Network of American Mensa Member Experts";
+    document.title = "Login | Network of American M-Member Experts";
   }, []);
 
   // Redirect when user becomes available after successful login

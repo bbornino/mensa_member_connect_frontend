@@ -22,7 +22,7 @@ const ForgotPassword: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    document.title = "Forgot Password | Network of American Mensa Member Experts";
+    document.title = "Forgot Password | Network of American M-Member Experts";
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {

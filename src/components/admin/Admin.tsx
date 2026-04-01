@@ -50,7 +50,7 @@ const Admin: React.FC = () => {
   };
 
   useEffect(() => {
-    document.title = "Admin | Network of American Mensa Member Experts";
+    document.title = "Admin | Network of American M-Member Experts";
     fetchStats();
   }, []);
 

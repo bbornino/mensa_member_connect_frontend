@@ -1,5 +1,5 @@
 // src/utils/constants.ts
-export const APP_NAME = 'Network of American Mensa Member Experts';
+export const APP_NAME = 'Network of American M-Member Experts';
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
 export const TOKEN_REFRESH_API_URL = `${API_BASE_URL}token/refresh/`;
 export const PASSWORD_RESET_API_URL = `${API_BASE_URL}users/password-reset-request/`;

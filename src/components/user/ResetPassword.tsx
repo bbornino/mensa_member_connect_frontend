@@ -29,7 +29,7 @@ const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Reset Password | Network of American Mensa Member Experts";
+    document.title = "Reset Password | Network of American M-Member Experts";
     
     if (!token) {
       setError("Invalid reset link. Please request a new password reset.");

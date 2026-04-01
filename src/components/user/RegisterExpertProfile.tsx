@@ -48,7 +48,7 @@ const RegisterExpertProfile: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
-    document.title = "Expert Profile Setup | Network of American Mensa Member Experts";
+    document.title = "Expert Profile Setup | Network of American M-Member Experts";
     
     // Redirect if not logged in
     if (!user) {

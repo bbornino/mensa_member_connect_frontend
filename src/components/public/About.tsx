@@ -4,7 +4,7 @@ import styles from "./About.module.scss";
 
 export default function About() {
   useEffect(() => {
-    document.title = "About | Network of American Mensa Member Experts";
+    document.title = "About | Network of American M-Member Experts";
   }, []);
   return (
     <Container className="centered-container">
@@ -46,7 +46,7 @@ export default function About() {
               </p>
 
               <p className="mb-3">
-                Ian Strock, a long-time American Mensa leader, had been developing an offline version of such a network on Mensa Connect. Meanwhile, Michael Miller independently proposed a similar initiative, MensaMentors. These parallel efforts converged into one unified project, bringing together a talented volunteer team of web designers, engineers, and editors who collaborated to create what is now the Network of American Mensa Member Experts.
+                Ian Strock, a long-time American Mensa leader, had been developing an offline version of such a network on Mensa Connect. Meanwhile, Michael Miller independently proposed a similar initiative, MensaMentors. These parallel efforts converged into one unified project, bringing together a talented volunteer team of web designers, engineers, and editors who collaborated to create what is now the Network of American M-Member Experts.
               </p>
 
               <h2 className={`mb-4 ${styles.sectionHeading}`}>
