@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import type { CredentialResponse } from "@react-oauth/google";
 import { API_BASE_URL } from "../../utils/constants";
+import { GOOGLE_CLIENT_ID } from "../../utils/constants";
 import { formatPhoneNumber, validatePhone } from "../../utils/phoneUtils";
 import { analytics } from "../../utils/analytics";
 import { useAuth } from "../../context/AuthContext";
@@ -11,7 +14,6 @@ import {
   Col,
   Form,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
   FormGroup,
@@ -223,7 +225,7 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
 
   useEffect(() => {
     document.title = "Register | Network of American M-Member Experts";
@@ -383,14 +385,61 @@ const Register: React.FC = () => {
     }
   };
 
+  const handleGoogleRegister = async (credentialResponse: CredentialResponse) => {
+    setError("");
+    setSuccess("");
+
+    const credential = credentialResponse.credential;
+    if (!credential) {
+      setError("Google sign-in did not return a credential.");
+      return;
+    }
+
+    const result = await googleLogin(credential);
+    if (!result.success) {
+      setError(result.error || "Google sign-in failed. Please try again.");
+      return;
+    }
+
+    if (result.needsRegistrationCompletion) {
+      navigate("/register/complete-registration", { replace: true });
+      return;
+    }
+
+    navigate("/experts", { replace: true });
+  };
+
   return (
     <Container className="centered-container">
+      <div className="text-center mt-3">
+        <h4><strong>Register to use the network, either as an expert or an advice seeker</strong></h4>
+      </div>
+
+      {GOOGLE_CLIENT_ID && (
+        <Card className="text-dark bg-light m-3 card-wide">
+          <CardBody>
+            <div className="d-flex justify-content-center">
+              <GoogleLogin
+                onSuccess={handleGoogleRegister}
+                onError={() => setError("Google sign-in failed. Please try again.")}
+                text="continue_with"
+              />
+            </div>
+            <p className="text-muted text-center mt-3" style={{ fontSize: "0.9rem" }}>
+              If you continue with Google, you will complete your membership number and local group on the next screen.
+            </p>
+          </CardBody>
+        </Card>
+      )}
+
+      {GOOGLE_CLIENT_ID && (
+        <div className="text-center my-2">
+          <strong>or</strong>
+        </div>
+      )}
+
       <Form onSubmit={handleRegister}>
         <Card className="text-dark bg-light m-3 card-wide">
-          <CardTitle tag="h5" className="p-3 mb-0">
-            <strong>Register to use the network, either as an expert or an advice seeker</strong>
-          </CardTitle>
-
           <CardBody>
             <Row>
               <Col md={6}>

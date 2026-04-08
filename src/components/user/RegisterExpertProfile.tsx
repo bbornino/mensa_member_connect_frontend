@@ -56,6 +56,11 @@ const RegisterExpertProfile: React.FC = () => {
       return;
     }
 
+    if (!user.member_id || !user.local_group) {
+      navigate("/register/complete-registration", { replace: true });
+      return;
+    }
+
     // Fetch industries
     const fetchIndustries = async () => {
       try {

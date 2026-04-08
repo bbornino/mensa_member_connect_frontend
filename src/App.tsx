@@ -16,6 +16,7 @@ import Logout from "./components/user/Logout";
 import Register from "./components/user/Register";
 import RegisterExpertProfile from "./components/user/RegisterExpertProfile";
 import RegistrationComplete from "./components/user/RegistrationComplete";
+import CompleteRegistration from "./components/user/CompleteRegistration";
 import ForgotPassword from "./components/user/ForgotPassword";
 import ResetPassword from "./components/user/ResetPassword";
 import Profile from "./components/user/EditProfile";
@@ -93,6 +94,10 @@ function App() {
         <Route
           path="/profile"
           element={<ProtectedRoute element={<Profile />} />}
+        />
+        <Route
+          path="/register/complete-registration"
+          element={<ProtectedRoute element={<CompleteRegistration />} />}
         />
         <Route
           path="/register/expert-profile"

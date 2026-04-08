@@ -239,6 +239,7 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
                 >
                   Status <SortIcon field="status" />
                 </th>
+                <th>Expert Profile</th>
                 <th>Edit</th>
               </tr>
             </thead>
@@ -254,6 +255,17 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
                     <Badge color={u.status === "active" ? "success" : "secondary"}>
                       {u.status || "N/A"}
                     </Badge>
+                  </td>
+                  <td className="text-center">
+                    {u.is_expert ? (
+                      <span title="Expert profile completed" aria-label="Expert profile completed">
+                        ✓
+                      </span>
+                    ) : (
+                      <span className="text-muted" title="Expert profile not completed" aria-label="Expert profile not completed">
+                        
+                      </span>
+                    )}
                   </td>
                   <td>
                     <Button color="primary" size="sm" tag={Link} to={`/user/${u.id}`}>

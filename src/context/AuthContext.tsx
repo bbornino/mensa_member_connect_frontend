@@ -2,13 +2,14 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
-import { API_BASE_URL, TOKEN_REFRESH_API_URL } from "../utils/constants";
+import { API_BASE_URL, TOKEN_REFRESH_API_URL, GOOGLE_AUTH_API_URL } from "../utils/constants";
 import { analytics } from "../utils/analytics";
 
 interface AuthContextType {
   user: any | null;
   accessToken: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  googleLogin: (credential: string) => Promise<{ success: boolean; error?: string; needsRegistrationCompletion?: boolean }>;
   logout: () => void;
   refreshAccessToken: () => Promise<void>;
   isLoading: boolean;
@@ -206,6 +207,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const googleLogin = async (credential: string): Promise<{ success: boolean; error?: string; needsRegistrationCompletion?: boolean }> => {
+    try {
+      const response = await axios.post(
+        GOOGLE_AUTH_API_URL,
+        { credential },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      const { access, refresh, user } = response.data;
+
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setAccessToken(access);
+      setUser(user);
+
+      analytics.trackLogin(true);
+      return {
+        success: true,
+        needsRegistrationCompletion: Boolean(response.data.needs_registration_completion),
+      };
+    } catch (err: any) {
+      console.error("Google login failed:", err);
+
+      let errorMessage = "Google sign-in failed. Please try again.";
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        errorMessage = errorData.error || errorData.detail || errorData.message || errorMessage;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      analytics.trackLogin(false, errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const refreshAccessToken = async (): Promise<void> => {
     try {
       await refreshAccessTokenInternal();
@@ -234,7 +273,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, logout, refreshAccessToken, isLoading }}
+      value={{ user, accessToken, login, googleLogin, logout, refreshAccessToken, isLoading }}
     >
       {children}
     </AuthContext.Provider>

@@ -23,7 +23,7 @@ import AdminIndustryTypes from "./AdminIndustryTypes";
 
 const Admin: React.FC = () => {
   const [stats, setStats] = useState<{
-    total_users: number;
+    active_users: number;
     total_experts: number;
     total_expertise: number;
     total_connection_requests: number;
@@ -96,8 +96,8 @@ const Admin: React.FC = () => {
                 <Col md={6} lg={3} className="mb-3">
                   <Card className="h-100" style={{ borderLeft: '4px solid #007bff' }}>
                     <CardBody>
-                      <h6 className="text-muted mb-2"># of Users</h6>
-                      <h3 className="mb-0">{stats?.total_users}</h3>
+                      <h6 className="text-muted mb-2"># of Active Users</h6>
+                      <h3 className="mb-0">{stats?.active_users}</h3>
                     </CardBody>
                   </Card>
                 </Col>
