@@ -13,6 +13,10 @@ import {
   Input,
   Label,
   FormGroup,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
 
 interface LocalGroup {
@@ -54,6 +58,16 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
   const [expertFilter, setExpertFilter] = useState<"all" | "experts" | "non-experts">(
     "all"
   );
+
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  // Email modal state
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
 
   const fetchUsers = useCallback(async () => {
     if (!accessToken) return;
@@ -150,8 +164,82 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
     return sortDirection === "asc" ? <> ▲</> : <> ▼</>;
   };
 
+  const visibleUsers = getSortedAndFilteredUsers();
+  const visibleIds = visibleUsers.map((u) => u.id);
+  const allVisibleSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selectedIds.has(id));
+  const someVisibleSelected = visibleIds.some((id) => selectedIds.has(id));
+
+  const toggleSelectAll = () => {
+    if (allVisibleSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        visibleIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        visibleIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const openEmailModal = () => {
+    setSendResult(null);
+    setEmailSubject("");
+    setEmailBody("");
+    setEmailModalOpen(true);
+  };
+
+  const closeEmailModal = () => {
+    if (!isSending) setEmailModalOpen(false);
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailSubject.trim() || !emailBody.trim()) return;
+    setIsSending(true);
+    setSendResult(null);
+    try {
+      const refreshToken = localStorage.getItem("refresh_token");
+      const result = await customFetch(
+        "users/bulk_email/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_ids: Array.from(selectedIds),
+            subject: emailSubject.trim(),
+            body: emailBody.trim(),
+          }),
+        },
+        accessToken!,
+        refreshToken,
+        navigate
+      );
+      setSendResult({ sent: result.sent, failed: result.failed });
+    } catch (err) {
+      console.error("Failed to send bulk email:", err);
+      setSendResult({ sent: 0, failed: selectedIds.size });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   if (!user || user.role !== "admin") {
-    // In case parent missed it, guard again
     return <Alert color="danger">Access denied. Admin privileges required.</Alert>;
   }
 
@@ -203,6 +291,24 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
         </Col>
       </Row>
 
+      {/* Bulk email action bar */}
+      {selectedIds.size > 0 && (
+        <Row className="mb-3">
+          <Col>
+            <Button color="primary" onClick={openEmailModal}>
+              Send Email to Selected ({selectedIds.size})
+            </Button>
+            <Button
+              color="link"
+              className="ms-2 text-muted"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Clear selection
+            </Button>
+          </Col>
+        </Row>
+      )}
+
       {isLoading ? (
         <div className="text-center">
           <Spinner color="primary" />
@@ -215,6 +321,17 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
           <Table striped hover>
             <thead>
               <tr>
+                <th style={{ width: "40px" }}>
+                  <Input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someVisibleSelected && !allVisibleSelected;
+                    }}
+                    onChange={toggleSelectAll}
+                    aria-label="Select all visible users"
+                  />
+                </th>
                 <th
                   onClick={() => handleSort("name")}
                   style={{ cursor: "pointer", userSelect: "none" }}
@@ -244,8 +361,16 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
               </tr>
             </thead>
             <tbody>
-              {getSortedAndFilteredUsers().map((u) => (
+              {visibleUsers.map((u) => (
                 <tr key={u.id}>
+                  <td>
+                    <Input
+                      type="checkbox"
+                      checked={selectedIds.has(u.id)}
+                      onChange={() => toggleSelect(u.id)}
+                      aria-label={`Select ${u.first_name} ${u.last_name}`}
+                    />
+                  </td>
                   <td>
                     {[u.first_name, u.last_name].filter(Boolean).join(" ") || "N/A"}
                   </td>
@@ -263,7 +388,7 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
                       </span>
                     ) : (
                       <span className="text-muted" title="Expert profile not completed" aria-label="Expert profile not completed">
-                        
+
                       </span>
                     )}
                   </td>
@@ -278,6 +403,71 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
           </Table>
         </div>
       )}
+
+      {/* Bulk email modal */}
+      <Modal isOpen={emailModalOpen} toggle={closeEmailModal} size="lg">
+        <ModalHeader toggle={closeEmailModal}>
+          Send Email to {selectedIds.size} Member{selectedIds.size !== 1 ? "s" : ""}
+        </ModalHeader>
+        <ModalBody>
+          {sendResult ? (
+            <Alert color={sendResult.failed === 0 ? "success" : "warning"} fade={false}>
+              {sendResult.sent > 0 && (
+                <div>Successfully sent to {sendResult.sent} member{sendResult.sent !== 1 ? "s" : ""}.</div>
+              )}
+              {sendResult.failed > 0 && (
+                <div>Failed to send to {sendResult.failed} member{sendResult.failed !== 1 ? "s" : ""}.</div>
+              )}
+            </Alert>
+          ) : (
+            <>
+              <FormGroup>
+                <Label for="emailSubject">Subject</Label>
+                <Input
+                  id="emailSubject"
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Email subject"
+                  disabled={isSending}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="emailBody">Message</Label>
+                <Input
+                  id="emailBody"
+                  type="textarea"
+                  rows={8}
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  placeholder="Write your message here..."
+                  disabled={isSending}
+                />
+              </FormGroup>
+            </>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          {sendResult ? (
+            <Button color="secondary" onClick={closeEmailModal}>
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button
+                color="primary"
+                onClick={handleSendEmail}
+                disabled={isSending || !emailSubject.trim() || !emailBody.trim()}
+              >
+                {isSending ? <><Spinner size="sm" /> Sending...</> : "Send Email"}
+              </Button>
+              <Button color="secondary" onClick={closeEmailModal} disabled={isSending}>
+                Cancel
+              </Button>
+            </>
+          )}
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };
