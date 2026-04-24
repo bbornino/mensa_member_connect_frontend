@@ -7,6 +7,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
+    allowedHosts: ['mensa-name.localhost', 'localhost'],
+    hmr: {
+      host: 'mensa-name.localhost',
+      clientPort: 80,
+      protocol: 'ws',
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
