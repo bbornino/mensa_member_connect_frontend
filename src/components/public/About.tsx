@@ -75,10 +75,6 @@ export default function About() {
                   <span className={styles.localGroup}>Chicago Area Mensa</span>
                 </li>
                 <li className="mb-2">
-                  <strong>Steve Roberts</strong> – Contributor<br />
-                  <span className={styles.localGroup}>Central Texas Mensa</span>
-                </li>
-                <li className="mb-2">
                   <strong>Ian Randal Strock</strong> – Content, SIG Coordinator<br />
                   <span className={styles.localGroup}>Greater New York Mensa</span>
                 </li>
