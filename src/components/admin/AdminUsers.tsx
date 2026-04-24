@@ -322,7 +322,7 @@ const AdminUsers: React.FC<Props> = ({ isActive }) => {
             <thead>
               <tr>
                 <th style={{ width: "40px" }}>
-                  <Input
+                  <input
                     type="checkbox"
                     checked={allVisibleSelected}
                     ref={(el) => {
